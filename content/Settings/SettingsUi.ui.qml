@@ -1,0 +1,112 @@
+import QtQuick 2.15
+import QtQuick.Extras 1.4
+import QtQuick.Layouts 1.11
+import QtQuick.Controls 2.15
+import "../Models"
+
+Item {
+    id: settings_menu
+
+    implicitWidth: 400
+    implicitHeight: 400
+
+    property alias comboBox: comboBox
+    property alias telnetSettings: telnetSettings
+    property alias serialSettings: serialSettings
+    property alias okButton: okButton
+    property alias cancleButton: cancleButton
+
+    Text {
+        text: qsTr("Settings:")
+        anchors.left: parent.left
+        anchors.top: parent.top
+        font.bold: true
+        font.pointSize: 13
+        anchors.leftMargin: 10
+        anchors.topMargin: 10
+    }
+
+    Text {
+        id: text1
+        text: qsTr("Connection Type:")
+        anchors.left: parent.left
+        anchors.right: comboBox.left
+        anchors.top: comboBox.top
+        anchors.bottom: comboBox.bottom
+        font.pixelSize: 12
+        horizontalAlignment: Text.AlignLeft
+        verticalAlignment: Text.AlignVCenter
+        anchors.leftMargin: 10
+        anchors.topMargin: 0
+        anchors.bottomMargin: 0
+        anchors.rightMargin: 6
+    }
+
+    ComboBox {
+        id: comboBox
+        width: 143
+        height: 23
+        textRole: "name"
+        valueRole: "val"
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.rightMargin: 44
+        anchors.topMargin: 40
+        model: ConnectionModel {}
+    }
+
+    SerialSettings {
+        id: serialSettings
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: comboBox.bottom
+        anchors.bottom: okButton.top
+        anchors.rightMargin: 5
+        anchors.leftMargin: 5
+        anchors.bottomMargin: 10
+        anchors.topMargin: 10
+        visible: true
+    }
+
+    TelnetSettings {
+        id: telnetSettings
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: comboBox.bottom
+        anchors.bottom: okButton.top
+        anchors.rightMargin: 5
+        anchors.leftMargin: 5
+        anchors.bottomMargin: 10
+        anchors.topMargin: 10
+        visible: false
+    }
+
+    Button {
+        id: okButton
+        width: 79
+        height: 23
+        text: qsTr("OK")
+        anchors.right: cancleButton.left
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 6
+        anchors.bottomMargin: 16
+    }
+
+    Button {
+        id: cancleButton
+        width: 100
+        height: 23
+        text: qsTr("Cancle")
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 16
+        anchors.bottomMargin: 16
+    }
+}
+
+/*##^##
+Designer {
+    D{i:0}D{i:5;invisible:true}D{i:6;invisible:true}
+}
+##^##*/
+

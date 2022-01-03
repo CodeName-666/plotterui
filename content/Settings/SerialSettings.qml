@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.11
 
 import "../Models"
-import "../Constants"
+import "../../imports/PlotterUi"
 
 Item {
     id: serial_settings

@@ -3,7 +3,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Timeline 1.0
 import QtCharts 2.3
-import "Constants"
+import "../imports/PlotterUi"
 import "Footer"
 import "MainMenu"
 import "ChartWindow"

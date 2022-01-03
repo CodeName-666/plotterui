@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtCharts 2.0
 import QtQuick.Layouts 1.11
 
-Window {
+Item {
     property alias chart: chart
     property alias xAsis: xAxis
     property alias linseries: linseries

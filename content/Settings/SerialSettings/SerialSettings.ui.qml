@@ -7,8 +7,8 @@ import "../../imports/PlotterUi"
 
 Item {
     id: serial_settings
-    implicitWidth:  215
-    implicitHeight:  150
+    implicitWidth: 215
+    implicitHeight: 150
     property var com_ports: []
 
     Rectangle {
@@ -26,7 +26,6 @@ Item {
             spacing: 5
             rows: 5
             columns: 2
-
 
             Text {
                 id: comText
@@ -63,7 +62,7 @@ Item {
                     anchors.centerIn: parent
                     TextInput {
                         id: baudInput
-                        width:  135
+                        width: 135
                         height: 12
                         horizontalAlignment: Text.AlignRight
                         anchors.centerIn: parent
@@ -86,7 +85,6 @@ Item {
                 valueRole: "val"
                 Layout.preferredHeight: 25
                 model: DataSizeModel {}
-
             }
 
             Text {
@@ -103,7 +101,7 @@ Item {
                 textRole: "name"
                 valueRole: "val"
                 height: 23
-                model: ParityBitsModel{}
+                model: ParityBitsModel {}
             }
 
             Text {
@@ -125,21 +123,15 @@ Item {
         }
     }
 
-    function getSettings()
-    {
-        var serial_settings ={"type": 'SERIAL',
-                              "port": comComboBox.currentText,
-                              "baud": parseInt(baudInput.text),
-                              "size": dataSizeComboBox.currentValue,
-                              "parity": parityComboBox.currentValue,
-                              "stop": stopBitsCombo.currentValue}
+    function getSettings() {
+        var serial_settings = {
+            "type": 'SERIAL',
+            "port": comComboBox.currentText,
+            "baud": parseInt(baudInput.text),
+            "size": dataSizeComboBox.currentValue,
+            "parity": parityComboBox.currentValue,
+            "stop": stopBitsCombo.currentValue
+        }
         return serial_settings
-
     }
 }
-
-/*##^##
-Designer {
-    D{i:0;formeditorZoom:1.1}
-}
-##^##*/

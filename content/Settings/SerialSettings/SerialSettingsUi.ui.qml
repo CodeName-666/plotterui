@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.11
 
 import "../Models"
-import "../../imports/PlotterUi"
+import PlotterUi 1.0
 
 Item {
     id: serial_settings

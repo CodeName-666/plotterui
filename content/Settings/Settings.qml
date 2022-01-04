@@ -1,5 +1,5 @@
 import QtQuick 2.15
-import "../../imports/PlotterUi"
+import PlotterUi 1.0
 
 SettingsUi {
 
@@ -11,6 +11,7 @@ SettingsUi {
     /*Signal Handling Implementations*/
     function onComboBoxActivationChanged()
     {
+
            if( comboBox.displayText == "Serial" )
            {
                telnetSettings.visible = false;

@@ -16,122 +16,116 @@ Item {
         border.color: "#b39b72"
         anchors.fill: parent
 
-        Grid {
-            id: grid
+        ColumnLayout {
             anchors.fill: parent
-            bottomPadding: 5
-            rightPadding: 5
-            leftPadding: 5
-            topPadding: 5
+            anchors.rightMargin: 5
+            anchors.leftMargin: 5
+            anchors.bottomMargin: 5
+            anchors.topMargin: 5
             spacing: 5
-            rows: 5
-            columns: 2
 
-            Text {
-                id: comText
-                text: qsTr("COM - Port:")
-                font.pixelSize: 12
-                verticalAlignment: Text.AlignVCenter
-                Layout.preferredHeight: comComboBox.height
-            }
+            GridLayout {
+                columns: 2
+                anchors.fill: parent
 
-            ComboBox {
-                id: comComboBox
-                Layout.preferredHeight: 25
-                height: 20
-                model: com_ports
-            }
+                Text {
+                    id: comText
+                    text: qsTr("COM - Port:")
+                    font.pixelSize: 12
+                    verticalAlignment: Text.AlignVCenter
+                }
 
-            Text {
-                id: baudText
-                Layout.preferredHeight: 25
-                text: qsTr("Baudrate:")
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+                ComboBox {
+                    id: comComboBox
 
-            Item {
-                width: baudInput.width + 5
-                height: baudInput.height + 5
-                Layout.preferredHeight: 25
-                Rectangle {
-                    color: "#e1dfdd"
-                    border.color: "#b39b72"
-                    border.width: 2
-                    anchors.fill: parent
-                    anchors.centerIn: parent
-                    TextInput {
-                        id: baudInput
-                        width: 135
-                        height: 12
-                        horizontalAlignment: Text.AlignRight
-                        anchors.centerIn: parent
-                    }
+                    height: 20
+                    model: com_ports
+                    Layout.fillWidth: true
+                }
+
+                Text {
+                    id: baudText
+
+                    text: qsTr("Baudrate:")
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                TextField {
+                    id: baudInput
+                    width: 135
+                    height: 12
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillWidth: true
+                }
+
+                Text {
+                    id: dataSizeText
+                    Layout.preferredHeight: 25
+                    text: qsTr("Datasize:")
+                    font.pixelSize: 12
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                ComboBox {
+                    id: dataSizeComboBox
+                    height: 23
+                    textRole: "name"
+                    valueRole: "val"
+                    Layout.fillWidth: true
+                    model: DataSizeModel {}
+                }
+
+                Text {
+                    id: parityText
+                    text: qsTr("Parity:")
+                    font.pixelSize: 12
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                ComboBox {
+                    id: parityComboBox
+                    Layout.fillWidth: true
+                    textRole: "name"
+                    valueRole: "val"
+                    height: 23
+                    model: ParityBitsModel {}
+                }
+
+                Text {
+                    id: stopBitsText
+                    text: qsTr("Stop-Bits:")
+                    font.pixelSize: 12
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                ComboBox {
+                    id: stopBitsCombo
+                    Layout.fillWidth: true
+                    textRole: "name"
+                    valueRole: "val"
+                    height: 23
+                    model: StopBitsModel {}
                 }
             }
 
-            Text {
-                id: dataSizeText
-                Layout.preferredHeight: 25
-                text: qsTr("Datasize:")
-                font.pixelSize: 12
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            ComboBox {
-                id: dataSizeComboBox
-                height: 23
-                textRole: "name"
-                valueRole: "val"
-                Layout.preferredHeight: 25
-                model: DataSizeModel {}
-            }
-
-            Text {
-                id: parityText
-                Layout.preferredHeight: 25
-                text: qsTr("Parity:")
-                font.pixelSize: 12
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            ComboBox {
-                id: parityComboBox
-                Layout.preferredHeight: 25
-                textRole: "name"
-                valueRole: "val"
-                height: 23
-                model: ParityBitsModel {}
-            }
-
-            Text {
-                id: stopBitsText
-                Layout.preferredHeight: 25
-                text: qsTr("Stop-Bits:")
-                font.pixelSize: 12
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            ComboBox {
-                id: stopBitsCombo
-                Layout.preferredHeight: 25
-                textRole: "name"
-                valueRole: "val"
-                height: 23
-                model: StopBitsModel {}
+            Item {
+                id: spacer
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                //Rectangle {
+                //    anchors.fill: parent
+                //    color: "#ffaaaa"
+                //}
             }
         }
-    }
-
-    function getSettings() {
-        var serial_settings = {
-            "type": 'SERIAL',
-            "port": comComboBox.currentText,
-            "baud": parseInt(baudInput.text),
-            "size": dataSizeComboBox.currentValue,
-            "parity": parityComboBox.currentValue,
-            "stop": stopBitsCombo.currentValue
-        }
-        return serial_settings
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}D{i:4}D{i:5}D{i:6}D{i:7}D{i:8}D{i:9}D{i:11}
+D{i:12}D{i:14}D{i:15}D{i:3}D{i:17}D{i:2}D{i:1}
+}
+##^##*/
+

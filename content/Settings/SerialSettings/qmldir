@@ -1,2 +1,3 @@
-Module SerialSettings
-SerialSettingsUi 1.0 SerialSettings.ui.qml
+Module Settings.SerialSettings
+SerialSettings 1.0 SerialSettings.qml
+SerialSettingsUi 1.0 SerialSettingsUi.ui.qml

@@ -11,7 +11,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: "grey"
+        color: "#b5b0a7"
 
         ColumnLayout {
             anchors.fill: parent
@@ -61,7 +61,8 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:120;width:350}D{i:2}D{i:1}
+    D{i:0;autoSize:true;height:120;width:350}D{i:4}D{i:5}D{i:6}D{i:7}D{i:3}D{i:8}D{i:2}
+D{i:1}
 }
 ##^##*/
 

@@ -1,0 +1,5 @@
+Module Models
+singleton ComPortModel 1.0 ComPortModel.qml
+singleton ConnectionModel 1.0 ConnectionModel.qml
+singleton ParityBitsModel 1.0 ParityBitsModel.qm
+singleton StopBitsModel 1.0 StopBitsModel.qml

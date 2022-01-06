@@ -105,10 +105,3 @@ Item {
         anchors.bottomMargin: 16
     }
 }
-
-/*##^##
-Designer {
-    D{i:0}D{i:5;invisible:true}D{i:6;invisible:true}
-}
-##^##*/
-

@@ -11,8 +11,6 @@ qt6_add_qml_module(content
         App.qml
         ChartWindow/ChartWindow.qml
         ChartWindow/ChartWindowUi.ui.qml
-        Constants/Constants.qml
-        Constants/DirectoryFontLoader.qml
         Footer/Footer.qml
         Footer/FooterUi.ui.qml
         MainMenu/MainMenu.qml
@@ -22,13 +20,14 @@ qt6_add_qml_module(content
         Models/DataSizeModel.qml
         Models/ParityBitsModel.qml
         Models/StopBitsModel.qml
-        Settings/SerialSettings.qml
         Settings/Settings.qml
         Settings/SettingsUi.ui.qml
-        Settings/TelnetSettings.qml
+        Settings/SerialSettings/SerialSettings.qml
+        Settings/SerialSettings/SerialSettingsUi.ui.qml
+        Settings/TelnetSettings/GridTestUi.ui.qml
+        Settings/TelnetSettings/TelnetSettings.qml
+        Settings/TelnetSettings/TelnetSettingsUi.ui.qml
         Toolbar/Toolbar.qml
         Toolbar/ToolbarUi.ui.qml
-    RESOURCES
-        Constants/BackendInterface.js
 
 )

@@ -17,5 +17,7 @@ qt6_add_qml_module(PlotterUi
         DirectoryFontLoader.qml
         EventListModel.qml
         EventListSimulator.qml
+    RESOURCES
+        BackendInterface.js
 
 )

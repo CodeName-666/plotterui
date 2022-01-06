@@ -25,8 +25,8 @@ Item {
             spacing: 5
 
             GridLayout {
+                Layout.fillWidth: true
                 columns: 2
-                anchors.fill: parent
 
                 Text {
                     id: comText

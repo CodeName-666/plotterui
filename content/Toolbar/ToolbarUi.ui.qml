@@ -2,8 +2,8 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.11
 
-import "../Constants"
-import "../Models"
+import PlotterUi 1.0
+import Models 1.0
 import QtQuick.Extras 1.4
 
 ToolBar {
@@ -95,9 +95,5 @@ ToolBar {
     }
 }
 
-/*##^##
-Designer {
-    D{i:0;formeditorZoom:1.25}
-}
-##^##*/
+
 

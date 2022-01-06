@@ -3,6 +3,8 @@ import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.11
 import QtQuick.Controls 2.15
 import "../Models"
+import "SerialSettings"
+import "TelnetSettings"
 
 Item {
     id: settings_menu

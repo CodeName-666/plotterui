@@ -1,3 +1,4 @@
 Module TelnetSettings
-TelnetSettings 1.0 TelnetSettings.ui.qml
+TelnetSettings 1.0 TelnetSettings.qml
+TelnetSettingsUi 1.0 TelnetSettingsUi.ui.qml
 

@@ -11,6 +11,7 @@ import Models 1.0
 Item {
     id: settings_menu
 
+
     implicitWidth: 400
     implicitHeight: 400
 

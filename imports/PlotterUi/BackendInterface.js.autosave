@@ -3,7 +3,7 @@
 
 var serial_settings
 var telnet_settings
-
+var used_interface
 
 
 

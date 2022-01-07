@@ -3,12 +3,16 @@ import PlotterUi 1.0
 
 SettingsUi {
 
-    /*Signal decleartion*/
-    comboBox.onActivated: onComboBoxActivationChanged()
-    okButton.onClicked:  onOkButtonClicked()
+    /******************************************************************
+     * Signals and Parameter
+     ******************************************************************/
+    comboBox.onActivated:   onComboBoxActivationChanged()
+    okButton.onClicked:     onOkButtonClicked()
     cancleButton.onClicked: onCancleButtonClicked()
 
-    /*Signal Handling Implementations*/
+    /******************************************************************
+     * Callback: onComboBoxActivationChanged
+     ******************************************************************/
     function onComboBoxActivationChanged()
     {
 
@@ -28,20 +32,21 @@ SettingsUi {
            }
        }
 
-
+    /******************************************************************
+     * Callback: onOkButtonClicked
+     ******************************************************************/
     function onOkButtonClicked()
     {
         var config = 0;
         var res;
         if(comboBox.currentText == "Telnet")
         {
-            config = telnetSettings;
-            res = applicationWindow.setSettings(config.getSettings());
+            res = Backend.set_settings(telnetSettings.getSettings());
         }
         else if(comboBox.currentText == "Serial")
         {
             config = serialSettings;
-            res = applicationWindow.setSettings(config.getSettings());
+            res = Backend.set_settings(serialSettings.getSettings());
         }
         else
         {
@@ -58,11 +63,17 @@ SettingsUi {
         }
     }
 
+    /******************************************************************
+     * Callback: onCancleButtonClicked
+     ******************************************************************/
     function onCancleButtonClicked()
     {
         applicationWindow.cancleSettings()
     }
 
+    /******************************************************************
+     * Method: onCancleButtonClicked
+     ******************************************************************/
     function updateComPorts(new_com_ports)
     {
        serialSettings.com_ports = new_com_ports

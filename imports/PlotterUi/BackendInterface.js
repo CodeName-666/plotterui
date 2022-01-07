@@ -16,7 +16,7 @@ function setup(use_backend)
 }
 
 
-function set_settings(type, settings)
+function set_settings(settings)
 {
     if (type === "SERIAL")
     {
@@ -31,5 +31,10 @@ function set_settings(type, settings)
     {
         console.log("INVALID INTERFACE")
     }
+
+}
+
+function connect()
+{
 
 }

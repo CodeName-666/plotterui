@@ -11,9 +11,11 @@ import Models 1.0
 Item {
     id: settings_menu
 
-
     implicitWidth: 400
     implicitHeight: 400
+
+    signal okButtonClicked
+    signal cancleButtonClicked
 
     property alias comboBox: comboBox
     property alias telnetSettings: telnetSettings
@@ -95,6 +97,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.rightMargin: 6
         anchors.bottomMargin: 16
+        onClicked: okButtonClicked()
     }
 
     Button {
@@ -106,5 +109,9 @@ Item {
         anchors.bottom: parent.bottom
         anchors.rightMargin: 16
         anchors.bottomMargin: 16
+    }
+
+    Component.onCompleted:  {
+
     }
 }

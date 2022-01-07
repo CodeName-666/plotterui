@@ -2,6 +2,9 @@ pragma Singleton
 import QtQuick 2.15
 
 QtObject {
+
+    readonly property bool use_simulation_backend: true
+
     readonly property int width: 1280
     readonly property int height: 720
 

@@ -1,5 +1,5 @@
 import QtQuick 2.15
-
+import PlotterUi 1.0
 
 AppUi {
 
@@ -41,5 +41,6 @@ AppUi {
             console.log("Cannot connet")
     }
 
+    Component.onCompleted: Backend.setup(Constants.use_simulation_backend)
 
 }

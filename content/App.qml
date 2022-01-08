@@ -41,6 +41,6 @@ AppUi {
             console.log("Cannot connet")
     }
 
-    Component.onCompleted: Backend.setup(Constants.use_simulation_backend)
+    Component.onCompleted: Backend.setup("BACKEND_SIMULATOR")
 
 }

@@ -4,8 +4,8 @@ import QtQuick.Layouts 1.15
 
 Item {
     id: telnet_settings
-    property alias ipInput: ipInput
     property alias portInput: portInput
+    property alias ipInput: ipInput
     implicitHeight: 120
     implicitWidth: 350
 
@@ -26,24 +26,26 @@ Item {
                 Layout.fillWidth: true
                 columns: 2
                 Text {
-                    id: ipInput
                     text: "IP-Adress/URL:"
                     font.bold: true
                     Layout.alignment: Qt.AlignLeft
                 }
                 TextField {
+                    id: ipInput
                     Layout.fillWidth: true
                 }
 
                 Text {
-                    id: portInput
                     text: "Port:"
                     font.bold: true
                 }
 
                 TextField {
+                    id: portInput
                     Layout.fillWidth: true
+
                 }
+
             }
 
             Item {

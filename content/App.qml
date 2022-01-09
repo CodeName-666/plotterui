@@ -3,6 +3,10 @@ import PlotterUi 1.0
 
 AppUi {
 
+    Component.onCompleted: {
+        BackendInterface.setup("BACKEND_SIMULATOR");
+    }
+
     function acceptSettings()
     {
         console.log("Accept and updae Setting ");
@@ -15,32 +19,29 @@ AppUi {
         settingsPopup.close();
     }
 
-    function updateComPorts()
-    {
-       var new_ports = backend.get_com_ports();
-       settings.updateComPorts(new_ports);
-    }
-
-
-    function setSettings(new_settings)
-    {
-        var res = backend.set_settings(new_settings)
-        if(res === true)
-            console.log("Settings updated")
-        else
-            console.log("Settings update failed")
-        return res;
-    }
-
-    function connect()
-    {
-        var res = backend.connect()
-        if (res === true)
-            console.log("Connected")
-        else
-            console.log("Cannot connet")
-    }
-
-    Component.onCompleted: Backend.setup("BACKEND_SIMULATOR")
-
+   // function updateComPorts()
+   // {
+   //    var new_ports = backend.get_com_ports();
+   //    settings.updateComPorts(new_ports);
+   // }
+//
+//
+   // function setSettings(new_settings)
+   // {
+   //     var res = backend.set_settings(new_settings)
+   //     if(res === true)
+   //         console.log("Settings updated")
+   //     else
+   //         console.log("Settings update failed")
+   //     return res;
+   // }
+//
+   // function connect()
+   // {
+   //     var res = backend.connect()
+   //     if (res === true)
+   //         console.log("Connected")
+   //     else
+   //         console.log("Cannot connet")
+   // }
 }

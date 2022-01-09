@@ -39,8 +39,7 @@ function get_backend_interface(use_backend)
  **************************************************************************/
 function setup(use_backend)
 {
-
-    used_backend_interface = get_backend_interface(use_backend)
+    used_backend_interface = get_backend_interface(use_backend);
     qml_start_up_done = true;
 }
 
@@ -49,33 +48,20 @@ function setup(use_backend)
  **************************************************************************/
 function set_settings(interface_type, settings)
 {
+    var res = false
     if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
     {
-
+       res =  Backend.set_settings(interface_type,settings);
     }
     else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
-
+        res = Simulator.set_settings(interface_type,settings);
     }
     else
     {
 
     }
-
-    if (type === "SERIAL")
-    {
-        serial_settings = settings
-    }
-    else if (type === "TELNET")
-    {
-
-        telnet_settings = settings
-    }
-    else
-    {
-        console.log("INVALID INTERFACE")
-    }
-
+    return res;
 }
 
 function connect()

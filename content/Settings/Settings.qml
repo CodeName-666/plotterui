@@ -3,12 +3,14 @@ import PlotterUi 1.0
 
 SettingsUi {
 
-    /******************************************************************
-     * Signals and Parameter
-     ******************************************************************/
-    comboBox.onActivated:   onComboBoxActivationChanged()
-    okButton.onClicked:     onOkButtonClicked()
-    cancleButton.onClicked: onCancleButtonClicked()
+    id: settings_menu
+
+    Component.onCompleted: {
+        comboBox.activated.connect(onComboBoxActivationChanged)
+        okButton.clicked.connect(onOkButtonClicked)
+        cancleButton.clicked.connect(onCancleButtonClicked)
+
+    }
 
     /******************************************************************
      * Callback: onComboBoxActivationChanged
@@ -28,7 +30,7 @@ SettingsUi {
            }
            else
            {
-               console.log("SettingsUi: Invalid Settingsoption...")
+               BackendInterface.logError("SettingsUi: Invalid Settingsoption...")
            }
        }
 
@@ -41,7 +43,7 @@ SettingsUi {
         var res;
 
         settings = get_settings(comboBox.currentText)
-        BackIf.set_settings(comboBox.currentText, settings)
+        BackendInterface.set_settings(comboBox.currentText, settings)
 
         if(res === true)
         {
@@ -49,7 +51,7 @@ SettingsUi {
         }
         else
         {
-            console.log("Settings Invalid...")
+            BackendInterface.logError("Settings Invalid...")
         }
     }
 
@@ -73,19 +75,22 @@ SettingsUi {
     function get_serial_settings()
     {
         var serial_settings = {
-                "type": 'SERIAL',
-                "port": comComboBox.currentText,
-                "baud": parseInt(baudInput.text),
-                "size": dataSizeComboBox.currentValue,
-                "parity": parityComboBox.currentValue,
-                "stop": stopBitsCombo.currentValue
+                "port": serialSettings.comComboBox.currentText,
+                "baud": parseInt(serialSettings.baudInput.text),
+                "size": serialSettings.dataSizeComboBox.currentValue,
+                "parity": serialSettings.parityComboBox.currentValue,
+                "stop": serialSettings.stopBitsCombo.currentValue
             }
         return serial_settings
     }
 
     function get_telnet_settings()
     {
-
+        var telnet_settings = {
+                "ip": telnetSettings.ipInput.text,
+                "port": parseInt(telnetSettings.portInput.text)
+            }
+        return telnet_settings
     }
 
     /******************************************************************
@@ -103,7 +108,7 @@ SettingsUi {
         }
         else
         {
-            BackIf.logError("")
+            BackendInterface.logError("Invalid Configuration....")
             return 0
         }
     }

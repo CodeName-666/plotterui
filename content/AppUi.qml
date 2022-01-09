@@ -71,8 +71,6 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 text: "Connect"
                 height: 50
-
-                onClicked: connect()
             }
         }
     }

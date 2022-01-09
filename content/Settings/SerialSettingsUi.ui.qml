@@ -10,6 +10,11 @@ Item {
     implicitWidth: 215
     implicitHeight: 150
     property var com_ports: []
+    property alias comComboBox: comComboBox
+    property alias baudInput: baudInput
+    property alias dataSizeComboBox: dataSizeComboBox
+    property alias parityComboBox: parityComboBox
+    property alias stopBitsCombo: stopBitsCombo
 
     Rectangle {
         color: "#b5b0a7"

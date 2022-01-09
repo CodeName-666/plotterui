@@ -11,9 +11,6 @@ Item {
     implicitWidth: 400
     implicitHeight: 400
 
-    signal okButtonClicked
-    signal cancleButtonClicked
-
     property alias comboBox: comboBox
     property alias telnetSettings: telnetSettings
     property alias serialSettings: serialSettings
@@ -94,7 +91,6 @@ Item {
         anchors.bottom: parent.bottom
         anchors.rightMargin: 6
         anchors.bottomMargin: 16
-        onClicked: okButtonClicked()
     }
 
     Button {
@@ -107,8 +103,11 @@ Item {
         anchors.rightMargin: 16
         anchors.bottomMargin: 16
     }
-
-    Component.onCompleted: {
-
-    }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;formeditorZoom:0.66;height:480;width:640}D{i:1}D{i:2}D{i:3}D{i:5}
+D{i:6}D{i:7}D{i:8}
+}
+##^##*/

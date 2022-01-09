@@ -10,6 +10,9 @@ var used_backend_interface
 var qml_start_up_done = false   //true == DONE/ false == NOT DONE
 
 
+/**************************************************************************
+ * FUNCTION: get_backend_interface
+ **************************************************************************/
 function get_backend_interface(use_backend)
 {
     var x = isNaN(use_backend)
@@ -28,8 +31,9 @@ function get_backend_interface(use_backend)
     }
 }
 
-
-
+/**************************************************************************
+ * FUNCTION: setup
+ **************************************************************************/
 function setup(use_backend)
 {
 
@@ -37,7 +41,9 @@ function setup(use_backend)
     qml_start_up_done = true;
 }
 
-
+/**************************************************************************
+ * FUNCTION: set_settings
+ **************************************************************************/
 function set_settings(settings)
 {
     if (type === "SERIAL")

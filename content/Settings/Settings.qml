@@ -78,4 +78,23 @@ SettingsUi {
     {
        serialSettings.com_ports = new_com_ports
     }
+
+
+    function get_serial_settings()
+    {
+        var serial_settings = {
+                "type": 'SERIAL',
+                "port": comComboBox.currentText,
+                "baud": parseInt(baudInput.text),
+                "size": dataSizeComboBox.currentValue,
+                "parity": parityComboBox.currentValue,
+                "stop": stopBitsCombo.currentValue
+            }
+        return serial_settings
+    }
+
+    function get_telnet_settings()
+    {
+
+    }
 }

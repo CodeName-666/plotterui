@@ -3,9 +3,6 @@ import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.11
 import QtQuick.Controls 2.15
 
-import "SerialSettings"
-import "TelnetSettings"
-
 import Models 1.0
 
 Item {
@@ -62,7 +59,7 @@ Item {
         model: ConnectionModel {}
     }
 
-    SerialSettings {
+    SerialSettingsUi {
         id: serialSettings
         anchors.left: parent.left
         anchors.right: parent.right
@@ -75,7 +72,7 @@ Item {
         visible: true
     }
 
-    TelnetSettings {
+    TelnetSettingsUi {
         id: telnetSettings
         anchors.left: parent.left
         anchors.right: parent.right
@@ -111,7 +108,7 @@ Item {
         anchors.bottomMargin: 16
     }
 
-    Component.onCompleted:  {
+    Component.onCompleted: {
 
     }
 }

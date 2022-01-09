@@ -39,19 +39,9 @@ SettingsUi {
     {
         var config = 0;
         var res;
-        if(comboBox.currentText == "Telnet")
-        {
-            res = Backend.set_settings(telnetSettings.getSettings());
-        }
-        else if(comboBox.currentText == "Serial")
-        {
-            config = serialSettings;
-            res = Backend.set_settings(serialSettings.getSettings());
-        }
-        else
-        {
-            //Error Invalid Index - Error Handling needed
-        }
+
+        settings = get_settings(comboBox.currentText)
+        BackIf.set_settings(comboBox.currentText, settings)
 
         if(res === true)
         {
@@ -72,7 +62,7 @@ SettingsUi {
     }
 
     /******************************************************************
-     * Method: onCancleButtonClicked
+     * METHOD: onCancleButtonClicked
      ******************************************************************/
     function updateComPorts(new_com_ports)
     {
@@ -96,5 +86,25 @@ SettingsUi {
     function get_telnet_settings()
     {
 
+    }
+
+    /******************************************************************
+     * METHOD: getSettings
+     ******************************************************************/
+    function get_settings(combo_box_txt)
+    {
+        if(combo_box_txt === "Telnet")
+        {
+            return get_telnet_settings()
+        }
+        else if (combo_box_txt === "Serial")
+        {
+            return get_serial_settings()
+        }
+        else
+        {
+            BackIf.logError("")
+            return 0
+        }
     }
 }

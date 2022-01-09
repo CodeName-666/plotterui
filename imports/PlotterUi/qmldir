@@ -1,5 +1,5 @@
 Module PlotterUi
 singleton Constants 1.0 Constants.qml
 DirectoryFontLoader 1.0 DirectoryFontLoader.qml
-Backend 1.0 BackendInterface.js
+BackIf 1.0 BackendInterface.js
 

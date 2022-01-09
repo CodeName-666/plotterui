@@ -2,6 +2,9 @@
 .import "BackendSimulator.js" as Simulator
 
 
+const UNKOWN_INTERFACE = 0;
+const PYTHON_BACKEND = 1;
+const BACKEND_SIMULATOR = 2;
 var BACKEND_INTERFACES = ["UNKOWN", "PYTHON_BACKEND", "BACKEND_SIMULATOR"];
 
 
@@ -44,8 +47,21 @@ function setup(use_backend)
 /**************************************************************************
  * FUNCTION: set_settings
  **************************************************************************/
-function set_settings(settings)
+function set_settings(interface_type, settings)
 {
+    if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    {
+
+    }
+    else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    {
+
+    }
+    else
+    {
+
+    }
+
     if (type === "SERIAL")
     {
         serial_settings = settings
@@ -65,4 +81,10 @@ function set_settings(settings)
 function connect()
 {
 
+}
+
+
+function log_error(err_msg)
+{
+    console.log(err_msg)
 }

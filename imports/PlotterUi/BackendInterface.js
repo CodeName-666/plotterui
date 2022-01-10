@@ -64,6 +64,12 @@ function set_settings(interface_type, settings)
     return res;
 }
 
+
+function settings_valid()
+{
+
+}
+
 function connect()
 {
 

@@ -18,13 +18,16 @@ ApplicationWindow {
 
     id: applicationWindow
 
-    objectName: Constants.appObjectName
+    objectName: "applicationWindow"
     width: Constants.width
     height: Constants.height
     color: Constants.backgroundColor
     title: qsTr(Constants.title)
     visible: true
 
+    property alias settings: settings
+    property alias settingsPopup: settingsPopup
+    property alias toolbar: toolbar
 
     menuBar: MainMenu {
         id: toolbar

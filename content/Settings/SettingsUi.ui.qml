@@ -16,6 +16,7 @@ Item {
     property alias serialSettings: serialSettings
     property alias okButton: okButton
     property alias cancleButton: cancleButton
+    property var old_settings: ({})
 
     Text {
         text: qsTr("Settings:")
@@ -111,3 +112,4 @@ Designer {
 D{i:6}D{i:7}D{i:8}
 }
 ##^##*/
+

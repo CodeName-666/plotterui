@@ -5,6 +5,9 @@ AppUi {
 
     Component.onCompleted: {
         BackendInterface.setup("BACKEND_SIMULATOR");
+        settings.okButton.clicked.connect(acceptSettings)
+        settings.cancleButton.clicked.connect(cancleSettings)
+        toolbar.settingsButton.triggered.connect(openSettingsMenu)
     }
 
     function acceptSettings()
@@ -17,6 +20,12 @@ AppUi {
     {
         console.log("cancel settings");
         settingsPopup.close();
+    }
+
+    function openSettingsMenu()
+    {
+        settings.backupSettings();
+        settingsPopup.open();
     }
 
    // function updateComPorts()

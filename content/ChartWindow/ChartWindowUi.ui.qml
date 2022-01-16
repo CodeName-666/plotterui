@@ -4,8 +4,8 @@ import QtQuick.Layouts 1.11
 
 Item {
     property alias chart: chart
-    property alias xAsis: xAxis
-    property alias linseries: linseries
+    property alias xAxis: xAxis
+    property alias yAxis: yAxis
 
     ChartView {
         id: chart
@@ -18,13 +18,13 @@ Item {
         ValueAxis {
             id: xAxis
             min: 0
-            max: 100
+            max: 10
         }
 
-        LineSeries {
-            id: linseries
-            name: "LineSeries"
-            axisX: xAxis
+        ValueAxis {
+            id: yAxis
+            min: 0
+            max: 10
         }
     }
 }

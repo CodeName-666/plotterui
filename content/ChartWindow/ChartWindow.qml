@@ -1,37 +1,63 @@
 import QtQuick 2.15
-
+import QtCharts 2.15
 
 ChartWindowUi{
+
+
+   // property alias lineseries : lineseries;
+
+    property var lineseries;
+    property var scaterseries;
+
+    Component.onCompleted:  {
+
+        lineseries = chart.createSeries(ChartView.SeriesTypeLine,"line",xAxis,yAxis)
+        scaterseries = chart.createSeries(ChartView.SeriesTypeLine,"scatter",xAxis,yAxis)
+    }
+/**
+
+    LineSeries {
+        id: lineseries
+        name: "line1"
+
+    }
+*/
+    QtObject {
+        id: params
+        property real m_x: 5;
+        property real m_y: 1
+        property real xPoint: 0
+        property real yPoint: 0
+
+    }
+
+
 
     Timer {
         id: refreshTimer
         //interval: 1 / 60 * 1000 // 60 Hz
-        interval: 250
-        property var sinVal: 0
-        property var count: 1
+        interval: 100
         running: true
-        repeat: false
+        repeat: true
         onTriggered: {
-            //xAsis.max++;
-            //xAsis.tickCount++;
-            if(sinVal <= 360)
-                sinVal ++;
-            else
-                sinVal = 0
 
-            var xPoint = (xAsis.max - xAsis.min) / 2 + xAsis.min;
-            var yPoint = Math.sin1(sinVal)
+
+            params.xPoint = chart.width / xAxis.tickCount
+            params.yPoint = (xAxis.max - xAxis.min)/xAxis.tickCount
+
+
+            params.m_x += params.yPoint;
+            params.m_y = Math.random(10)
+
+            lineseries.append(params.m_x,params.m_y);
+            scaterseries.append(params.m_x,params.m_y + 3);
+
+            chart.scrollRight(params.xPoint);
             console.log("X = ", xPoint, "Y = ", yPoint);
 
-            linseries.append(xPoint,yPoint);
 
-            if(count >= 90)
-            {
-              chart.scrollRight(8.5);
-            }
 
-            count++;
-            //linseries.remove(0)
+            //chart.scrollRight(params.m_x);
         }
     }
 

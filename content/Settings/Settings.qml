@@ -12,6 +12,11 @@ SettingsUi {
 
     }
 
+    function backupSettings()
+    {
+        old_settings = get_settings(comboBox.currentText);
+    }
+
     /******************************************************************
      * Callback: onComboBoxActivationChanged
      ******************************************************************/
@@ -39,20 +44,20 @@ SettingsUi {
      ******************************************************************/
     function onOkButtonClicked()
     {
-        var config = 0;
+        var cSettings = 0;
         var res;
 
-        settings = get_settings(comboBox.currentText)
-        BackendInterface.set_settings(comboBox.currentText, settings)
+        cSettings = get_settings(comboBox.currentText)
+        BackendInterface.set_settings(comboBox.currentText, cSettings)
 
-        if(res === true)
-        {
-            applicationWindow.acceptSettings();
-        }
-        else
-        {
-            BackendInterface.logError("Settings Invalid...")
-        }
+        //if(res === true)
+        //{
+        //    applicationWindow.acceptSettings();
+        //}
+        //else
+        //{
+        //    BackendInterface.logError("Settings Invalid...")
+        //}
     }
 
     /******************************************************************

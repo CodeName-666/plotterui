@@ -11,3 +11,16 @@ function set_settings(type, settings)
     current_interface = type
     return true
 }
+
+
+
+function get_settings()
+{
+
+}
+
+function get_interface()
+{
+
+
+}

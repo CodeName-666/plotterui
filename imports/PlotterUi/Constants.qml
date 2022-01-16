@@ -8,6 +8,8 @@ QtObject {
     readonly property int width: 1280
     readonly property int height: 720
 
+    readonly property string title: "Plooter App"
+
     property alias fontDirectory: directoryFontLoader.fontDirectory
     property alias relativeFontDirectory: directoryFontLoader.relativeFontDirectory
 

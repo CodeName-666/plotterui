@@ -24,10 +24,10 @@ ChartWindowUi{
 */
     QtObject {
         id: params
-        property real m_x: 5;
-        property real m_y: 1
-        property real xPoint: 0
-        property real yPoint: 0
+        property real m_x: 9;
+        property real m_y: 0
+        property real xPoint: 0.0
+        property real yPoint: 0.0
 
     }
 
@@ -42,19 +42,18 @@ ChartWindowUi{
         onTriggered: {
 
 
-            params.xPoint = chart.width / xAxis.tickCount
-            params.yPoint = (xAxis.max - xAxis.min)/xAxis.tickCount
+            params.xPoint = chart.plotArea.width / xAxis.tickCount
+            params.yPoint = (xAxis.max - xAxis.min)/ xAxis.tickCount
 
 
             params.m_x += params.yPoint;
-            params.m_y = Math.random(10)
+            params.m_y = Math.random()
 
             lineseries.append(params.m_x,params.m_y);
             scaterseries.append(params.m_x,params.m_y + 3);
 
             chart.scrollRight(params.xPoint);
-            console.log("X = ", xPoint, "Y = ", yPoint);
-
+            console.log("max=",xAxis.max," min=", xAxis.min ," delta= ",xAxis.max - xAxis.min , " point= ",params.yPoint)
 
 
             //chart.scrollRight(params.m_x);

@@ -13,6 +13,8 @@ ChartWindowUi{
 
         lineseries = chart.createSeries(ChartView.SeriesTypeLine,"line",xAxis,yAxis)
         scaterseries = chart.createSeries(ChartView.SeriesTypeLine,"scatter",xAxis,yAxis)
+
+
     }
 /**
 
@@ -53,7 +55,7 @@ ChartWindowUi{
             scaterseries.append(params.m_x,params.m_y + 3);
 
             chart.scrollRight(params.xPoint);
-            console.log("max=",xAxis.max," min=", xAxis.min ," delta= ",xAxis.max - xAxis.min , " point= ",params.yPoint)
+            //console.log("max=",xAxis.max," min=", xAxis.min ," delta= ",xAxis.max - xAxis.min , " point= ",params.yPoint)
 
 
             //chart.scrollRight(params.m_x);

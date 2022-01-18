@@ -17,6 +17,7 @@ Item {
     property alias okButton: okButton
     property alias cancleButton: cancleButton
     property var old_settings: ({})
+    property alias testSettings: testSettings
 
     Text {
         text: qsTr("Settings:")
@@ -83,6 +84,19 @@ Item {
         visible: false
     }
 
+    TestSettings {
+        id: testSettings
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: comboBox.bottom
+        anchors.bottom: okButton.top
+        anchors.rightMargin: 5
+        anchors.leftMargin: 5
+        anchors.bottomMargin: 10
+        anchors.topMargin: 10
+        visible: false
+    }
+
     Button {
         id: okButton
         width: 79
@@ -109,7 +123,7 @@ Item {
 /*##^##
 Designer {
     D{i:0;autoSize:true;formeditorZoom:0.66;height:480;width:640}D{i:1}D{i:2}D{i:3}D{i:5}
-D{i:6}D{i:7}D{i:8}
+D{i:6}D{i:7}D{i:8}D{i:9}
 }
 ##^##*/
 

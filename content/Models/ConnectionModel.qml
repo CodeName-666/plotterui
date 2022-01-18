@@ -11,4 +11,8 @@ ListModel
         val: "TELNET"
         name: "Telnet"
     }
+    ListElement {
+        val: "TEST"
+        name: "Test"
+    }
 }

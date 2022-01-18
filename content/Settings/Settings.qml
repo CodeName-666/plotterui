@@ -5,44 +5,35 @@ SettingsUi {
 
     id: settings_menu
 
-    Component.onCompleted: {
-        comboBox.activated.connect(onComboBoxActivationChanged)
-        okButton.clicked.connect(onOkButtonClicked)
-        cancleButton.clicked.connect(onCancleButtonClicked)
-
-    }
-
-    function backupSettings()
-    {
-        old_settings = get_settings(comboBox.currentText);
-    }
-
-    /******************************************************************
-     * Callback: onComboBoxActivationChanged
-     ******************************************************************/
-    function onComboBoxActivationChanged()
+    comboBox.onActivated:
     {
 
            if( comboBox.displayText == "Serial" )
            {
                telnetSettings.visible = false;
                serialSettings.visible = true;
+               testSettings.visible = false;
            }
            else if(comboBox.displayText == "Telnet")
            {
                telnetSettings.visible = true;
                serialSettings.visible = false;
+               testSettings.visible = false;
            }
+           else if (comboBox.displayText == "Test")
+           {
+               telnetSettings.visible = false;
+               serialSettings.visible = false;
+               testSettings.visible = true;
+           }
+
            else
            {
                BackendInterface.logError("SettingsUi: Invalid Settingsoption...")
            }
        }
 
-    /******************************************************************
-     * Callback: onOkButtonClicked
-     ******************************************************************/
-    function onOkButtonClicked()
+    okButton.onClicked:
     {
         var cSettings = 0;
         var res;
@@ -60,17 +51,17 @@ SettingsUi {
         //}
     }
 
-    /******************************************************************
-     * Callback: onCancleButtonClicked
-     ******************************************************************/
-    function onCancleButtonClicked()
+
+    cancleButton.onClicked:
     {
         applicationWindow.cancleSettings()
     }
 
-    /******************************************************************
-     * METHOD: onCancleButtonClicked
-     ******************************************************************/
+    function backupSettings()
+    {
+        old_settings = get_settings(comboBox.currentText);
+    }
+
     function updateComPorts(new_com_ports)
     {
        serialSettings.com_ports = new_com_ports
@@ -79,38 +70,47 @@ SettingsUi {
 
     function get_serial_settings()
     {
-        var serial_settings = {
+        return {
                 "port": serialSettings.comComboBox.currentText,
                 "baud": parseInt(serialSettings.baudInput.text),
                 "size": serialSettings.dataSizeComboBox.currentValue,
                 "parity": serialSettings.parityComboBox.currentValue,
                 "stop": serialSettings.stopBitsCombo.currentValue
-            }
-        return serial_settings
+               }
+
     }
 
     function get_telnet_settings()
     {
-        var telnet_settings = {
-                "ip": telnetSettings.ipInput.text,
-                "port": parseInt(telnetSettings.portInput.text)
-            }
-        return telnet_settings
+        return  {
+                 "ip": telnetSettings.ipInput.text,
+                 "port": parseInt(telnetSettings.portInput.text)
+                }
     }
 
-    /******************************************************************
-     * METHOD: getSettings
-     ******************************************************************/
+    function get_test_settings()
+    {
+        return {
+                "name": qstr(testSettings.nameInput.text),
+                "color": testSettings.colorView.color
+               }
+    }
+
     function get_settings(combo_box_txt)
     {
         if(combo_box_txt === "Telnet")
         {
-            return get_telnet_settings()
+            return get_telnet_settings();
         }
         else if (combo_box_txt === "Serial")
         {
-            return get_serial_settings()
+            return get_serial_settings();
         }
+        else if (combo_box_txt === "Test")
+        {
+            return get_test_settings();
+        }
+
         else
         {
             BackendInterface.logError("Invalid Configuration....")

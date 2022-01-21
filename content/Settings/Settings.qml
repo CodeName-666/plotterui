@@ -33,29 +33,20 @@ SettingsUi {
            }
        }
 
-    okButton.onClicked:
-    {
-        var cSettings = 0;
-        var res;
-
-        cSettings = get_settings(comboBox.currentText)
-        BackendInterface.set_settings(comboBox.currentText, cSettings)
-
-        //if(res === true)
-        //{
-        //    applicationWindow.acceptSettings();
-        //}
-        //else
-        //{
-        //    BackendInterface.logError("Settings Invalid...")
-        //}
-    }
-
-
-    cancleButton.onClicked:
-    {
-        applicationWindow.cancleSettings()
-    }
+    //okButton.onClicked:
+    //{
+    //    var cSettings = 0;
+    //    var res;
+//
+    //    cSettings = get_settings(comboBox.currentText)
+    //    BackendInterface.set_settings(comboBox.currentText, cSettings)
+    //}
+//
+//
+    //cancleButton.onClicked:
+    //{
+    //    applicationWindow.cancleSettings()
+    //}
 
     function backupSettings()
     {
@@ -90,10 +81,13 @@ SettingsUi {
 
     function get_test_settings()
     {
-        return {
-                "name": qstr(testSettings.nameInput.text),
-                "color": testSettings.colorView.color
-               }
+        var retVal =  {
+            "name": qsTr(testSettings.nameInput.text),
+            "color": testSettings.colorView.color,
+            "type": qsTr(testSettings.typeCombo.currentText)
+           }
+
+        return retVal;
     }
 
     function get_settings(combo_box_txt)

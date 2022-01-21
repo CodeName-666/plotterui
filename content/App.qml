@@ -12,7 +12,10 @@ AppUi {
 
     function acceptSettings()
     {
-        console.log("Accept and updae Setting ");
+        console.log("Accept and update Setting ");
+        var cSettings =settings.get_settings(settings.comboBox.currentText);
+        BackendInterface.set_settings(settings.comboBox.currentText,cSettings);
+
         settingsPopup.close();
     }
 

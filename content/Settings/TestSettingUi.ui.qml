@@ -4,13 +4,14 @@ import QtQuick.Layouts 1.15
 import QtQuick.Dialogs 1.3
 
 Item {
-    implicitHeight: 120
+    implicitHeight: 200
     implicitWidth: 350
 
     property alias colorDialog: colorDialog
     property alias colorView: colorView
     property alias colorButton: colorButton
     property alias nameInput: nameInput
+    property alias typeCombo: typeCombo
 
     ColorDialog {
         id: colorDialog
@@ -54,6 +55,18 @@ Item {
                     color: "#00ffffff"
                     Layout.preferredHeight: colorButton.height
                     Layout.fillWidth: true
+                }
+
+                Text {
+                    text: "Line Type:"
+                    font.bold: true
+                    Layout.alignment: Qt.AlignLeft
+                }
+
+                ComboBox {
+                    id: typeCombo
+                    Layout.fillWidth: true
+                    model: ["Sinus", "Rectangle", "Line", "Random"]
                 }
             }
 

@@ -11,7 +11,4 @@ TestSettingUi {
     colorDialog.onRejected: colorDialog.close();
 
     colorButton.onClicked: colorDialog.open();
-
-
-
 }

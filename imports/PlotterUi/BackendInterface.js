@@ -1,5 +1,6 @@
 .pragma library
 .import "BackendSimulator.js" as Simulator
+.import QtQuick 2.15 as Quick
 
 
 const UNKOWN_INTERFACE = 0;
@@ -9,7 +10,7 @@ var BACKEND_INTERFACES = ["UNKOWN", "PYTHON_BACKEND", "BACKEND_SIMULATOR"];
 
 
 
-var used_backend_interface
+var used_backend_interface = undefined
 var qml_start_up_done = false   //true == DONE/ false == NOT DONE
 
 
@@ -37,10 +38,22 @@ function get_backend_interface(use_backend)
 /**************************************************************************
  * FUNCTION: setup
  **************************************************************************/
-function setup(use_backend)
+function setup(use_backend, applicationHandle)
 {
     used_backend_interface = get_backend_interface(use_backend);
     qml_start_up_done = true;
+
+    if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    {
+        Simulator.setup(applicationHandle);
+    }
+    else
+    {
+
+    }
+
+
+
 }
 
 /**************************************************************************

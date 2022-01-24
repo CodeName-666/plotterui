@@ -1,6 +1,6 @@
 .pragma library
 .import "BackendSimulator.js" as Simulator
-.import QtQuick 2.15 as Quick
+
 
 
 const UNKOWN_INTERFACE = 0;

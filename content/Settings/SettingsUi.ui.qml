@@ -16,8 +16,10 @@ Item {
     property alias serialSettings: serialSettings
     property alias okButton: okButton
     property alias cancleButton: cancleButton
-    property var old_settings: ({})
     property alias testSettings: testSettings
+
+    property var old_settings: ({})
+    property var old_interface: ({})
 
     Text {
         text: qsTr("Settings:")

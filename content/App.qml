@@ -15,13 +15,13 @@ AppUi {
         console.log("Accept and update Setting ");
         var cSettings =settings.get_settings(settings.comboBox.currentText);
         BackendInterface.set_settings(settings.comboBox.currentText,cSettings);
-
         settingsPopup.close();
     }
 
     function cancleSettings()
     {
         console.log("cancel settings");
+        settings.restoreSettings();
         settingsPopup.close();
     }
 

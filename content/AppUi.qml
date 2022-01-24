@@ -28,6 +28,7 @@ ApplicationWindow {
     property alias settings: settings
     property alias settingsPopup: settingsPopup
     property alias toolbar: toolbar
+    property alias chartWindow: chartWindow
 
     menuBar: MainMenu {
         id: toolbar
@@ -37,7 +38,8 @@ ApplicationWindow {
     contentData: [
 
         ChartWindow {
-           id: chart
+           id: chartWindow
+           objectName: "chartWindow"
            anchors.fill: parent
 
         }

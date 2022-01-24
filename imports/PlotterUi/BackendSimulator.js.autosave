@@ -65,16 +65,16 @@ function backend_simulator_loop()
     switch(current_interface)
     {
        case "Serial" :
-           backend_simulator_serial_loop()
+           backend_simulator_serial_loop();
            break;
        case "Telnet":
-           backend_simulator_telnet_loop()
+           backend_simulator_telnet_loop();
            break;
        case "Test":
-           backend_simulator_test_loop()
+           backend_simulator_test_loop();
            break;
        default:
-
+           log_error("Invalid interface");
            break;
     }
 

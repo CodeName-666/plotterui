@@ -65,37 +65,38 @@ function backend_simulator_loop()
     switch(current_interface)
     {
        case "Serial" :
-           backend_simulator_serial_loop()
+           backend_simulator_serial_loop();
            break;
        case "Telnet":
-           backend_simulator_telnet_loop()
+           backend_simulator_telnet_loop();
            break;
        case "Test":
-           backend_simulator_test_loop()
+           backend_simulator_test_loop();
            break;
        default:
-
+           log_error("Invalid interface");
            break;
     }
 
     console.log("backend_simulator_loop running...");
 }
 
+var serial_counter = 0;
 function backend_simulator_serial_loop()
 {
-
+    log_error("Serial_Loop" + serial_counter++)
 }
 
-
+var telnet_counter = 0;
 function backend_simulator_telnet_loop()
 {
-
+     log_error("Telnet_Loop" + telnet_counter++)
 }
 
-
+var test_counter = 0;
 function backend_simulator_test_loop()
 {
-
+    log_error("Test_Loop" + test_counter++)
 }
 
 function log_error(err_msg)

@@ -81,21 +81,22 @@ function backend_simulator_loop()
     console.log("backend_simulator_loop running...");
 }
 
+var serial_counter = 0;
 function backend_simulator_serial_loop()
 {
-
+    log_error("Serial_Loop - " + serial_counter++)
 }
 
-
+var telnet_counter = 0;
 function backend_simulator_telnet_loop()
 {
-
+     log_error("Telnet_Loop - " + telnet_counter++)
 }
 
-
+var test_counter = 0;
 function backend_simulator_test_loop()
 {
-
+    log_error("Test_Loop - " + test_counter++)
 }
 
 function log_error(err_msg)

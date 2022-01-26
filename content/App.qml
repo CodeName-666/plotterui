@@ -3,6 +3,11 @@ import PlotterUi 1.0
 
 AppUi {
 
+    connectButton.onClicked:
+    {
+        BackendInterface.connect()
+    }
+
     Component.onCompleted: {
         BackendInterface.setup("BACKEND_SIMULATOR", this);
         settings.okButton.clicked.connect(acceptSettings)
@@ -48,12 +53,5 @@ AppUi {
    //     return res;
    // }
 //
-   // function connect()
-   // {
-   //     var res = backend.connect()
-   //     if (res === true)
-   //         console.log("Connected")
-   //     else
-   //         console.log("Cannot connet")
-   // }
+
 }

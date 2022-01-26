@@ -47,6 +47,10 @@ function setup(use_backend, applicationHandle)
     {
         Simulator.setup(applicationHandle);
     }
+    else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    {
+
+    }
     else
     {
 
@@ -85,7 +89,18 @@ function settings_valid()
 
 function connect()
 {
+    if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    {
+       res =  Backend.connect();
+    }
+    else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    {
+        res = Simulator.connect();
+    }
+    else
+    {
 
+    }
 }
 
 

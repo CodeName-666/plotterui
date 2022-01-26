@@ -29,6 +29,7 @@ ApplicationWindow {
     property alias settingsPopup: settingsPopup
     property alias toolbar: toolbar
     property alias chartWindow: chartWindow
+    property alias connectButton: connectButton
 
     menuBar: MainMenu {
         id: toolbar

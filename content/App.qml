@@ -35,23 +35,4 @@ AppUi {
         settings.backupSettings();
         settingsPopup.open();
     }
-
-   // function updateComPorts()
-   // {
-   //    var new_ports = backend.get_com_ports();
-   //    settings.updateComPorts(new_ports);
-   // }
-//
-//
-   // function setSettings(new_settings)
-   // {
-   //     var res = backend.set_settings(new_settings)
-   //     if(res === true)
-   //         console.log("Settings updated")
-   //     else
-   //         console.log("Settings update failed")
-   //     return res;
-   // }
-//
-
 }

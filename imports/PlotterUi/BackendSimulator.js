@@ -53,17 +53,17 @@ function set_settings(type, settings) {
  ******************************************************************/
 function connect() {
     switch (current_interface) {
-    case "Test":
-        if (settings_valid()) {
-            connected = true;
-            create_demo_lines();
-        }
-        break
-    case "Serial":
-    case "Telnet":
-    default:
-        log_error("no simulation avalilable")
-        break
+        case "Test":
+            if (settings_valid()) {
+                connected = true;
+                create_demo_lines();
+            }
+            break
+        case "Serial":
+        case "Telnet":
+        default:
+            log_error("no simulation avalilable")
+            break
     }
 }
 
@@ -109,7 +109,7 @@ function Timer(interval, repeat = false, start = false, callback = undefined) {
  ******************************************************************/
 function backend_simulator_loop() {
 
-    if(is_connected) {
+    if(is_connected()) {
         switch (current_interface) {
         case "Serial":
             backend_simulator_serial_loop()
@@ -126,7 +126,7 @@ function backend_simulator_loop() {
         }
     }
 
-    log_error("backend_simulator_loop running...")
+    //log_error("backend_simulator_loop running...")
 }
 
 /*******************************************************************
@@ -162,7 +162,7 @@ function create_line(name, color = undefined) {
  * FUNCTION
  ******************************************************************/
 function settings_valid() {
-    if (current_settings !== undefinend && current_interface !== undefined) {
+    if (current_settings !== undefined && current_interface !== undefined) {
         return true
     } else {
         return false
@@ -190,7 +190,7 @@ function create_demo_lines() {
  ******************************************************************/
 function is_connected()
 {
-    return connected()
+    return connected;
 }
 
 /*******************************************************************

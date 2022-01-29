@@ -14,9 +14,9 @@ var used_backend_interface = undefined
 var qml_start_up_done = false   //true == DONE/ false == NOT DONE
 
 
-/**************************************************************************
- * FUNCTION: get_backend_interface
- **************************************************************************/
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function get_backend_interface(use_backend)
 {
     if(!isNaN(use_backend))
@@ -34,9 +34,9 @@ function get_backend_interface(use_backend)
     }
 }
 
-/**************************************************************************
- * FUNCTION: setup
- **************************************************************************/
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function setup(use_backend, applicationHandle)
 {
     used_backend_interface = get_backend_interface(use_backend);
@@ -56,9 +56,9 @@ function setup(use_backend, applicationHandle)
     }
 }
 
-/**************************************************************************
- * FUNCTION: set_settings
- **************************************************************************/
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function set_settings(interface_type, settings)
 {
     var res = false
@@ -77,9 +77,9 @@ function set_settings(interface_type, settings)
     return res;
 }
 
-/**************************************************************************
- * FUNCTION: get_settings
- **************************************************************************/
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function get_settings(interface_type)
 {
     if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
@@ -97,7 +97,9 @@ function get_settings(interface_type)
     return undefined;
 }
 
-
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function settings_valid()
 {
     var ret = false;
@@ -116,6 +118,9 @@ function settings_valid()
     return ret;
 }
 
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function connect()
 {
     if(settings_valid())
@@ -135,6 +140,9 @@ function connect()
     }
 }
 
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function is_connected()
 {
     var res = false;
@@ -153,7 +161,9 @@ function is_connected()
     return res;
 }
 
-
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function log_error(err_msg)
 {
     console.log(err_msg)

@@ -48,8 +48,8 @@ Item {
                     Layout.fillWidth: true
                 }
 
-                Button {
-                    id: colorButton
+                Text {
+                    id: colorText
                     text: "Color:"
                     font.bold: true
                 }
@@ -57,8 +57,14 @@ Item {
                 Rectangle {
                     id: colorView
                     color: "#00ffffff"
-                    Layout.preferredHeight: colorButton.height
+                    border.width: 2
+                    border.color: "#ababab"
+                    Layout.preferredHeight: nameInput.height
                     Layout.fillWidth: true
+                    MouseArea {
+                        id: colorButton
+                        anchors.fill: parent
+                    }
                 }
 
                 Text {

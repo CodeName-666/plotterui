@@ -118,8 +118,8 @@ SettingsUi {
 
     function set_serial_settings(settings)
     {
+       set_combobox(serialSettings.comComboBox, settings["port"]);
 
-       serialSettings.comComboBox.currentText = settings["port"];
        serialSettings.baudInput.text = settings["baud"];
        serialSettings.dataSizeComboBox.currentValue =  settings["size"];
        serialSettings.parityComboBox.currentValue = settings["parity"];
@@ -131,7 +131,7 @@ SettingsUi {
     {
         testSettings.nameInput.text = settings["name"];
         testSettings.colorView.color = settings["color"];
-        testSettings.typeCombo.currentText = settings["type"];
+        set_combobox(testSettings.typeCombo,settings["type"]);
     }
 
     function set_settings(interface_name, settings)
@@ -155,4 +155,17 @@ SettingsUi {
             return 0
         }
     }
+
+
+    function set_combobox(combobox, txt, type = "txt")
+    {
+         var idx = combobox.find(txt, Qt.MatchExactly);
+         comboBox.currentIndex = idx;
+    }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/

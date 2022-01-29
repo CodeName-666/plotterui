@@ -54,7 +54,7 @@ function connect()
     {
        case "Test":
            connected = true;
-           if (get_settings() !== undefined)
+           if (settings_valid())
            {
 
            }
@@ -154,7 +154,7 @@ function create_line(name, color = undefined)
 
 function settings_valid()
 {
-    if(current_settings !== undefinend)
+    if(current_settings !== undefinend && current_interface !== undefined)
     {
         return true;
     }
@@ -168,7 +168,14 @@ function settings_valid()
 function create_demo_lines()
 {
     for (let i = 0; i < DEMO_LINE_CONFIG.length; i++) {
+        var s = DEMO_LINE_CONFIG[i];
+        signal_list[i] = create_line(s["name"],s["color"]);
+    }
 
+    if (settings_valid())
+    {
+        var last_idx = signal_list.length -1;
+        signal_list[last_idx] = create_line(current_settings["name"],current_settings["color"]);
     }
 }
 

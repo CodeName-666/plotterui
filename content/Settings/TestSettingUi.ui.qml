@@ -70,25 +70,23 @@ Item {
                 ComboBox {
                     id: typeCombo
                     Layout.fillWidth: true
-                    model: ["Sinus", "Rectangle", "Line", "Random"]
+                    model: ["Sinus", "Rectangle", "Ramp", "Line", "Random"]
                 }
 
                 Button {
                     visible: false
                     text: "Add"
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                     Layout.fillWidth: true
+                    Layout.fillWidth: true
                 }
 
                 Button {
                     visible: false
                     text: "Delete"
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                     //Layout.fillWidth: true
+                    //Layout.fillWidth: true
                 }
             }
-
-
 
             Item {
                 id: spacer

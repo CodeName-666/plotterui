@@ -1,18 +1,34 @@
 .import QtQuick 2.15 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
+.import "Random.js" as Random
 
+//--- Simulator Setup ----
+var application_handle = undefined                  // Main application object (applicationWindow)
+var update_timer = undefined                        // Cycle Timer (equal Thread) as Mainloop for the Chart
+var setup_done = false                              // Setup flag to verify is setup was done
 
-var application_handle = undefined
-var update_timer = undefined
-var setup_done = false
-
+//--- UI/Backend parameter
 var current_settings = undefined
 var current_interface = undefined
 
-var signal_list = []
+var signal_list = []                                // List of demo signals/Lines in the chart
 var connected = false
 
+//--- Demo Lines Config ---
+var DEMO_LINE_CONFIG = [
+    {
+        "name": "DEMO_1",
+        "color": 0xffffff,
+        "type": "SIN"
+    },
+
+    {
+       "name": "DEMO_2",
+       "color": 0xffffff,
+       "type": "SIN"
+    },
+]
 
 
 function setup(application)
@@ -124,10 +140,15 @@ function backend_simulator_test_loop()
 }
 
 
-function create_line(name)
+function create_line(name, color = undefined)
 {
     var chartUi = application_handle.chartWindow;
     var line = chartUi.chart.createSeries(QuickCharts.ChartView.SeriesTypeLine,name,chartUi.xAxis,chartUi.yAxis);
+    if (color === undefined)
+    {
+        color = Random.getRandomInt(0xFFFFFF);
+    }
+    line.color = color;
     return line;
 }
 
@@ -144,6 +165,12 @@ function settings_valid()
 
 }
 
+function create_demo_lines()
+{
+    for (let i = 0; i < DEMO_LINE_CONFIG.length; i++) {
+
+    }
+}
 
 function log_error(err_msg)
 {

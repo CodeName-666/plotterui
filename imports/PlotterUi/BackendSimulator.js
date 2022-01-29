@@ -11,7 +11,7 @@ var current_settings = undefined
 var current_interface = undefined
 
 var signal_list = []
-
+var connected = false
 
 
 
@@ -21,29 +21,44 @@ function setup(application)
     setup_done = true;
     update_timer = new Timer(10,true, true, backend_simulator_loop);
     log_error("SIMULATOR setup done");
-
-    create_line("Test");
-
 }
 
 function set_settings(type, settings)
 {
-    current_settings = settings
-    current_interface = type
+    current_settings = settings;
+    current_interface = type;
+    log_error(current_interface);
+    log_error(current_settings);
     return true
 }
 
-
-
-function get_settings()
+function connect()
 {
+    switch(current_interface)
+    {
+       case "Test":
+           connected = true;
+           if (get_settings() !== undefined)
+           {
 
+           }
+           break;
+       case "Serial" :
+       case "Telnet":
+       default:
+           log_error("no simulation avalilable");
+           break;
+    }
+}
+
+function get_settings(interface_type)
+{
+    return current_settings;
 }
 
 function get_interface()
 {
-
-
+    return current_interface;
 }
 
 function Timer(interval, repeat = false, start = false, callback = undefined) {
@@ -90,22 +105,22 @@ function backend_simulator_loop()
     log_error("backend_simulator_loop running...");
 }
 
-var serial_counter = 0;
+
 function backend_simulator_serial_loop()
 {
-    log_error("Serial_Loop - " + serial_counter++);
+
 }
 
-var telnet_counter = 0;
+
 function backend_simulator_telnet_loop()
 {
-     log_error("Telnet_Loop - " + telnet_counter++);
+
 }
 
-var test_counter = 0;
+
 function backend_simulator_test_loop()
 {
-    log_error("Test_Loop - " + test_counter++);
+
 }
 
 
@@ -116,8 +131,21 @@ function create_line(name)
     return line;
 }
 
+function settings_valid()
+{
+    if(current_settings !== undefinend)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+}
+
 
 function log_error(err_msg)
 {
-    //console.log(err_msg)
+    console.log(err_msg)
 }

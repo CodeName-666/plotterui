@@ -12,6 +12,7 @@ Item {
     property alias colorButton: colorButton
     property alias nameInput: nameInput
     property alias typeCombo: typeCombo
+    height: 300
 
     ColorDialog {
         id: colorDialog
@@ -31,6 +32,9 @@ Item {
             spacing: 5
 
             GridLayout {
+                Layout.columnSpan: 1
+                Layout.rowSpan: 1
+                Layout.minimumWidth: 0
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 columns: 2
@@ -68,7 +72,23 @@ Item {
                     Layout.fillWidth: true
                     model: ["Sinus", "Rectangle", "Line", "Random"]
                 }
+
+                Button {
+                    visible: false
+                    text: "Add"
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                     Layout.fillWidth: true
+                }
+
+                Button {
+                    visible: false
+                    text: "Delete"
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                     //Layout.fillWidth: true
+                }
             }
+
+
 
             Item {
                 id: spacer

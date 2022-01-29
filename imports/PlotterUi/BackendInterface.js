@@ -19,7 +19,6 @@ var qml_start_up_done = false   //true == DONE/ false == NOT DONE
  **************************************************************************/
 function get_backend_interface(use_backend)
 {
-    var x = isNaN(use_backend)
     if(!isNaN(use_backend))
     {
         return BACKEND_INTERFACES[use_backend];
@@ -55,9 +54,6 @@ function setup(use_backend, applicationHandle)
     {
 
     }
-
-
-
 }
 
 /**************************************************************************
@@ -81,26 +77,80 @@ function set_settings(interface_type, settings)
     return res;
 }
 
-
-function settings_valid()
-{
-
-}
-
-function connect()
+/**************************************************************************
+ * FUNCTION: get_settings
+ **************************************************************************/
+function get_settings(interface_type)
 {
     if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
     {
-       res =  Backend.connect();
+       return Backend.get_settings(interface_type);
     }
     else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
-        res = Simulator.connect();
+        return Simulator.get_settings(interface_type);
     }
     else
     {
 
     }
+    return undefined;
+}
+
+
+function settings_valid()
+{
+    var ret = false;
+    if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    {
+        ret = Backend.settings_valid();
+    }
+    else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    {
+        ret = Simulator.settings_valid();
+    }
+    else
+    {
+
+    }
+    return ret;
+}
+
+function connect()
+{
+    if(settings_valid())
+    {
+        if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+        {
+            Backend.connect();
+        }
+        else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+        {
+            Simulator.connect();
+        }
+        else
+        {
+
+        }
+    }
+}
+
+function is_connected()
+{
+    var res = false;
+    if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    {
+       res =  Backend.is_connect();
+    }
+    else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    {
+        res = Simulator.is_connect();
+    }
+    else
+    {
+
+    }
+    return res;
 }
 
 

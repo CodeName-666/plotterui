@@ -49,3 +49,5 @@ Thumbs.db
 *.wmv
 
 PlotterUi.qmlproject.qtds
+translations.db-shm
+translations.db-wal

@@ -60,8 +60,8 @@ SettingsUi {
         return {
                 "port": serialSettings.comComboBox.currentText,
                 "baud": parseInt(serialSettings.baudInput.text),
-                "size": serialSettings.dataSizeComboBox.currentValue,
-                "parity": serialSettings.parityComboBox.currentValue,
+                "size": serialSettings.dataSizeComboBox.currentText,
+                "parity": serialSettings.parityComboBox.currentText,
                 "stop": serialSettings.stopBitsCombo.currentValue
                }
 
@@ -119,12 +119,10 @@ SettingsUi {
     function set_serial_settings(settings)
     {
        set_combobox(serialSettings.comComboBox, settings["port"]);
-
+       set_combobox(serialSettings.dataSizeComboBox,settings["size"]);
+       set_combobox(serialSettings.parityComboBox, settings["parity"]);
+       set_combobox(serialSettings.stopBitsCombo, settings["stop"]);
        serialSettings.baudInput.text = settings["baud"];
-       serialSettings.dataSizeComboBox.currentValue =  settings["size"];
-       serialSettings.parityComboBox.currentValue = settings["parity"];
-       serialSettings.stopBitsCombo.currentValue = settings["stop"];
-
     }
 
     function set_test_settings(settings)

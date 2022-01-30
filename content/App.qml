@@ -9,7 +9,7 @@ AppUi {
     }
 
     Component.onCompleted: {
-        BackendInterface.setup("BACKEND_SIMULATOR", this);
+        Setup.setup("BACKEND_SIMULATOR", this);
         settings.okButton.clicked.connect(acceptSettings)
         settings.cancleButton.clicked.connect(cancleSettings)
         toolbar.settingsButton.triggered.connect(openSettingsMenu)

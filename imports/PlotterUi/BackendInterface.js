@@ -1,60 +1,7 @@
 .pragma library
 .import "BackendSimulator.js" as Simulator
+.import "Setup.js" as Setup
 
-
-
-const UNKOWN_INTERFACE = 0;
-const PYTHON_BACKEND = 1;
-const BACKEND_SIMULATOR = 2;
-var BACKEND_INTERFACES = ["UNKOWN", "PYTHON_BACKEND", "BACKEND_SIMULATOR"];
-
-
-
-var used_backend_interface = undefined
-var qml_start_up_done = false   //true == DONE/ false == NOT DONE
-
-
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function get_backend_interface(use_backend)
-{
-    if(!isNaN(use_backend))
-    {
-        return BACKEND_INTERFACES[use_backend];
-    }
-    else
-    {
-        for (let i = 0; i < BACKEND_INTERFACES.length; i++) {
-            if(use_backend === BACKEND_INTERFACES[i])
-            {
-                return BACKEND_INTERFACES[i]
-            }
-        }
-    }
-}
-
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function setup(use_backend, applicationHandle)
-{
-    used_backend_interface = get_backend_interface(use_backend);
-    qml_start_up_done = true;
-
-    if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
-    {
-        Simulator.setup(applicationHandle);
-    }
-    else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
-    {
-
-    }
-    else
-    {
-
-    }
-}
 
 /*******************************************************************
  * FUNCTION
@@ -62,11 +9,11 @@ function setup(use_backend, applicationHandle)
 function set_settings(interface_type, settings)
 {
     var res = false
-    if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    if(Setup.is_interface(Setup.PYTHON_BACKEND))
     {
        res =  Backend.set_settings(interface_type,settings);
     }
-    else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    else if(Setup.is_interface(Setup.BACKEND_SIMULATOR))
     {
         res = Simulator.set_settings(interface_type,settings);
     }
@@ -82,11 +29,11 @@ function set_settings(interface_type, settings)
  ******************************************************************/
 function get_settings(interface_type)
 {
-    if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    if(Setup.is_interface(Setup.PYTHON_BACKEND))
     {
        return Backend.get_settings(interface_type);
     }
-    else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    else if(Setup.is_interface(Setup.BACKEND_SIMULATOR))
     {
         return Simulator.get_settings(interface_type);
     }
@@ -103,11 +50,11 @@ function get_settings(interface_type)
 function settings_valid()
 {
     var ret = false;
-    if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    if(Setup.is_interface(Setup.PYTHON_BACKEND))
     {
         ret = Backend.settings_valid();
     }
-    else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    else if(Setup.is_interface(Setup.BACKEND_SIMULATOR))
     {
         ret = Simulator.settings_valid();
     }
@@ -125,11 +72,11 @@ function connect()
 {
     if(settings_valid())
     {
-        if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+        if(Setup.is_interface(Setup.PYTHON_BACKEND))
         {
             Backend.connect();
         }
-        else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+        else if(Setup.is_interface(Setup.BACKEND_INTERFACES))
         {
             Simulator.connect();
         }
@@ -146,11 +93,11 @@ function connect()
 function is_connected()
 {
     var res = false;
-    if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    if(Setup.is_interface(Setup.PYTHON_BACKEND))
     {
        res =  Backend.is_connect();
     }
-    else if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    else if(Setup.is_interface(Setup.BACKEND_SIMULATOR))
     {
         res = Simulator.is_connect();
     }

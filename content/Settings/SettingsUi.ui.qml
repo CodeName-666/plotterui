@@ -57,7 +57,16 @@ Item {
         anchors.top: parent.top
         anchors.rightMargin: 44
         anchors.topMargin: 40
-        model: ConnectionModel {}
+        model: [{
+                "val": "SERIAL",
+                "name": "Serial"
+            }, {
+                "val": "TELNET",
+                "name": "Telnet"
+            }, {
+                "val": "TEST",
+                "name": "Test"
+            }]
     }
 
     SerialSettingsUi {
@@ -124,8 +133,8 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorZoom:0.66;height:480;width:640}D{i:1}D{i:2}D{i:3}D{i:5}
-D{i:6}D{i:7}D{i:8}D{i:9}
+    D{i:0;autoSize:true;formeditorZoom:0.66;height:480;width:640}D{i:1}D{i:2}D{i:3}D{i:4}
+D{i:5}D{i:6}D{i:7}D{i:8}
 }
 ##^##*/
 

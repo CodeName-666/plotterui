@@ -9,6 +9,7 @@ AppUi {
     }
 
     Component.onCompleted: {
+
         Setup.setup("BACKEND_SIMULATOR", this);
         settings.okButton.clicked.connect(acceptSettings)
         settings.cancleButton.clicked.connect(cancleSettings)
@@ -34,5 +35,10 @@ AppUi {
     {
         settings.backupSettings();
         settingsPopup.open();
+    }
+
+    function setConfig()
+    {
+
     }
 }

@@ -70,11 +70,11 @@ function setup(use_backend, applicationHandle)
 
     if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
-        Simulator.setup(applicationHandle);
+        Simulator.setup_done(applicationHandle);
     }
     else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
     {
-
+        Backend.setup_done()  	
     }
     else
     {

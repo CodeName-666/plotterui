@@ -6,7 +6,7 @@
 //--- Simulator Setup ----
 var application_handle = undefined // Main application object (applicationWindow)
 var update_timer = undefined // Cycle Timer (equal Thread) as Mainloop for the Chart
-var setup_done = false // Setup flag to verify is setup was done
+var setup_done_status = false // Setup flag to verify is setup was done
 
 //--- UI/Backend parameter
 var current_settings = undefined
@@ -30,9 +30,9 @@ var DEMO_LINE_CONFIG = [{
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function setup(application) {
+function setup_done(application) {
     application_handle = application
-    setup_done = true
+    setup_done_status = true
     update_timer = new Timer(10, true, true, backend_simulator_loop)
     log_error("SIMULATOR setup done")
 }
@@ -85,7 +85,7 @@ function get_interface() {
  * FUNCTION
  ******************************************************************/
 function Timer(interval, repeat = false, start = false, callback = undefined) {
-    if (setup_done) {
+    if (setup_done_status) {
         var cTimer = Qt.createQmlObject(' import QtQuick 2.15; Timer {}',
                                         application_handle)
         cTimer.interval = interval

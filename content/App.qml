@@ -10,7 +10,18 @@ AppUi {
 
     Component.onCompleted: {
 
-        Setup.setup("BACKEND_SIMULATOR", this);
+        if(typeof Backend !== 'undefined')
+        {
+            Setup.setup("PYTHON_BACKEND", this, Backend);
+            console.log("BACKEND setup")
+        }
+        else
+        {
+             Setup.setup("BACKEND_SIMULATOR", this);
+            console.log("Simulator setup");
+        }
+
+
         settings.okButton.clicked.connect(acceptSettings)
         settings.cancleButton.clicked.connect(cancleSettings)
         toolbar.settingsButton.triggered.connect(openSettingsMenu)

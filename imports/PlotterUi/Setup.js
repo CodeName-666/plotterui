@@ -75,10 +75,9 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     }
     else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
     {
-        if (python_backend_object !== undefinend)
+        if (python_backend_object !== 'undefinend')
         {
-            Provider.set_js_backend(python_backend_object)
-            Provider.obj.setup_done()
+            Provider.setup(python_backend_object)
         }
     }
     else

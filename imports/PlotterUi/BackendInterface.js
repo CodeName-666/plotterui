@@ -1,117 +1,115 @@
 .pragma library
-.import "BackendSimulator.js" as Simulator
-.import "Setup.js" as Setup
+.import "BackendSimulator.js" as Simulator.import "BackendProvider.js" as Provider.import "Setup.js" as Setup
 
-
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function set_settings(interface_type, settings)
-{
-    var res = false
-    if(Setup.is_interface(Setup.PYTHON_BACKEND))
-    {
-       res =  Backend.set_settings(interface_type,settings);
+function get_interface() {
+    var interface
+    if (Setup.is_interface(Setup.PYTHON_BACKEND)) {
+        interface = Provider
+    } else if (Setup.is_interface(Setup.BACKEND_SIMULATOR)) {
+        interface = Simulator
+    } else {
+        log_error("Invalid Interface")
+        interface = undefined
     }
-    else if(Setup.is_interface(Setup.BACKEND_SIMULATOR))
-    {
-        res = Simulator.set_settings(interface_type,settings);
-    }
-    else
-    {
-
-    }
-    return res;
+    return interface
 }
 
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function get_settings(interface_type)
-{
-    if(Setup.is_interface(Setup.PYTHON_BACKEND))
-    {
-       return Backend.get_settings(interface_type);
-    }
-    else if(Setup.is_interface(Setup.BACKEND_SIMULATOR))
-    {
-        return Simulator.get_settings(interface_type);
-    }
-    else
-    {
-
-    }
-    return undefined;
+function set_settings(interface_type, settings) {
+    return get_interface().set_settings(interface_type, settings)
 }
 
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function settings_valid()
-{
-    var ret = false;
-    if(Setup.is_interface(Setup.PYTHON_BACKEND))
-    {
-        ret = Backend.settings_valid();
-    }
-    else if(Setup.is_interface(Setup.BACKEND_SIMULATOR))
-    {
-        ret = Simulator.settings_valid();
-    }
-    else
-    {
-
-    }
-    return ret;
+function get_settings(interface_type) {
+    return get_interface().get_settings(interface_type)
 }
 
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function connect()
-{
-    if(settings_valid())
-    {
-        if(Setup.is_interface(Setup.PYTHON_BACKEND))
-        {
-            Backend.connect();
-        }
-        else if(Setup.is_interface(Setup.BACKEND_INTERFACES))
-        {
-            Simulator.connect();
-        }
-        else
-        {
+function settings_valid() {
+    return get_interface().settings_valid()
+}
 
-        }
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function connect() {
+    if (settings_valid()) {
+        get_interface().connect()
+    } else {
+        log_error("invalid settings")
     }
 }
 
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function is_connected()
-{
-    var res = false;
-    if(Setup.is_interface(Setup.PYTHON_BACKEND))
-    {
-       res =  Backend.is_connect();
-    }
-    else if(Setup.is_interface(Setup.BACKEND_SIMULATOR))
-    {
-        res = Simulator.is_connect();
-    }
-    else
-    {
-
-    }
-    return res;
+function is_connected() {
+    return get_interface().is_connect();
 }
 
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function log_error(err_msg)
-{
-    console.log(err_msg)
+function log_error(msg) {
+    var interface = get_interface();
+    if(interface !== undefined)
+    {
+        interface.log_error(msg);
+    }else {
+        console.log(msg);
+    }
+}
+
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function log_warning(msg) {
+    var interface = get_interface();
+    if(interface !== undefined)
+    {
+        interface.log_warning(msg);
+    }else {
+        console.log(msg);
+    }
+}
+
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function log_info(msg) {
+    var interface = get_interface();
+    if(interface !== undefined)
+    {
+        interface.log_info(msg);
+    }else {
+        console.log(msg);
+    }
+}
+
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function log_debug(msg) {
+    var interface = get_interface();
+    if(interface !== undefined)
+    {
+        interface.log_debug(msg);
+    }else {
+        console.log(msg);
+    }
 }

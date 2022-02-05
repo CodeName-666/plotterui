@@ -1,5 +1,6 @@
 .pragma library
 .import "BackendSimulator.js" as Simulator
+.import "BackendProvider.js" as Provider
 
 const UNKOWN_INTERFACE = 0;
 const PYTHON_BACKEND = 1;
@@ -63,7 +64,7 @@ function get_backend_interface(use_backend)
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function setup(use_backend, applicationHandle)
+function setup(use_backend, applicationHandle, python_backend_object = undefined)
 {
     used_backend_interface = get_backend_interface(use_backend);
     qml_start_up_done = true;
@@ -74,7 +75,11 @@ function setup(use_backend, applicationHandle)
     }
     else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
     {
-        Backend.setup_done()  	
+        if (python_backend_object !== undefinend)
+        {
+            Provider.set_js_backend(python_backend_object)
+            Provider.obj.setup_done()
+        }
     }
     else
     {

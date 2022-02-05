@@ -6,14 +6,10 @@ function setup(python_backend) {
     if(python_backend !== undefined)
     {
         backend = python_backend;
-        backend.test_fnc(true);
-        backend.log_info("Setup successfull");
+        backend.log_info("Setup Done");
         backend.setup_done(true);
     } else {
-        backend.test_fnc(false);
-        backend.log_warining("Setup failed");
-        backend.setup_done(false)
-
+        /* TBD */
     }
 }
 

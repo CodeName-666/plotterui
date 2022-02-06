@@ -27,6 +27,17 @@ var DEMO_LINE_CONFIG = [{
     "type": "SIN"
 }]
 
+var connection_interfaces = [{
+                                 "val": "SERIAL",
+                                 "name": "Serial"
+                             }, {
+                                 "val": "TELNET",
+                                 "name": "Telnet"
+                             }, {
+                                 "val": "TEST",
+                                 "name": "Test"
+                             }]
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/

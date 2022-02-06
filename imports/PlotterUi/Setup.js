@@ -77,7 +77,7 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     {
         if (python_backend_object !== 'undefinend')
         {
-            Provider.setup(python_backend_object)
+            Provider.setup(python_backend_object, applicationHandle)
         }
     }
     else

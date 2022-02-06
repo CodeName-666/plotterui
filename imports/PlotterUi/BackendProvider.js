@@ -1,16 +1,27 @@
 .pragma library
+.import QtQuick 2.15 as Quick
+.import QtQml 2.15 as Qml
+.import QtCharts 2.15 as QuickCharts
+.import "Random.js" as Random
 
 var backend = undefined
+var application_handle = undefined
+
 
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function setup(python_backend) {
+function setup(python_backend, app_hndl) {
+
+    application_handle = app_hndl;
     if(python_backend !== undefined)
     {
         backend = python_backend;
         backend.log_info("Setup Done");
         backend.setup_done(true);
+
+        backend.onCreateLine.connect(create_line);
+
     } else {
         /* TBD */
     }
@@ -86,4 +97,23 @@ function log_debug(msg) {
     if (is_valid()) {
         backend.log_debug(msg)
     }
+}
+
+
+function create_line(name, color = undefined) {
+    console.log("Create New Line")
+    var chartUi = application_handle.chartWindow
+    var line = chartUi.chart.createSeries(QuickCharts.ChartView.SeriesTypeLine,
+                                          name, chartUi.xAxis, chartUi.yAxis)
+    if (color === undefined) {
+        color = Random.getRandomInt(0xFFFFFF)
+    }
+
+    if(typeof line === QuickCharts.Lineseries)
+        console.log("Line is correct object")
+     else
+        console.log("Line has wrong type")
+
+    //line.color = color
+    return line
 }

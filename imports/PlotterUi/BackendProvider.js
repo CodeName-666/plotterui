@@ -109,11 +109,8 @@ function create_line(name, color = undefined) {
         color = Random.getRandomInt(0xFFFFFF)
     }
 
-    if(typeof line === QuickCharts.Lineseries)
-        console.log("Line is correct object")
-     else
-        console.log("Line has wrong type")
+    console.log(typeof line)
+    
 
-    //line.color = color
-    return line
+    backend.add_line(line)
 }

@@ -10,6 +10,7 @@ Item {
     ChartView {
         id: chart
         title: "Top-5 car brand shares in Finland"
+        objectName: "chart"
         anchors.fill: parent
         legend.alignment: Qt.AlignBottom
         antialiasing: true

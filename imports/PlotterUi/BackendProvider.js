@@ -21,6 +21,7 @@ function setup(python_backend, app_hndl) {
         backend.setup_done(true);
 
         backend.onCreateLine.connect(create_line);
+        backend.sendLine.connect(backend.add_line)
 
     } else {
         /* TBD */
@@ -110,7 +111,6 @@ function create_line(name, color = undefined) {
     }
 
     console.log(typeof line)
-    
 
-    backend.add_line(line)
+    backend.sendLine(line)
 }

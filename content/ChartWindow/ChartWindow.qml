@@ -16,16 +16,6 @@ ChartWindowUi{
         lineseries = chart.createSeries(ChartView.SeriesTypeLine,"line",xAxis,yAxis)
         scaterseries = chart.createSeries(ChartView.SeriesTypeLine,"scatter",xAxis,yAxis)
 
-
-    }
-/**
-
-    LineSeries {
-        id: lineseries
-        name: "line1"
-
-    }
-*/
     QtObject {
         id: params
         property real m_x: 9;

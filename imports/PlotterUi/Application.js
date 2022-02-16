@@ -3,12 +3,16 @@
 
 var application_handle = undefined
 
-
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function setup(app_handle) {
     application_handle = app_handle
 }
 
-
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function create_graph(name, color = undefined) {
     console.log("Create New Line")
     var chartUi = application_handle.chartWindow
@@ -21,6 +25,9 @@ function create_graph(name, color = undefined) {
     console.log(typeof line)
 }
 
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function get_chart() {
     return application_handle.chartWindow.chartUi.chart;
 }

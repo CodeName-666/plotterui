@@ -115,14 +115,18 @@ function log_debug(msg) {
     }
 }
 
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function add_graph(name, graph) {
+    get_interface().add_graph(name,graph);
+}
 
-//function add_graph(name, graph) {
-//    get_interface().add_graph(name,graph);
-//}
-//
-//
-//function set_chart(chart) {
-//    get_interface().set_chart(chart);
-//}
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function set_chart(chart) {
+    get_interface().set_chart(chart);
+}
 
 

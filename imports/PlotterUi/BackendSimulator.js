@@ -155,19 +155,6 @@ function backend_simulator_telnet_loop() {}
  ******************************************************************/
 function backend_simulator_test_loop() {}
 
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function create_line(name, color = undefined) {
-    var chartUi = application_handle.chartWindow
-    var line = chartUi.chart.createSeries(QuickCharts.ChartView.SeriesTypeLine,
-                                          name, chartUi.xAxis, chartUi.yAxis)
-    if (color === undefined) {
-        color = Random.getRandomInt(0xFFFFFF)
-    }
-    line.color = color
-    return line
-}
 
 /*******************************************************************
  * FUNCTION
@@ -191,7 +178,7 @@ function create_demo_lines() {
 
     if (settings_valid()) {
         var last_idx = signal_list.length - 1
-        signal_list[last_idx] = create_line(current_settings["name"],
+        signal_list[last_idx] = App.create_graph(current_settings["name"],
                                             current_settings["color"])
     }
 }
@@ -235,14 +222,14 @@ function log_debug(msg) {
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function add_graph(name, graph) {
-    /*tbd*/ 
-}
+//function add_graph(name, graph) {
+//    /*tbd*/
+//}
 
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function set_chart(chart) {
-   /*tbd*/
-}
+//function set_chart(chart) {
+//   /*tbd*/
+//}
 

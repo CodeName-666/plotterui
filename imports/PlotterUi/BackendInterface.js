@@ -116,20 +116,13 @@ function log_debug(msg) {
 }
 
 
-function add_graph(name, graph) {
-    get_interface().add_graph(name,graph);
-}
-
-
-function set_chart(chart) {
-    get_interface().set_chart(chart);
-}
-
-
-
-function create_line(name, color = undefined)
-{
-    return get_interface().create_line(name,color);
-}
+//function add_graph(name, graph) {
+//    get_interface().add_graph(name,graph);
+//}
+//
+//
+//function set_chart(chart) {
+//    get_interface().set_chart(chart);
+//}
 
 

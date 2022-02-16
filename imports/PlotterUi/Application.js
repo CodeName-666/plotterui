@@ -2,7 +2,6 @@
 
 
 var application_handle = undefined
-var chart = undefined
 
 
 function setup(app_handle) {
@@ -10,7 +9,7 @@ function setup(app_handle) {
 }
 
 
-function create_line(name, color = undefined) {
+function create_graph(name, color = undefined) {
     console.log("Create New Line")
     var chartUi = application_handle.chartWindow
     var line = chartUi.chart.createSeries(QuickCharts.ChartView.SeriesTypeLine,
@@ -20,4 +19,8 @@ function create_line(name, color = undefined) {
     }
 
     console.log(typeof line)
+}
+
+function get_chart() {
+    return application_handle.chartWindow.chartUi.chart;
 }

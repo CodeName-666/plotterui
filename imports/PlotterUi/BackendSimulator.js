@@ -2,6 +2,7 @@
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
 .import "Random.js" as Random
+.import "Application.js" as App
 
 //--- Simulator Setup ----
 var application_handle = undefined // Main application object (applicationWindow)
@@ -41,8 +42,7 @@ var connection_interfaces = [{
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function setup_done(application) {
-    application_handle = application
+function setup() {
     setup_done_status = true
     update_timer = new Timer(10, true, true, backend_simulator_loop)
     log_error("SIMULATOR setup done")
@@ -231,3 +231,18 @@ function log_info(msg) {
 function log_debug(msg) {
     console.log(msg)
 }
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function add_graph(name, graph) {
+    /*tbd*/ 
+}
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function set_chart(chart) {
+   /*tbd*/
+}
+

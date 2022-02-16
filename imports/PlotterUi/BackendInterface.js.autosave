@@ -1,5 +1,6 @@
-.pragma library
-.import "BackendSimulator.js" as Simulator.import "BackendProvider.js" as Provider.import "Setup.js" as Setup
+.import "BackendSimulator.js" as Simulator
+.import "BackendProvider.js" as Provider
+.import "Setup.js" as Setup
 
 function get_interface() {
     var interface
@@ -113,6 +114,17 @@ function log_debug(msg) {
         console.log(msg);
     }
 }
+
+
+function add_graph(name, graph) {
+    get_interface().add_graph(name,graph);
+}
+
+
+function set_chart(chart) {
+    get_interface().set_chart(chart);
+}
+
 
 
 function create_line(name, color = undefined)

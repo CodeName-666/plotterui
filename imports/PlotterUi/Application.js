@@ -8,6 +8,8 @@ var application_handle = undefined
  ******************************************************************/
 function setup(app_handle) {
     application_handle = app_handle
+
+    console.log("App INIT " + application_handle)
 }
 
 /*******************************************************************

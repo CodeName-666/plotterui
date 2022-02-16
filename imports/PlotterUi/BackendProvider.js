@@ -6,27 +6,35 @@
 .import "Application.js" as App
 
 var backend = undefined
+
 /*******************************************************************
- * FUNCTION
+ * INTERNAL FUNCTION
  ******************************************************************/
 function setup(python_backend) {
 
    if(python_backend !== undefined)
     {
         backend = python_backend;
+        connect_signals();
+
+
         backend.log_info("Setup Done");
         backend.setup_done(true);
-
-        backend.onCreateLine.connect(create_line);
-        backend.sendLine.connect(backend.add_line)
-
     } else {
         /* TBD */
     }
 }
 
 /*******************************************************************
- * FUNCTION
+ * INTERNAL FUNCTION
+ ******************************************************************/
+function connect_signals() {
+
+    backend.new_graph.connect(on_new_graph)
+}
+
+/*******************************************************************
+ * INTERNAL FUNCTION
  ******************************************************************/
 function is_valid() {
     return (backend != undefined)
@@ -51,7 +59,7 @@ function get_settings(interface_type) {
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function settings_valid() {
     if(is_valid()) {
@@ -62,7 +70,7 @@ function settings_valid() {
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_error(msg) {
     if (is_valid()) {
@@ -71,7 +79,7 @@ function log_error(msg) {
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_warning(msg) {
     if (is_valid()) {
@@ -80,7 +88,7 @@ function log_warning(msg) {
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_info(msg) {
     if (is_valid()) {
@@ -89,7 +97,7 @@ function log_info(msg) {
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_debug(msg) {
     if (is_valid()) {
@@ -99,16 +107,28 @@ function log_debug(msg) {
 
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
  function add_graph(name, graph) {
-    /*tbd*/ 
+     if (is_valid()) {
+         backend.add_graph(name, graph);
+     }
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function set_chart(chart) {
    /*tbd*/
 }
 
+
+/*******************************************************************
+ * SIGNAL SLOT
+ ******************************************************************/
+function on_new_graph(name, color) {
+    var graph = App.create_graph(name,color)
+    console.log("add new graph")
+    add_graph(name,graph);
+
+}

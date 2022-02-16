@@ -61,7 +61,7 @@ function is_connected() {
 
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_error(msg) {
     var interface = get_interface();
@@ -75,7 +75,7 @@ function log_error(msg) {
 
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_warning(msg) {
     var interface = get_interface();
@@ -89,7 +89,7 @@ function log_warning(msg) {
 
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_info(msg) {
     var interface = get_interface();
@@ -103,7 +103,7 @@ function log_info(msg) {
 
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_debug(msg) {
     var interface = get_interface();
@@ -114,19 +114,3 @@ function log_debug(msg) {
         console.log(msg);
     }
 }
-
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function add_graph(name, graph) {
-    get_interface().add_graph(name,graph);
-}
-
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function set_chart(chart) {
-    get_interface().set_chart(chart);
-}
-
-

@@ -5,7 +5,6 @@
 .import "Application.js" as App
 
 //--- Simulator Setup ----
-var application_handle = undefined // Main application object (applicationWindow)
 var update_timer = undefined // Cycle Timer (equal Thread) as Mainloop for the Chart
 var setup_done_status = false // Setup flag to verify is setup was done
 
@@ -98,7 +97,7 @@ function get_interface() {
 function Timer(interval, repeat = false, start = false, callback = undefined) {
     if (setup_done_status) {
         var cTimer = Qt.createQmlObject(' import QtQuick 2.15; Timer {}',
-                                        application_handle)
+                                        App.application_handle)
         cTimer.interval = interval
         cTimer.repeat = repeat
 
@@ -192,44 +191,47 @@ function is_connected()
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_error(msg) {
     console.log(msg)
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_warning(msg) {
     console.log(msg)
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_info(msg) {
     console.log(msg)
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function log_debug(msg) {
     console.log(msg)
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function add_graph(name, graph) {
     /*tbd*/
 }
 
 /*******************************************************************
- * FUNCTION
+ * FUNCTION SLOT
  ******************************************************************/
 function set_chart(chart) {
    /*tbd*/
 }
 
+function on_new_graph(name, color) {
+
+}

@@ -36,7 +36,7 @@ function create_graph(name, color = undefined) {
  * FUNCTION
  ******************************************************************/
 function get_chart() {
-    return application_handle.chartWindow.chartUi.chart;
+    return application_handle.chartWindow.chart;
 }
 
 function get_app() {

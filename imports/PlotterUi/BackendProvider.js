@@ -31,6 +31,7 @@ function setup(python_backend) {
 function connect_signals() {
 
     backend.new_graph.connect(on_new_graph)
+    set_chart(App.get_chart())
 }
 
 /*******************************************************************
@@ -119,7 +120,7 @@ function log_debug(msg) {
  * FUNCTION SLOT
  ******************************************************************/
 function set_chart(chart) {
-   /*tbd*/
+    backend.set_chart(chart)
 }
 
 

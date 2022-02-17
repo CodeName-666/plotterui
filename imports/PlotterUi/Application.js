@@ -1,4 +1,8 @@
-
+.pragma library
+.import QtQuick 2.15 as Quick
+.import QtQml 2.15 as Qml
+.import QtCharts 2.15 as QuickCharts
+.import "Random.js" as Random
 
 
 var application_handle = undefined
@@ -25,6 +29,7 @@ function create_graph(name, color = undefined) {
     }
 
     console.log(typeof line)
+    return line
 }
 
 /*******************************************************************
@@ -32,4 +37,8 @@ function create_graph(name, color = undefined) {
  ******************************************************************/
 function get_chart() {
     return application_handle.chartWindow.chartUi.chart;
+}
+
+function get_app() {
+    return application_handle
 }

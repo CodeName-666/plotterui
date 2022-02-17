@@ -1,3 +1,4 @@
+.pragma library
 .import QtQuick 2.15 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
@@ -45,6 +46,7 @@ function setup() {
     setup_done_status = true
     update_timer = new Timer(10, true, true, backend_simulator_loop)
     log_error("SIMULATOR setup done")
+    var l = App.create_graph("Test");
 }
 
 /*******************************************************************
@@ -96,8 +98,10 @@ function get_interface() {
  ******************************************************************/
 function Timer(interval, repeat = false, start = false, callback = undefined) {
     if (setup_done_status) {
-        var cTimer = Qt.createQmlObject(' import QtQuick 2.15; Timer {}',
-                                        App.application_handle)
+
+        var app = App.get_app();
+        var cTimer = Qt.createQmlObject(' import QtQuick 2.15; Timer {}',app);
+
         cTimer.interval = interval
         cTimer.repeat = repeat
 

@@ -1,3 +1,4 @@
+.pragma library
 .import "BackendSimulator.js" as Simulator
 .import "BackendProvider.js" as Provider
 .import "Setup.js" as Setup

@@ -3,7 +3,7 @@
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
 .import "Random.js" as Random
-//.import "BackendInterface.js" as BackendInterface
+.import "BackendLoggerInterface.js" as Logger
 
 var application_handle = undefined
 
@@ -13,10 +13,10 @@ var application_handle = undefined
 function setup(app_handle) {
     application_handle = app_handle
 
-    BackendInterface.log_info("Application Setup Done")
+    Logger.log_info("Application Setup Done")
 
-    //if(application_handle == undefined)
-    //    BackendInterface.log_error("ApplicationHandle undefined")
+    if(application_handle == undefined)
+        Logger.log_error("ApplicationHandle undefined")
 }
 
 /*******************************************************************
@@ -30,7 +30,7 @@ function create_graph(name, color = undefined) {
         color = Random.getRandomInt(0xFFFFFF)
     }
 
-    //BackendInterface.log_info("Create Graph - Name: " + name + " - Color: " + color);
+    Logger.log_info("Create Graph - Name: " + name + " - Color: " + color);
     return line
 }
 

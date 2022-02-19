@@ -3,6 +3,7 @@
 .import "BackendProvider.js" as Provider
 .import "Setup.js" as Setup
 
+
 function get_interface() {
     var interface
     if (Setup.is_interface(Setup.PYTHON_BACKEND)) {
@@ -114,4 +115,13 @@ function log_debug(msg) {
     }else {
         console.log(msg);
     }
+}
+
+function set_plot_area(area) {
+    get_interface().set_plot_area();
+}
+
+
+function connect_signals() {
+    get_interface().connect_signals();
 }

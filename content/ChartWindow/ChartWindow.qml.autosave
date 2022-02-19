@@ -17,6 +17,8 @@ ChartWindowUi{
         scaterseries = chart.createSeries(ChartView.SeriesTypeLine,"scatter",xAxis,yAxis)
     }
 
+    
+    
     /*******************************************************************
      * FUNCTION
      ******************************************************************/

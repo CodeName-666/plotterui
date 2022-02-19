@@ -14,7 +14,7 @@ Item {
         anchors.fill: parent
         legend.alignment: Qt.AlignBottom
         antialiasing: true
-        theme: ChartView.ChartThemeBrownSand
+        theme: ChartView.ChartThemeDark
 
         ValueAxis {
             id: xAxis

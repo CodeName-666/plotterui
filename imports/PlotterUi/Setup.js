@@ -2,6 +2,7 @@
 .import "BackendSimulator.js" as Simulator
 .import "BackendProvider.js" as Provider
 .import "Application.js" as App
+.import QtQuick 2.15 as Quick
 
 
 const UNKOWN_INTERFACE = 0;
@@ -9,7 +10,7 @@ const PYTHON_BACKEND = 1;
 const BACKEND_SIMULATOR = 2;
 var BACKEND_INTERFACES = ["UNKOWN", "PYTHON_BACKEND", "BACKEND_SIMULATOR"];
 
-
+var application_handle = undefined
 var used_backend_interface = undefined
 var qml_start_up_done = false   //true == DONE/ false == NOT DONE
 
@@ -71,7 +72,7 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     used_backend_interface = get_backend_interface(use_backend);
     qml_start_up_done = true;
 
-    App.setup(applicationHandle);
+    application_handle = applicationHandle
     if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
         Simulator.setup();
@@ -87,4 +88,5 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     {
 
     }
+
 }

@@ -12,12 +12,12 @@ AppUi {
 
         if(typeof Backend !== 'undefined')
         {
-            Logger.setup([Backend, Simulator])
+            Logger.setup(Backend);
             Setup.setup("PYTHON_BACKEND", this, Backend);
         }
         else
         {
-            Logger.setup(Simulator)
+            Logger.setup(Simulator);
             Setup.setup("BACKEND_SIMULATOR", this);
         }
 

@@ -3,9 +3,10 @@
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
 .import "Random.js" as Random
-.import "Application.js" as App
+
 
 var backend = undefined
+
 
 /*******************************************************************
  * INTERNAL FUNCTION
@@ -23,12 +24,14 @@ function setup(python_backend) {
     } else {
         /* TBD */
     }
+
+   createEventObject()
 }
 
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
-function connect_signals() {
+function connect_signals( events) {
 
     backend.new_graph.connect(on_new_graph)
 

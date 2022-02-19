@@ -3,7 +3,6 @@ singleton Constants 1.0 Constants.qml
 DirectoryFontLoader 1.0 DirectoryFontLoader.qml
 BackendInterface 1.0 BackendInterface.js
 Setup 1.0 Setup.js
-Application 1.0 Application.js
-Logger 1.0 BackendLoggerInterface.js
+Logger 1.0 BackendLogger.js
 Simulator 1.0 BackendSimulator.js
 

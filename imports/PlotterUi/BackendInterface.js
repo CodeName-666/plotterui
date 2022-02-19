@@ -1,8 +1,11 @@
 .pragma library
+.import QtQuick 2.15 as Quick
 .import "BackendSimulator.js" as Simulator
 .import "BackendProvider.js" as Provider
 .import "Setup.js" as Setup
 
+
+var events = undefined;
 
 function get_interface() {
     var interface
@@ -15,6 +18,20 @@ function get_interface() {
         interface = undefined
     }
     return interface
+}
+
+function createEventObject() {
+    var component = Qt.createComponent("Events.qml");
+
+    if (component.status === Quick.Component.Ready)
+        events = component.createObject(App.application_handle)
+    else
+       console.log("Error")
+}
+
+
+function connect_signals() {
+    get_interface().connect_signals(events);
 }
 
 
@@ -62,66 +79,6 @@ function is_connected() {
 }
 
 
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_error(msg) {
-    var interface = get_interface();
-    if(interface !== undefined)
-    {
-        interface.log_error(msg);
-    }else {
-        console.log(msg);
-    }
-}
-
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_warning(msg) {
-    var interface = get_interface();
-    if(interface !== undefined)
-    {
-        interface.log_warning(msg);
-    }else {
-        console.log(msg);
-    }
-}
-
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_info(msg) {
-    var interface = get_interface();
-    if(interface !== undefined)
-    {
-        interface.log_info(msg);
-    }else {
-        console.log(msg);
-    }
-}
-
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_debug(msg) {
-    var interface = get_interface();
-    if(interface !== undefined)
-    {
-        interface.log_debug(msg);
-    }else {
-        console.log(msg);
-    }
-}
-
 function set_plot_area(area) {
     get_interface().set_plot_area();
-}
-
-
-function connect_signals() {
-    get_interface().connect_signals();
 }

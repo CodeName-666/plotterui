@@ -2,8 +2,7 @@
 .import QtQuick 2.15 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
-.import "Random.js" as Random
-.import "Application.js" as App
+
 
 //--- Simulator Setup ----
 var update_timer = undefined // Cycle Timer (equal Thread) as Mainloop for the Chart
@@ -46,7 +45,15 @@ function setup() {
     setup_done_status = true
     update_timer = new Timer(10, true, true, backend_simulator_loop)
     log_error("SIMULATOR setup done")
-    var l = App.create_graph("Test");
+
+}
+
+/*******************************************************************
+ * INTERNAL FUNCTION
+ ******************************************************************/
+function connect_signals( events) {
+
+
 }
 
 /*******************************************************************
@@ -171,6 +178,35 @@ function settings_valid() {
 }
 
 /*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_error(msg) {
+    console.log(msg);
+}
+
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_warning(msg) {
+    console.log(msg);
+}
+
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_info(msg) {
+    console.log(msg);
+}
+
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_debug(msg) {
+    console.log(msg);
+}
+
+
+/*******************************************************************
  * FUNCTION
  ******************************************************************/
 function create_demo_lines() {
@@ -211,3 +247,5 @@ function set_chart(chart) {
 function on_new_graph(name, color) {
 
 }
+
+

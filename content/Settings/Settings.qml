@@ -33,7 +33,7 @@ SettingsUi {
 
         else
         {
-            BackendInterface.logError("SettingsUi: Invalid Settingsoption...")
+            Logger.log_error("SettingsUi: Invalid Settingsoption...")
         }
     }
 

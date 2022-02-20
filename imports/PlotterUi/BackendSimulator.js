@@ -2,6 +2,7 @@
 .import QtQuick 2.15 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
+.import "BackendLogger.js" as Logger
 
 
 //--- Simulator Setup ----
@@ -62,8 +63,8 @@ function connect_signals( events) {
 function set_settings(type, settings) {
     current_settings = settings
     current_interface = type
-    log_error(current_interface)
-    log_error(current_settings)
+    Logger.log_error(current_interface)
+    Logger.log_error(current_settings)
     return true
 }
 
@@ -81,7 +82,7 @@ function connect() {
         case "Serial":
         case "Telnet":
         default:
-            log_error("no simulation avalilable")
+            Logger.log_error("no simulation avalilable")
             break
     }
 }
@@ -243,9 +244,4 @@ function add_graph(name, graph) {
 function set_chart(chart) {
    /*tbd*/
 }
-
-function on_new_graph(name, color) {
-
-}
-
 

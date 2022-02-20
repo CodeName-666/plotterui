@@ -21,7 +21,7 @@ function get_interface() {
 }
 
 function createEventObject() {
-    var component = Qt.createComponent("Events.qml");
+    var component = Qt.createComponent("BackendEvents.qml");
 
     if (component.status === Quick.Component.Ready)
         events = component.createObject(App.application_handle)

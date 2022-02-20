@@ -3,6 +3,7 @@ import PlotterUi 1.0
 
 AppUi {
 
+
     connectButton.onClicked:
     {
         BackendInterface.connect()
@@ -25,19 +26,22 @@ AppUi {
         settings.okButton.clicked.connect(acceptSettings)
         settings.cancleButton.clicked.connect(cancleSettings)
         toolbar.settingsButton.triggered.connect(openSettingsMenu)
+        BackendInterface.events.newGraph.connect()
     }
 
     function acceptSettings()
     {
-        console.log("Accept and update Setting ");
         var cSettings =settings.get_settings(settings.comboBox.currentText);
+
+        Logger.log_info("Accept Setting " + cSettings);
+
         BackendInterface.set_settings(settings.comboBox.currentText,cSettings);
         settingsPopup.close();
     }
 
     function cancleSettings()
     {
-        console.log("cancel settings");
+        Logger.log_info("cancel settings");
         settings.restoreSettings();
         settingsPopup.close();
     }

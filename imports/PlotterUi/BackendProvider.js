@@ -2,8 +2,7 @@
 .import QtQuick 2.15 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
-.import "Random.js" as Random
-
+.import "BackendLogger.js" as Logger
 
 var backend = undefined
 
@@ -24,8 +23,6 @@ function setup(python_backend) {
     } else {
         /* TBD */
     }
-
-   createEventObject()
 }
 
 /*******************************************************************
@@ -33,7 +30,8 @@ function setup(python_backend) {
  ******************************************************************/
 function connect_signals( events) {
 
-    backend.new_graph.connect(on_new_graph)
+    backend.new_graph.connect(events.newGraph);
+    backend.scroll.connect(events.scroll);
 
 }
 
@@ -99,7 +97,6 @@ function on_new_graph(name, color) {
     add_graph(name,graph);
 
 }
-
 
 function set_plot_area(area) {
     backend.plot_area = area

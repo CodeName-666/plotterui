@@ -1,10 +1,5 @@
 .pragma library
 
-const UNDEFINED = 0;
-const SIGNLE_INTERFACE = 1;
-const INTERFACE_ARRAY = 2;
-
-
 var interface = undefined;
 
 /*******************************************************************
@@ -44,20 +39,29 @@ function log_debug(msg) {
 }
 
 
+function log_internal(type, msg) {
+    console.log("INTERNAL LOG: " + type + " - " + msg);
+}
+
 function log_messages(type, msg)
 {
-    switch(type) {
-        case 'ERROR':
-            interface.log_error(msg);
-        break;
-        case 'WARNING':
-            interface.log_warning(msg);
-        break;
-        case 'INFO':
-            interface.log_info(msg);
-        break;
-        case 'DEBUG':
-            interface.log_debug(msg);
-        break;
+    if(interface !== undefined)
+    {
+        switch(type) {
+            case 'ERROR':
+                interface.log_error(msg);
+            break;
+            case 'WARNING':
+                interface.log_warning(msg);
+            break;
+            case 'INFO':
+                interface.log_info(msg);
+            break;
+            case 'DEBUG':
+                interface.log_debug(msg);
+            break;
+        }
+    } else {
+        log_internal(type,msg);
     }
 }

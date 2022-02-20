@@ -15,9 +15,10 @@ ChartWindowUi{
 
         lineseries = chart.createSeries(ChartView.SeriesTypeLine,"line",xAxis,yAxis)
         scaterseries = chart.createSeries(ChartView.SeriesTypeLine,"scatter",xAxis,yAxis)
+        console.log("CHARTVIEW COMPLETED");
     }
 
-
+    
 
     /*******************************************************************
      * FUNCTION

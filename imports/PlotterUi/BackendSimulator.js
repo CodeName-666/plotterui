@@ -2,12 +2,36 @@
 .import QtQuick 2.15 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
-.import "BackendLogger.js" as Logger
+
+const ERROR = 40
+const WARNING = 30
+const INFO = 20
+const DEBUG = 10
+const NOTSET = 0
+
+var levelToName = {
+    ERROR: 'ERROR',
+    WARNING: 'WARNING',
+    INFO: 'INFO',
+    DEBUG: 'DEBUG',
+    NOTSET: 'NOTSET',
+}
+
+var nameToLevel = {
+    'ERROR': ERROR,
+    'WARNING': WARNING,
+    'INFO': INFO,
+    'DEBUG': DEBUG,
+    'NOTSET': NOTSET,
+}
+
 
 
 //--- Simulator Setup ----
+var application_handle = undefined
 var update_timer = undefined // Cycle Timer (equal Thread) as Mainloop for the Chart
 var setup_done_status = false // Setup flag to verify is setup was done
+var log_level = NOTSET
 
 //--- UI/Backend parameter
 var current_settings = undefined
@@ -42,10 +66,12 @@ var connection_interfaces = [{
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function setup() {
+function setup(app, logger_level = NOTSET) {
+    application_handle = app;
     setup_done_status = true
     update_timer = new Timer(10, true, true, backend_simulator_loop)
-    log_error("SIMULATOR setup done")
+    log_level = logger_level
+    log_debug("SIMULATOR setup done")
 
 }
 
@@ -63,8 +89,8 @@ function connect_signals( events) {
 function set_settings(type, settings) {
     current_settings = settings
     current_interface = type
-    Logger.log_error(current_interface)
-    Logger.log_error(current_settings)
+    log_error(current_interface)
+    log_error(current_settings)
     return true
 }
 
@@ -82,7 +108,7 @@ function connect() {
         case "Serial":
         case "Telnet":
         default:
-            Logger.log_error("no simulation avalilable")
+            log_error("no simulation avalilable")
             break
     }
 }
@@ -107,8 +133,7 @@ function get_interface() {
 function Timer(interval, repeat = false, start = false, callback = undefined) {
     if (setup_done_status) {
 
-        var app = App.get_app();
-        var cTimer = Qt.createQmlObject(' import QtQuick 2.15; Timer {}',app);
+        var cTimer = Qt.createQmlObject(' import QtQuick 2.15; Timer {}',application_handle);
 
         cTimer.interval = interval
         cTimer.repeat = repeat

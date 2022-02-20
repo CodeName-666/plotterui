@@ -93,11 +93,39 @@ function set_chart(chart) {
  ******************************************************************/
 function on_new_graph(name, color) {
     var graph = App.create_graph(name,color)
-    console.log("add new graph")
     add_graph(name,graph);
 
 }
 
 function set_plot_area(area) {
     backend.plot_area = area
+}
+
+
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_error(msg) {
+    backend.log_error(msg);
+}
+
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_warning(msg) {
+    backend.log_warning(msg);
+}
+
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_info(msg) {
+    backend.log_info(msg);
+}
+
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_debug(msg) {
+    backend.log_debug(msg);
 }

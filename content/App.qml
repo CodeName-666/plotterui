@@ -11,9 +11,11 @@ AppUi {
 
     Component.onCompleted: {
 
+
         if(typeof Backend !== 'undefined')
         {
             Logger.setup(Backend);
+
             Setup.setup("PYTHON_BACKEND", this, Backend);
         }
         else
@@ -26,7 +28,8 @@ AppUi {
         settings.okButton.clicked.connect(acceptSettings)
         settings.cancleButton.clicked.connect(cancleSettings)
         toolbar.settingsButton.triggered.connect(openSettingsMenu)
-        BackendInterface.events.newGraph.connect()
+        Logger.log_debug("")
+        //BackendInterface.events.newGraph.connect()
     }
 
     function acceptSettings()

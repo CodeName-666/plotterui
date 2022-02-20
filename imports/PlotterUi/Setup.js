@@ -1,8 +1,8 @@
 .pragma library
+.import QtQuick 2.15 as Quick
 .import "BackendSimulator.js" as Simulator
 .import "BackendProvider.js" as Provider
-.import "Application.js" as App
-.import QtQuick 2.15 as Quick
+
 
 
 const UNKOWN_INTERFACE = 0;
@@ -75,7 +75,7 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     application_handle = applicationHandle
     if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
-        Simulator.setup();
+        Simulator.setup(application_handle);
     }
     else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
     {
@@ -88,5 +88,4 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     {
 
     }
-
 }

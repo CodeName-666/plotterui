@@ -38,7 +38,7 @@ var log_level = NOTSET
 var current_settings = undefined
 var current_interface = undefined
 
-var signal_list = [] // List of demo signals/Lines in the chart
+var signal_list = {} // Dictionary of demo signals/Lines in the chart
 var connected = false
 
 //--- Demo Lines Config ---
@@ -70,6 +70,7 @@ var connection_interfaces = [{
 function setup(app, events, logger_level = NOTSET) {
     application_handle = app;
     setup_done_status = true
+    connect_events(events);
     update_timer = new Timer(10, true, true, backend_simulator_loop)
     log_level = logger_level
     log_debug("SIMULATOR setup done")
@@ -237,15 +238,13 @@ function log_debug(msg) {
  * FUNCTION
  ******************************************************************/
 function create_demo_lines() {
-    for (var i = 0; i < DEMO_LINE_CONFIG.length; i++) {
-        var s = DEMO_LINE_CONFIG[i]
-        signal_list[i] = create_line(s["name"], s["color"])
+    for (let i = 0; i < DEMO_LINE_CONFIG.length; i++) {
+        let s = DEMO_LINE_CONFIG[i]
+        backend_events.newGraph(s["name"], s["color"])
     }
 
     if (settings_valid()) {
-        var last_idx = signal_list.length - 1
-        signal_list[last_idx] = App.create_graph(current_settings["name"],
-                                            current_settings["color"])
+        backend_events.newGraph(current_settings["name"],current_settings["color"])
     }
 }
 
@@ -261,6 +260,7 @@ function is_connected()
  * FUNCTION SLOT
  ******************************************************************/
 function add_graph(name, graph) {
-    /*tbd*/
+    log_debug("Add Graph: Name = " + name + " | Color = " + color)
+    signal_list[name] = graph
 }
 

@@ -19,21 +19,16 @@ var backend_events = undefined
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function is_interface(interface_type, value = undefined)
+function is_interface(interface_type)
 {
-    var ret = false;
+    let ret = false;
+    let value_to_check = used_backend_interface;
 
-    var value_to_check = used_backend_interface;
-    if (value !== undefined)
+    if(!isNaN(interface_type))
     {
-        value_to_check = value;
-    }
-
-    if(!isNaN(use_backend))
-    {
-        if(interface_type === (BACKEND_INTERFACES.length -1))
+        if(interface_type <= (BACKEND_INTERFACES.length -1))
         {
-            ret = (value === BACKEND_INTERFACES[interface_type])
+            ret = (value_to_check === BACKEND_INTERFACES[interface_type])
         } else {
             ret = false;
         }
@@ -84,7 +79,7 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     }
     else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
     {
-        if (python_backend_object !== 'undefinend')
+        if (python_backend_object !== undefined)
         {
             Provider.setup(python_backend_object, backend_events)
         }

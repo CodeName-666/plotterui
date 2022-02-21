@@ -15,9 +15,7 @@ function setup(python_backend, events) {
    if(python_backend !== undefined)
     {
         backend = python_backend;
-        connect_signals();
-
-
+        connect_events(events);
         backend.log_info("Setup Done");
         backend.setup_done(true);
     } else {

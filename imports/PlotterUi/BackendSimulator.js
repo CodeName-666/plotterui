@@ -207,28 +207,28 @@ function settings_valid() {
  * FUNCTION SLOT
  ******************************************************************/
 function log_error(msg) {
-    console.log(msg);
+    console.log("- ERROR - " + msg);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_warning(msg) {
-    console.log(msg);
+    console.log("- WARNING - " + msg);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_info(msg) {
-    console.log(msg);
+    console.log("- INFO - " + msg);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_debug(msg) {
-    console.log(msg);
+    console.log("- DEBUG - " + msg);
 }
 
 

@@ -8,17 +8,19 @@ ChartWindowUi{
 
    // property alias lineseries : lineseries;
 
-    property var lineseries;
-    property var scaterseries;
-
     Component.onCompleted:  {
 
-        lineseries = chart.createSeries(ChartView.SeriesTypeLine,"line",xAxis,yAxis)
-        scaterseries = chart.createSeries(ChartView.SeriesTypeLine,"scatter",xAxis,yAxis)
-        console.log("CHARTVIEW COMPLETED");
+        BackendInterface.events().newGraph.connect(new_graph)
+        BackendInterface.events().scrollRight.connect(chart.scrollRight)
+        Logger.log_debug("CHARTVIEW Completed");
+    }
+    
+    function new_graph(name, color) {
+        var graph = create_graph(name, color);
+        Logger.log_debug("New Graph created: Name = " + name + "| Color = " + color );
+        BackendInterface.add_graph(name, graph);
     }
 
-    
 
     /*******************************************************************
      * FUNCTION

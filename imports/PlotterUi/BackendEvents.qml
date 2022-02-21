@@ -3,8 +3,9 @@ import QtQuick 2.15
 
 QtObject {
 
-    signal newGraph(String name, int color);
-    signal scroll(int pixel);
+    /* Chart Signals/Events */
+    signal newGraph(var name, var color);
+    signal scrollRight(var pixel);
 
 
 }

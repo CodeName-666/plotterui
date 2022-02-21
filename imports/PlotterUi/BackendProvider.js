@@ -80,23 +80,10 @@ function settings_valid() {
      }
 }
 
+
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
-function set_chart(chart) {
-    backend.set_chart(chart)
-}
-
-
-/*******************************************************************
- * SIGNAL SLOT
- ******************************************************************/
-function on_new_graph(name, color) {
-    var graph = App.create_graph(name,color)
-    add_graph(name,graph);
-
-}
-
 function set_plot_area(area) {
     backend.plot_area = area
 }

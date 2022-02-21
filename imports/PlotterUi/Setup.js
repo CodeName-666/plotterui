@@ -2,6 +2,7 @@
 .import QtQuick 2.15 as Quick
 .import "BackendSimulator.js" as Simulator
 .import "BackendProvider.js" as Provider
+.import "BackendLogger.js" as Logger
 
 
 
@@ -13,8 +14,11 @@ var BACKEND_INTERFACES = ["UNKOWN", "PYTHON_BACKEND", "BACKEND_SIMULATOR"];
 var application_handle = undefined
 var used_backend_interface = undefined
 var qml_start_up_done = false   //true == DONE/ false == NOT DONE
+var backend_events = undefined
 
-
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function is_interface(interface_type, value = undefined)
 {
     var ret = false;
@@ -73,6 +77,7 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     qml_start_up_done = true;
 
     application_handle = applicationHandle
+    backend_events = createBackendEventObject()
     if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
         Simulator.setup(application_handle);
@@ -88,4 +93,26 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     {
 
     }
+}
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function createBackendEventObject() {
+    var component = Qt.createComponent("BackendEvents.qml");
+    var events = undefined
+    if (component.status === Quick.Component.Ready) {
+        events = component.createObject(application_handle)
+        Logger.log_debug("Create Event Object - Events Created");
+    } else {
+       Logger.log_error("Create Event Object - Error during Events Creation");
+    }
+    return events
+}
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function getBackendEvents() {
+    return backend_events;
 }

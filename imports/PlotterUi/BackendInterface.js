@@ -2,11 +2,13 @@
 .import QtQuick 2.15 as Quick
 .import "BackendSimulator.js" as Simulator
 .import "BackendProvider.js" as Provider
+.import "BackendLogger.js" as Logger
 .import "Setup.js" as Setup
 
 
-var events = undefined;
-
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function get_interface() {
     var interface
     if (Setup.is_interface(Setup.PYTHON_BACKEND)) {
@@ -14,26 +16,18 @@ function get_interface() {
     } else if (Setup.is_interface(Setup.BACKEND_SIMULATOR)) {
         interface = Simulator
     } else {
-        log_error("Invalid Interface")
+        Logger.log_error("GET INTERACE: Invalid Interface")
         interface = undefined
     }
     return interface
 }
 
-function createEventObject() {
-    var component = Qt.createComponent("BackendEvents.qml");
-
-    if (component.status === Quick.Component.Ready)
-        events = component.createObject(App.application_handle)
-    else
-       console.log("Error")
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function events() {
+    return Setup.getBackendEvents()
 }
-
-
-function connect_signals() {
-    get_interface().connect_signals(events);
-}
-
 
 /*******************************************************************
  * FUNCTION

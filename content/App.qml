@@ -15,12 +15,13 @@ AppUi {
         if(typeof Backend !== 'undefined')
         {
             Logger.setup(Backend);
-
+            Logger.log_debug("App Backend Init");
             Setup.setup("PYTHON_BACKEND", this, Backend);
         }
         else
         {
             Logger.setup(Simulator);
+            Logger.log_debug("App Simulatort Init");
             Setup.setup("BACKEND_SIMULATOR", this);
         }
 
@@ -28,9 +29,8 @@ AppUi {
         settings.okButton.clicked.connect(acceptSettings)
         settings.cancleButton.clicked.connect(cancleSettings)
         toolbar.settingsButton.triggered.connect(openSettingsMenu)
-        Logger.log_debug("")
-        //BackendInterface.events.newGraph.connect()
-    }
+        Logger.log_debug("App Completed");
+      }
 
     function acceptSettings()
     {

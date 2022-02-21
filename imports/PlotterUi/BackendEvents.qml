@@ -7,5 +7,8 @@ QtObject {
     signal newGraph(var name, var color);
     signal scrollRight(var pixel);
 
+    signal comPortUpdate(var portList);
+
+
 
 }

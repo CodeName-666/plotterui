@@ -10,7 +10,7 @@ var backend = undefined
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
-function setup(python_backend) {
+function setup(python_backend, events) {
 
    if(python_backend !== undefined)
     {
@@ -28,7 +28,7 @@ function setup(python_backend) {
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
-function connect_signals( events) {
+function connect_events( events) {
 
     backend.new_graph.connect(events.newGraph);
     backend.scroll.connect(events.scroll);

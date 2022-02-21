@@ -29,6 +29,7 @@ var nameToLevel = {
 
 //--- Simulator Setup ----
 var application_handle = undefined
+var backend_events = undefined
 var update_timer = undefined // Cycle Timer (equal Thread) as Mainloop for the Chart
 var setup_done_status = false // Setup flag to verify is setup was done
 var log_level = NOTSET
@@ -66,7 +67,7 @@ var connection_interfaces = [{
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function setup(app, logger_level = NOTSET) {
+function setup(app, events, logger_level = NOTSET) {
     application_handle = app;
     setup_done_status = true
     update_timer = new Timer(10, true, true, backend_simulator_loop)
@@ -78,8 +79,8 @@ function setup(app, logger_level = NOTSET) {
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
-function connect_signals( events) {
-
+function connect_events( events) {
+    backend_events = events
 
 }
 
@@ -261,12 +262,5 @@ function is_connected()
  ******************************************************************/
 function add_graph(name, graph) {
     /*tbd*/
-}
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function set_chart(chart) {
-   /*tbd*/
 }
 

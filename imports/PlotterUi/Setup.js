@@ -80,13 +80,13 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     backend_events = createBackendEventObject()
     if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
-        Simulator.setup(application_handle);
+        Simulator.setup(application_handle, backend_events);
     }
     else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
     {
         if (python_backend_object !== 'undefinend')
         {
-            Provider.setup(python_backend_object)
+            Provider.setup(python_backend_object, backend_events)
         }
     }
     else

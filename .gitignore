@@ -51,3 +51,4 @@ Thumbs.db
 PlotterUi.qmlproject.qtds
 translations.db-shm
 translations.db-wal
+*.autosave

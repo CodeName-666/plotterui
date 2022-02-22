@@ -98,7 +98,7 @@ function createBackendEventObject() {
     var events = undefined
     if (component.status === Quick.Component.Ready) {
         events = component.createObject(application_handle)
-        Logger.log_debug("Create Event Object - Events Created");
+        Logger.log_debug("Create Event Object - Events Created", arguments.callee.name);
     } else {
        Logger.log_error("Create Event Object - Error during Events Creation");
     }

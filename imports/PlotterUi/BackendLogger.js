@@ -34,7 +34,8 @@ function log_info(msg) {
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
-function log_debug(msg) {
+function log_debug(msg, caller) {
+
     log_messages('DEBUG',msg);
 }
 
@@ -64,4 +65,6 @@ function log_messages(type, msg)
     } else {
         log_internal(type,msg);
     }
+
+    console.trace()
 }

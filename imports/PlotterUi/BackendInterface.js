@@ -72,7 +72,16 @@ function is_connected() {
     return get_interface().is_connect();
 }
 
-
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function set_plot_area(area) {
     get_interface().set_plot_area();
+}
+
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function add_graph(name,graph) {
+    get_interface().add_graph(name, graph);
 }

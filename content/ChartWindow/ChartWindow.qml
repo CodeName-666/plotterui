@@ -26,9 +26,9 @@ ChartWindowUi{
      * FUNCTION
      ******************************************************************/
     function create_graph(name, color = undefined) {
-        var chartUi = application_handle.chartWindow
-        var line = chartUi.chart.createSeries(QuickCharts.ChartView.SeriesTypeLine,
-                                              name, chartUi.xAxis, chartUi.yAxis)
+
+        var line = chart.createSeries(ChartView.SeriesTypeLine,
+                                              name, xAxis, yAxis)
         if (color === undefined) {
             color = Random.getRandomInt(0xFFFFFF)
         }

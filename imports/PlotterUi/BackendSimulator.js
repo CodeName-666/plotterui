@@ -2,6 +2,7 @@
 .import QtQuick 2.15 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
+.import "BackendLogger.js" as Logger
 
 const ERROR = 40
 const WARNING = 30
@@ -73,7 +74,7 @@ function setup(app, events, logger_level = NOTSET) {
     connect_events(events);
     update_timer = new Timer(10, true, true, backend_simulator_loop)
     log_level = logger_level
-    log_debug("SIMULATOR setup done")
+    Logger.log_debug("SIMULATOR setup done")
 
 }
 
@@ -91,8 +92,6 @@ function connect_events( events) {
 function set_settings(type, settings) {
     current_settings = settings
     current_interface = type
-    log_error(current_interface)
-    log_error(current_settings)
     return true
 }
 
@@ -100,19 +99,23 @@ function set_settings(type, settings) {
  * FUNCTION
  ******************************************************************/
 function connect() {
-    switch (current_interface) {
-        case "Test":
-            if (settings_valid()) {
-                connected = true;
-                create_demo_lines();
-            }
-            break
-        case "Serial":
-        case "Telnet":
-        default:
-            log_error("no simulation avalilable")
-            break
-    }
+    if(!is_connected())
+    {
+        Logger.log_debug("Connect to interface: " + current_interface)
+        switch (current_interface) {
+            case "Test":
+                if (settings_valid()) {
+                    connected = true;
+                    create_demo_lines();
+                }
+                break
+            case "Serial":
+            case "Telnet":
+            default:
+                Logger.log_warning("No simulation avalilable")
+                break
+        }
+     }
 }
 
 /*******************************************************************
@@ -170,7 +173,7 @@ function backend_simulator_loop() {
             backend_simulator_test_loop()
             break
         default:
-            log_error("Invalid interface")
+            Logger.log_error("Invalid interface")
             break
         }
     }
@@ -260,7 +263,7 @@ function is_connected()
  * FUNCTION SLOT
  ******************************************************************/
 function add_graph(name, graph) {
-    log_debug("Add Graph: Name = " + name + " | Color = " + color)
+    Logger.log_debug("Add Graph: Name = " + name)
     signal_list[name] = graph
 }
 

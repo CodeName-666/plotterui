@@ -72,7 +72,7 @@ function setup(app, events, logger_level = NOTSET) {
     application_handle = app;
     setup_done_status = true
     connect_events(events);
-    update_timer = new Timer(10, true, true, backend_simulator_loop)
+ 
     log_level = logger_level
     Logger.log_debug("SIMULATOR setup done")
 
@@ -107,6 +107,7 @@ function connect() {
                 if (settings_valid()) {
                     connected = true;
                     create_demo_lines();
+                    update_timer = new Timer(10, true, true, backend_simulator_loop)
                 }
                 break
             case "Serial":
@@ -163,22 +164,20 @@ function backend_simulator_loop() {
 
     if(is_connected()) {
         switch (current_interface) {
-        case "Serial":
-            backend_simulator_serial_loop()
-            break
-        case "Telnet":
-            backend_simulator_telnet_loop()
-            break
-        case "Test":
-            backend_simulator_test_loop()
-            break
-        default:
-            Logger.log_error("Invalid interface")
-            break
+            case "Serial":
+                backend_simulator_serial_loop()
+                break
+            case "Telnet":
+                backend_simulator_telnet_loop()
+                break
+            case "Test":
+                backend_simulator_test_loop()
+                break
+            default:
+                Logger.log_error("Invalid interface")
+                break
         }
     }
-
-    //log_error("backend_simulator_loop running...")
 }
 
 /*******************************************************************
@@ -194,7 +193,12 @@ function backend_simulator_telnet_loop() {}
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function backend_simulator_test_loop() {}
+function backend_simulator_test_loop() {
+
+
+
+
+}
 
 
 /*******************************************************************
@@ -241,6 +245,10 @@ function log_debug(msg) {
  * FUNCTION
  ******************************************************************/
 function create_demo_lines() {
+
+    DEMO_LINE_CONFIG.append( )
+
+
     for (let i = 0; i < DEMO_LINE_CONFIG.length; i++) {
         let s = DEMO_LINE_CONFIG[i]
         backend_events.newGraph(s["name"], s["color"])

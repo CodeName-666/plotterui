@@ -3,6 +3,7 @@
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
 .import "BackendLogger.js" as Logger
+.import "DataGen.js" as Data
 
 const ERROR = 40
 const WARNING = 30
@@ -34,6 +35,9 @@ var backend_events = undefined
 var update_timer = undefined // Cycle Timer (equal Thread) as Mainloop for the Chart
 var setup_done_status = false // Setup flag to verify is setup was done
 var log_level = NOTSET
+
+var timer_frequency = 0
+var timer_counter = 0
 
 //--- UI/Backend parameter
 var current_settings = undefined
@@ -142,6 +146,7 @@ function Timer(interval, repeat = false, start = false, callback = undefined) {
         var cTimer = Qt.createQmlObject(' import QtQuick 2.15; Timer {}',application_handle);
 
         cTimer.interval = interval
+        timer_frequency = 1/(interval/1000);
         cTimer.repeat = repeat
 
         if (callback !== undefined) {
@@ -178,6 +183,17 @@ function backend_simulator_loop() {
                 break
         }
     }
+
+    update_time_count();
+}
+
+function update_time_count() {
+    timer_counter ++;
+}
+
+
+function get_run_time() {
+    return timer_counter * 1/timer_frequency;
 }
 
 /*******************************************************************
@@ -195,7 +211,13 @@ function backend_simulator_telnet_loop() {}
  ******************************************************************/
 function backend_simulator_test_loop() {
 
+    for (const [key, value] of Object.entries(signal_list)) {
+        switch(value["type"]) {
+            case "sinus":
 
+
+        }
+    }
 
 
 }
@@ -246,16 +268,16 @@ function log_debug(msg) {
  ******************************************************************/
 function create_demo_lines() {
 
-    DEMO_LINE_CONFIG.append( )
 
+    DEMO_LINE_CONFIG.push({
+        "name" : current_settings["name"],
+        "color": current_settings["color"],
+        "type": current_settings["type"]
+    })
 
     for (let i = 0; i < DEMO_LINE_CONFIG.length; i++) {
         let s = DEMO_LINE_CONFIG[i]
         backend_events.newGraph(s["name"], s["color"])
-    }
-
-    if (settings_valid()) {
-        backend_events.newGraph(current_settings["name"],current_settings["color"])
     }
 }
 
@@ -272,6 +294,17 @@ function is_connected()
  ******************************************************************/
 function add_graph(name, graph) {
     Logger.log_debug("Add Graph: Name = " + name)
-    signal_list[name] = graph
+
+    var settings;
+
+    for (let i = 0; i < DEMO_LINE_CONFIG.length; i++) {
+        let s = DEMO_LINE_CONFIG[i]
+        if(s["name"] === name) {
+            settings = s;
+            break;
+        }
+    }
+
+    signal_list[name] = {"graph": graph, type: settings["type"]};
 }
 

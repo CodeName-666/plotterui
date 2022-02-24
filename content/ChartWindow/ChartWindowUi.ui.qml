@@ -1,11 +1,14 @@
 import QtQuick 2.15
 import QtCharts 2.0
 import QtQuick.Layouts 1.11
+import QtQuick.Controls 2.15
 
 Item {
     property alias chart: chart
     property alias xAxis: xAxis
     property alias yAxis: yAxis
+    property alias zoomInButton: zoomInButton
+    property alias zoomOutButton: zoomOutButton
 
     ChartView {
         id: chart
@@ -16,6 +19,19 @@ Item {
         antialiasing: true
         theme: ChartView.ChartThemeDark
 
+        ColumnLayout {
+            x: 519
+            y: 17
+            Button {
+                id: zoomInButton
+                text: "+"
+            }
+
+            Button {
+                id: zoomOutButton
+                text: "-"
+            }
+        }
         ValueAxis {
             id: xAxis
             min: 0
@@ -32,7 +48,7 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:480;width:640}D{i:2}D{i:3}D{i:1}
+    D{i:0;autoSize:true;height:480;width:640}D{i:3}D{i:4}D{i:2}D{i:5}D{i:6}D{i:1}
 }
 ##^##*/
 

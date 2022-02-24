@@ -50,12 +50,12 @@ var connected = false
 var DEMO_LINE_CONFIG = [{
     "name": "DEMO_1",
     "color": 0xffffff,
-    "type": "SIN"
+    "type": "Sinus"
 },
 {
     "name": "DEMO_2",
     "color": 0xffffff,
-    "type": "SIN"
+    "type": "Sinus"
 }]
 
 var connection_interfaces = [{
@@ -196,6 +196,10 @@ function get_run_time() {
     return timer_counter * 1/timer_frequency;
 }
 
+function get_frequency() {
+    return timer_frequency;
+}
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
@@ -212,10 +216,16 @@ function backend_simulator_telnet_loop() {}
 function backend_simulator_test_loop() {
 
     for (const [key, value] of Object.entries(signal_list)) {
+        let x = get_run_time();
         switch(value["type"]) {
-            case "sinus":
+            case "Sinus":
+                let f = get_frequency(x,f,1);
+                let y = Data.sinus(run_time,)
+                console.log("Runtime = ", run_time);
+                break;
+            case "Rectangle":
 
-
+                break;
         }
     }
 

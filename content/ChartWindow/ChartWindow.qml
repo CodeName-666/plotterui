@@ -3,16 +3,25 @@ import QtCharts 2.15
 import PlotterUi 1.0
 
 
+
 ChartWindowUi{
 
 
-   // property alias lineseries : lineseries;
+    property var lineseries;
+
+
+    zoomInButton.onClicked: chart.zoom(2)
+    zoomOutButton.onClicked: chart.zoom(-2)
 
     Component.onCompleted:  {
 
         BackendInterface.events().newGraph.connect(new_graph)
         BackendInterface.events().scrollRight.connect(chart.scrollRight)
         Logger.log_debug("CHARTVIEW Completed");
+
+
+        lineseries = chart.createSeries(ChartView.SeriesTypeLine,
+                                              "name", xAxis, yAxis)
     }
     
     function new_graph(name, color) {
@@ -37,43 +46,46 @@ ChartWindowUi{
         return line
     }
 
-    //QtObject {
-    //    id: params
-    //    property real m_x: 9;
-    //    property real m_y: 0
-    //    property real xPoint: 0.0
-    //    property real yPoint: 0.0
-//
-    //}
+    QtObject {
+        id: params
+        property real m_x: 5;
+        property real m_y: 0
+        property real xPoint: 0.0
+        property real yPoint: 0.0
+
+    }
+
+    property var counter: 0
+
+    Timer {
+        id: refreshTimer
+        //interval: 1 / 60 * 1000 // 60 Hz
+        interval: 1
+        running: true
+        repeat: true
+        onTriggered: {
 
 
-    //Timer {
-    //    id: refreshTimer
-    //    //interval: 1 / 60 * 1000 // 60 Hz
-    //    interval: 100
-    //    running: true
-    //    repeat: true
-    //    onTriggered: {
-//
-//
-    //        params.xPoint = chart.plotArea.width / xAxis.tickCount
-    //        params.yPoint = (xAxis.max - xAxis.min)/ xAxis.tickCount
-//
-//
-    //        params.m_x += params.yPoint;
-    //        params.m_y = Math.random()
-//
-    //        lineseries.append(params.m_x,params.m_y);
-    //        scaterseries.append(params.m_x,params.m_y + 3);
-//
-    //        chart.scrollRight(params.xPoint);
-    //        //console.log("max=",xAxis.max," min=", xAxis.min ," delta= ",xAxis.max - xAxis.min , " point= ",params.yPoint)
-//
-//
-    //        //chart.scrollRight(params.m_x);
-    //    }
-    //}
-//
+            params.xPoint = chart.plotArea.width / xAxis.tickCount
+            params.yPoint = (xAxis.max - xAxis.min)/ xAxis.tickCount
+
+
+            //console.log("Y-Point = ", params.yPoint)
+
+            params.m_x += params.yPoint;
+            params.m_y = Rand.getRandomArbitrary(0,10)
+
+            console.log("m_x = ",  params.m_x)
+
+            lineseries.append(params.m_x,params.m_y);
+
+            chart.scrollRight(params.xPoint);
+            counter ++
+
+
+        }
+    }
+
     //xAsis.onRangeChanged: chart.scroll(min,max)
 }
 

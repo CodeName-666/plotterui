@@ -39,6 +39,11 @@ var log_level = NOTSET
 var timer_frequency = 0
 var timer_counter = 0
 
+var plot_area = undefined
+var xAxis = undefined
+var yAxis = undefined
+var tick_points = 0
+
 //--- UI/Backend parameter
 var current_settings = undefined
 var current_interface = undefined
@@ -47,7 +52,7 @@ var signal_list = {} // Dictionary of demo signals/Lines in the chart
 var connected = false
 
 //--- Demo Lines Config ---
-var DEMO_LINE_CONFIG = [{
+var DEMO_LINE_CONFIG = [/*{
     "name": "DEMO_1",
     "color": 0xffffff,
     "type": "Sinus"
@@ -56,7 +61,7 @@ var DEMO_LINE_CONFIG = [{
     "name": "DEMO_2",
     "color": 0xffffff,
     "type": "Sinus"
-}]
+}*/]
 
 var connection_interfaces = [{
                                  "val": "SERIAL",
@@ -215,13 +220,20 @@ function backend_simulator_telnet_loop() {}
  ******************************************************************/
 function backend_simulator_test_loop() {
 
+    let xPoint = plot_area.width / xAxis.tickCount;
+    let yPoint = (xAxis.max - xAxis.min)/ xAxis.tickCount
+
+    tick_points += yPoint
+
     for (const [key, value] of Object.entries(signal_list)) {
         let x = get_run_time();
         switch(value["type"]) {
             case "Sinus":
-                let f = get_frequency(x,f,1);
-                let y = Data.sinus(run_time,)
-                console.log("Runtime = ", run_time);
+                let f = get_frequency();
+                let y = Data.sinus(x,f,1);
+
+                console.log("Sinus = ", y)
+                value["graph"].append(tick_points,y);
                 break;
             case "Rectangle":
 
@@ -229,7 +241,7 @@ function backend_simulator_test_loop() {
         }
     }
 
-
+    backend_events.scrollRight(xPoint)
 }
 
 
@@ -318,3 +330,14 @@ function add_graph(name, graph) {
     signal_list[name] = {"graph": graph, type: settings["type"]};
 }
 
+
+
+function set_plot_area(area) {
+    plot_area = area;
+}
+
+
+function set_axis(x_axis, y_axis) {
+    xAxis = x_axis;
+    yAxis = y_axis;
+}

@@ -76,7 +76,7 @@ function is_connected() {
  * FUNCTION
  ******************************************************************/
 function set_plot_area(area) {
-    get_interface().set_plot_area();
+    get_interface().set_plot_area(area);
 }
 
 /*******************************************************************
@@ -84,4 +84,8 @@ function set_plot_area(area) {
  ******************************************************************/
 function add_graph(name,graph) {
     get_interface().add_graph(name, graph);
+}
+
+function set_axis(xAxis, yAxis) {
+    get_interface().set_axis(xAxis, yAxis);
 }

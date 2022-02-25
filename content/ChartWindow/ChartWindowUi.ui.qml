@@ -21,7 +21,10 @@ Item {
 
         ColumnLayout {
             x: 519
-            y: 17
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: 21
+            anchors.rightMargin: 21
             Button {
                 id: zoomInButton
                 text: "+"

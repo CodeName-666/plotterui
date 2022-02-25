@@ -10,8 +10,8 @@ ChartWindowUi{
     property var lineseries;
 
 
-    zoomInButton.onClicked: chart.zoom(2)
-    zoomOutButton.onClicked: chart.zoom(-2)
+    zoomInButton.onClicked: chart.zoomIn()
+    zoomOutButton.onClicked: chart.zoomOut()
 
     Component.onCompleted:  {
 
@@ -89,8 +89,4 @@ ChartWindowUi{
     //xAsis.onRangeChanged: chart.scroll(min,max)
 }
 
-/*##^##
-Designer {
-    D{i:0;autoSize:true;height:480;width:640}
-}
-##^##*/
+

@@ -63,16 +63,7 @@ var DEMO_LINE_CONFIG = [/*{
     "type": "Sinus"
 }*/]
 
-var connection_interfaces = [{
-                                 "val": "SERIAL",
-                                 "name": "Serial"
-                             }, {
-                                 "val": "TELNET",
-                                 "name": "Telnet"
-                             }, {
-                                 "val": "TEST",
-                                 "name": "Test"
-                             }]
+var connection_interfaces = ["Test"]
 
 /*******************************************************************
  * FUNCTION
@@ -282,7 +273,13 @@ function log_info(msg) {
 function log_debug(msg) {
     console.log("- DEBUG - " + msg);
 }
-
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_stack() {
+    var stack = Error.stack()
+    console.log(stack)
+}
 
 /*******************************************************************
  * FUNCTION

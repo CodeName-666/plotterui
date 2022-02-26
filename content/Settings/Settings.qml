@@ -5,6 +5,10 @@ SettingsUi {
 
     id: settings_menu
 
+    Component.onCompleted: {
+        BackendInterface.events.setupSettinss.connect(setup)
+    }
+
     comboBox.onActivated:
     {
         set_interface(comboBox.displayText)
@@ -159,6 +163,13 @@ SettingsUi {
     {
          var idx = combobox.find(txt, Qt.MatchExactly);
          comboBox.currentIndex = idx;
+    }
+
+
+    function setup(settings) {
+        let interfaces = settings["interfaces"];
+        
+        comboBox.model = interfaces
     }
 }
 

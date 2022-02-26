@@ -51,22 +51,13 @@ Item {
         id: comboBox
         width: 143
         height: 23
-        textRole: "name"
-        valueRole: "val"
+        //        textRole: "name"
+        //        valueRole: "val"
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.rightMargin: 44
         anchors.topMargin: 40
-        model: [{
-                "val": "SERIAL",
-                "name": "Serial"
-            }, {
-                "val": "TELNET",
-                "name": "Telnet"
-            }, {
-                "val": "TEST",
-                "name": "Test"
-            }]
+        //model: ["Serial", "Telnet", "Test"]
     }
 
     SerialSettingsUi {

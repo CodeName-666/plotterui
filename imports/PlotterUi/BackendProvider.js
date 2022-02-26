@@ -116,3 +116,10 @@ function log_info(msg) {
 function log_debug(msg) {
     backend.log_debug(msg);
 }
+
+/*******************************************************************
+ * FUNCTION SLOT
+ ******************************************************************/
+function log_stack() {
+    backend.log_qml_stack(Error.stack())
+}

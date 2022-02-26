@@ -1,12 +1,14 @@
 .pragma library
 
 var interface = undefined;
+var log_stack
 
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
-function setup(logger_interface) {
+function setup(logger_interface, stack_logging = true) {
     interface = logger_interface
+    log_stack = stack_logging
 }
 
 
@@ -44,6 +46,9 @@ function log_internal(type, msg) {
     console.log("INTERNAL LOG: " + type + " - " + msg);
 }
 
+
+
+
 function log_messages(type, msg)
 {
     if(interface !== undefined)
@@ -66,5 +71,6 @@ function log_messages(type, msg)
         log_internal(type,msg);
     }
 
-    console.trace()
+    if(log_stack)
+        interface.log_stack()
 }

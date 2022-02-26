@@ -116,7 +116,7 @@ function connect() {
                 if (settings_valid()) {
                     connected = true;
                     create_demo_lines();
-                    update_timer = new Timer(1000, true, true, backend_simulator_loop)
+                    update_timer = new Timer(100, true, true, backend_simulator_loop)
                 }
                 break
             case "Serial":
@@ -228,7 +228,7 @@ function backend_simulator_test_loop() {
         switch(value["type"]) {
             case "Sinus":
                 let f = get_frequency();
-                let y = Data.sinus(x,f,1);
+                let y = Data.sinus(x,1000,2,0,5);
 
                 console.log("Sinus = ", y)
                 value["graph"].append(tick_points,y);

@@ -8,7 +8,7 @@ QtObject {
     signal scrollRight(var pixel);
 
     signal comPortUpdate(var portList);
-
+    signal setupInterfaces(var interfaces)
 
 
 }

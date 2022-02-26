@@ -3,8 +3,12 @@
 var rect_pos = 0
 var rect_start = 1
 
-function sinus(x,f,A) {
-    var t = A * Math.sin(f * x);
+
+/**
+ *
+ */
+function sinus(x,f,A = 1, b = 0, c = 0) {
+    var t = A * Math.sin(f * x + b) + c;
     return t;
 }
 

@@ -42,7 +42,7 @@ var timer_counter = 0
 var plot_area = undefined
 var xAxis = undefined
 var yAxis = undefined
-var tick_points = 0
+var tick_points = 9
 
 //--- UI/Backend parameter
 var current_settings = undefined
@@ -116,7 +116,7 @@ function connect() {
                 if (settings_valid()) {
                     connected = true;
                     create_demo_lines();
-                    update_timer = new Timer(10, true, true, backend_simulator_loop)
+                    update_timer = new Timer(1000, true, true, backend_simulator_loop)
                 }
                 break
             case "Serial":
@@ -223,8 +223,6 @@ function backend_simulator_test_loop() {
     let xPoint = plot_area.width / xAxis.tickCount;
     let yPoint = (xAxis.max - xAxis.min)/ xAxis.tickCount
 
-    tick_points += yPoint
-
     for (const [key, value] of Object.entries(signal_list)) {
         let x = get_run_time();
         switch(value["type"]) {
@@ -240,8 +238,9 @@ function backend_simulator_test_loop() {
                 break;
         }
     }
-
+    tick_points += yPoint
     backend_events.scrollRight(xPoint)
+
 }
 
 

@@ -4,13 +4,13 @@ var rect_pos = 0
 var rect_start = 1
 
 function sinus(x,f,A) {
-
-    return A * Math.sin(2*Math.PI* f * x);
+    var t = A * Math.sin(f * x);
+    return t;
 }
 
 function cosinus(x,f,A) {
 
-    return A * Math.sin(2*Math.PI* f * x);
+    return A * Math.sinh(Math.PI / f * x);
 }
 
 

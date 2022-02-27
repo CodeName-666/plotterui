@@ -6,7 +6,8 @@ SettingsUi {
     id: settings_menu
 
     Component.onCompleted: {
-        BackendInterface.events.setupSettinss.connect(setup)
+        Logger.log_debug("SettingsUi Completed")
+        BackendInterface.events().setupSettings.connect(setup)
     }
 
     comboBox.onActivated:
@@ -107,7 +108,7 @@ SettingsUi {
 
         else
         {
-            BackendInterface.logError("Invalid Configuration....")
+            BackendInterface.log_error("Invalid Configuration....")
             return 0
         }
     }
@@ -170,6 +171,7 @@ SettingsUi {
         let interfaces = settings["interfaces"];
         
         comboBox.model = interfaces
+        Logger.log_debug("Settings Setup")
     }
 }
 

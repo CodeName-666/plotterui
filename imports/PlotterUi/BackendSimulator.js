@@ -65,6 +65,10 @@ var DEMO_LINE_CONFIG = [/*{
 
 var connection_interfaces = ["Test"]
 
+var simulator_settings = {
+    "interfaces": connection_interfaces
+}
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
@@ -76,6 +80,7 @@ function setup(app, events, logger_level = NOTSET) {
     log_level = logger_level
     Logger.log_debug("SIMULATOR setup done")
 
+    backend_events.setupSettings(simulator_settings)
 }
 
 /*******************************************************************

@@ -20,7 +20,7 @@ AppUi {
         }
         else
         {
-            Logger.setup(Simulator);
+            Logger.setup(Simulator,false);
             Logger.log_debug("App Simulatort Init");
             Setup.setup("BACKEND_SIMULATOR", this);
         }

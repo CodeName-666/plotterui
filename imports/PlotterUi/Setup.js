@@ -111,3 +111,8 @@ function createBackendEventObject() {
 function getBackendEvents() {
     return backend_events;
 }
+
+
+function setupUi(ui_settings) {
+
+}

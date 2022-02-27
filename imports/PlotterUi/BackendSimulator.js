@@ -281,8 +281,7 @@ function log_debug(msg) {
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
-function log_stack() {
-    var stack = Error.stack()
+function log_stack(stack) {
     console.log(stack)
 }
 

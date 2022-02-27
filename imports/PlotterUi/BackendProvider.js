@@ -10,12 +10,12 @@ var backend = undefined
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
-function setup(python_backend) {
+function setup(python_backend, events) {
 
    if(python_backend !== undefined)
     {
         backend = python_backend;
-        connect_signals();
+        connect_signals(events);
 
 
         backend.log_info("Setup Done");
@@ -31,7 +31,7 @@ function setup(python_backend) {
 function connect_signals( events) {
 
     backend.new_graph.connect(events.newGraph);
-    backend.scroll.connect(events.scroll);
+    backend.scrollRight.connect(events.scrollRight);
 
 }
 
@@ -90,36 +90,61 @@ function set_plot_area(area) {
 
 
 /*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function set_axis(xAxis, yAxis) {
+    backend.xAxis = xAxis;
+    backend.yAxis = yAxis;
+}
+
+
+
+/*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_error(msg) {
-    backend.log_error(msg);
+    if (backend !== undefined)
+        backend.log_error(msg);
+    else
+        console.log(msg)
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_warning(msg) {
-    backend.log_warning(msg);
+    if (backend !== undefined)
+        backend.log_warning(msg);
+    else
+        console.log(msg)
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_info(msg) {
-    backend.log_info(msg);
+    if (backend !== undefined)
+        backend.log_info(msg);
+    else
+        console.log(msg)
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_debug(msg) {
-    backend.log_debug(msg);
+    if (backend !== undefined)
+        backend.log_debug(msg);
+    else
+        console.log(msg)
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
-function log_stack() {
-    backend.log_qml_stack(Error.stack())
+function log_stack(stack) {
+    if (backend !== undefined)
+        backend.log_qml_stack(stack)
+    else
+        console.log(stack)
 }

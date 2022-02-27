@@ -14,7 +14,7 @@ AppUi {
 
         if(typeof Backend !== 'undefined')
         {
-            Logger.setup(Backend);
+            Logger.setup(Provider,false);
             Logger.log_debug("App Backend Init");
             Setup.setup("PYTHON_BACKEND", this, Backend);
         }

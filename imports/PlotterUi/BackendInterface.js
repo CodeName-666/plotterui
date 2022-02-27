@@ -86,6 +86,9 @@ function add_graph(name,graph) {
     get_interface().add_graph(name, graph);
 }
 
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
 function set_axis(xAxis, yAxis) {
-    get_interface().set_axis(xAxis, yAxis);
+    get_interface().set_axis(xAxis, yAxis)
 }

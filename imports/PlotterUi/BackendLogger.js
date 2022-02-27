@@ -1,14 +1,14 @@
 .pragma library
 
 var interface = undefined;
-var log_stack
+var stack_logging_enabled
 
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
 function setup(logger_interface, stack_logging = true) {
     interface = logger_interface
-    log_stack = stack_logging
+    stack_logging_enabled = stack_logging
 }
 
 
@@ -71,6 +71,8 @@ function log_messages(type, msg)
         log_internal(type,msg);
     }
 
-    if(log_stack)
-        interface.log_stack()
+    if(stack_logging_enabled) {
+        var e = new Error()
+        interface.log_stack(e.stack)
+    }
 }

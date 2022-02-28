@@ -5,29 +5,6 @@
 .import "BackendLogger.js" as Logger
 .import "DataGen.js" as Data
 
-const ERROR = 40
-const WARNING = 30
-const INFO = 20
-const DEBUG = 10
-const NOTSET = 0
-
-var levelToName = {
-    ERROR: 'ERROR',
-    WARNING: 'WARNING',
-    INFO: 'INFO',
-    DEBUG: 'DEBUG',
-    NOTSET: 'NOTSET',
-}
-
-var nameToLevel = {
-    'ERROR': ERROR,
-    'WARNING': WARNING,
-    'INFO': INFO,
-    'DEBUG': DEBUG,
-    'NOTSET': NOTSET,
-}
-
-
 
 //--- Simulator Setup ----
 var application_handle = undefined
@@ -72,15 +49,13 @@ var simulator_settings = {
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function setup(app, events, logger_level = NOTSET) {
+function setup(app, events) {
     application_handle = app;
     setup_done_status = true
     connect_events(events);
  
-    log_level = logger_level
+    backend_events.setupConfig(simulator_settings)
     Logger.log_debug("SIMULATOR setup done")
-
-    backend_events.setupSettings(simulator_settings)
 }
 
 /*******************************************************************

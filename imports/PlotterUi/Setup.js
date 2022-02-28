@@ -71,8 +71,14 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     used_backend_interface = get_backend_interface(use_backend);
     qml_start_up_done = true;
 
-    application_handle = applicationHandle
-    backend_events = createBackendEventObject()
+    // Store appliction handle internal.
+    application_handle = applicationHandle;
+    // Create BackendEvents QML object to provide alle needed Signals for the APP
+    backend_events = createBackendEventObject();
+    // Connect the BackendEvent "setupConfig" with the internal setupConfig Slot
+    // Depandent on the used interface the Signal SetupConfig can be triggered from 
+    // the Simulator or from the Python Backend directly to set all needed configurations.
+    backend_events.setupConfig.connect(setupConfig)
     if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
         Simulator.setup(application_handle, backend_events);
@@ -81,12 +87,14 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     {
         if (python_backend_object !== undefined)
         {
-            Provider.setup(python_backend_object, backend_events)
+            Provider.setup(python_backend_object, backend_events);
+        } else {
+            Logger.log_error("Backend invalid");
         }
     }
     else
     {
-
+        Logger.log_error("Invalid interface...");
     }
 }
 
@@ -113,6 +121,6 @@ function getBackendEvents() {
 }
 
 
-function setupUi(ui_settings) {
+function setupConfig(ui_settings) {
 
 }

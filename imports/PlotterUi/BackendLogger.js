@@ -1,14 +1,39 @@
 .pragma library
 
+
+const ERROR = 40
+const WARNING = 30
+const INFO = 20
+const DEBUG = 10
+const NOTSET = 0
+
+var levelToName = {
+    ERROR: 'ERROR',
+    WARNING: 'WARNING',
+    INFO: 'INFO',
+    DEBUG: 'DEBUG',
+    NOTSET: 'NOTSET',
+}
+
+var nameToLevel = {
+    'ERROR': ERROR,
+    'WARNING': WARNING,
+    'INFO': INFO,
+    'DEBUG': DEBUG,
+    'NOTSET': NOTSET,
+}
+
 var interface = undefined;
-var stack_logging_enabled
+var stack_logging_enabled;
+var logging_level;
 
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
-function setup(logger_interface, stack_logging = true) {
+function setup(logger_interface, stack_logging = true, logger_level = NOTSET) {
     interface = logger_interface
     stack_logging_enabled = stack_logging
+    logging_level = logger_level
 }
 
 
@@ -75,4 +100,13 @@ function log_messages(type, msg)
         var e = new Error()
         interface.log_stack(e.stack)
     }
+}
+
+function loglevel_to_name(level) {
+    return levelToName[level];
+}
+
+
+function logname_to_level(name) {
+    return nameToLevel[name];
 }

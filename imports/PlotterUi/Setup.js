@@ -122,5 +122,5 @@ function getBackendEvents() {
 
 
 function setupConfig(ui_settings) {
-
+    application_handle.settings.setup(ui_settings)
 }

@@ -11,7 +11,6 @@ var application_handle = undefined
 var backend_events = undefined
 var update_timer = undefined // Cycle Timer (equal Thread) as Mainloop for the Chart
 var setup_done_status = false // Setup flag to verify is setup was done
-var log_level = NOTSET
 
 var timer_frequency = 0
 var timer_counter = 0

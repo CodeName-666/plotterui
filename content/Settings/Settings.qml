@@ -7,7 +7,7 @@ SettingsUi {
 
     Component.onCompleted: {
         Logger.log_debug("SettingsUi Completed")
-        BackendInterface.events().setupSettings.connect(setup)
+        set_interface(comboBox.displayText)
     }
 
     comboBox.onActivated:
@@ -108,7 +108,7 @@ SettingsUi {
 
         else
         {
-            BackendInterface.log_error("Invalid Configuration....")
+            Logger.log_error("Invalid Configuration....")
             return 0
         }
     }
@@ -154,7 +154,7 @@ SettingsUi {
 
         else
         {
-            BackendInterface.logError("Invalid Configuration....")
+            Logger.log_error("Invalid Configuration....")
             return 0
         }
     }
@@ -168,9 +168,9 @@ SettingsUi {
 
 
     function setup(settings) {
-        let interfaces = settings["interfaces"];
+        var model = settings["interfaces"];
         
-        comboBox.model = interfaces
+        comboBox.model = model
         Logger.log_debug("Settings Setup")
     }
 }

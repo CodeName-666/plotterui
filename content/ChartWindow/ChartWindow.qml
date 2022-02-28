@@ -42,6 +42,11 @@ ChartWindowUi{
         Logger.log_info("Create Graph - Name: " + name + " - Color: " + color);
         return line
     }
+
+
+    function setup(settings) {
+                
+    }
 }
 
 

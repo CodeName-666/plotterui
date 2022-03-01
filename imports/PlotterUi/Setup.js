@@ -22,13 +22,11 @@ var backend_events = undefined
 function is_interface(interface_type)
 {
     let ret = false;
-    let value_to_check = used_backend_interface;
-
     if(!isNaN(interface_type))
     {
         if(interface_type <= (BACKEND_INTERFACES.length -1))
         {
-            ret = (value_to_check === BACKEND_INTERFACES[interface_type])
+            ret = (used_backend_interface === BACKEND_INTERFACES[interface_type])
         } else {
             ret = false;
         }
@@ -78,7 +76,7 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     // Connect the BackendEvent "setupConfig" with the internal setupConfig Slot
     // Depandent on the used interface the Signal SetupConfig can be triggered from 
     // the Simulator or from the Python Backend directly to set all needed configurations.
-    backend_events.setupConfig.connect(setupConfig)
+    backend_events.ui_setup.connect(ui_setup)
     if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
     {
         Simulator.setup(application_handle, backend_events);
@@ -121,6 +119,6 @@ function getBackendEvents() {
 }
 
 
-function setupConfig(ui_settings) {
+function ui_setup(ui_settings) {
     application_handle.settings.setup(ui_settings)
 }

@@ -19,7 +19,7 @@ function setup(python_backend, events) {
 
 
         backend.log_info("Setup Done");
-        backend.setup_done(true);
+        backend.backend_setup_done = true ;
     } else {
         /* TBD */
     }
@@ -32,6 +32,7 @@ function connect_signals( events) {
 
     backend.new_graph.connect(events.newGraph);
     backend.scrollRight.connect(events.scrollRight);
+    backend.ui_setup.connect(events.setupConfig)
 
 }
 

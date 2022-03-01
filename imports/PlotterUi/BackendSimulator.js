@@ -315,3 +315,7 @@ function set_axis(x_axis, y_axis) {
     xAxis = x_axis;
     yAxis = y_axis;
 }
+
+function ui_setup_status(status) {
+    backend.ui_setup_done = status
+}

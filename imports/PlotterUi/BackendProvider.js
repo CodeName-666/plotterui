@@ -149,3 +149,8 @@ function log_stack(stack) {
     else
         console.log(stack)
 }
+
+
+function ui_setup_status(status) {
+    backend.ui_setup_done = status
+}

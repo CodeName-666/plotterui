@@ -77,11 +77,11 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     // Depandent on the used interface the Signal SetupConfig can be triggered from 
     // the Simulator or from the Python Backend directly to set all needed configurations.
     backend_events.ui_setup.connect(ui_setup)
-    if(used_backend_interface === BACKEND_INTERFACES[BACKEND_SIMULATOR])
+    if(is_interface(BACKEND_SIMULATOR))
     {
         Simulator.setup(application_handle, backend_events);
     }
-    else if(used_backend_interface === BACKEND_INTERFACES[PYTHON_BACKEND])
+    else if(is_interface(PYTHON_BACKEND))
     {
         if (python_backend_object !== undefined)
         {
@@ -120,5 +120,17 @@ function getBackendEvents() {
 
 
 function ui_setup(ui_settings) {
-    application_handle.settings.setup(ui_settings)
+    let ret = application_handle.settings.setup(ui_settings)
+    let status = false
+
+    if(ret === true) 
+        status = true
+    
+    if(is_interface(BACKEND_SIMULATOR)) {
+        Simulator.
+    }
+    else if(is_interface(PYTHON_BACKEND)) {
+
+    }
+
 }

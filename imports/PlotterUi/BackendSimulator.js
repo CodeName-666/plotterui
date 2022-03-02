@@ -11,6 +11,7 @@ var application_handle = undefined
 var backend_events = undefined
 var update_timer = undefined // Cycle Timer (equal Thread) as Mainloop for the Chart
 var setup_done_status = false // Setup flag to verify is setup was done
+var ui_setup_done = false
 
 var timer_frequency = 0
 var timer_counter = 0
@@ -317,5 +318,5 @@ function set_axis(x_axis, y_axis) {
 }
 
 function ui_setup_status(status) {
-    backend.ui_setup_done = status
+    ui_setup_done = status
 }

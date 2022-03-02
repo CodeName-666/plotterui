@@ -127,10 +127,9 @@ function ui_setup(ui_settings) {
         status = true
     
     if(is_interface(BACKEND_SIMULATOR)) {
-        Simulator.
-    }
-    else if(is_interface(PYTHON_BACKEND)) {
-
-    }
+        Simulator.ui_setup_status(status)
+    }else if(is_interface(PYTHON_BACKEND)) {
+        Provider.ui_setup_status(status)
+   }
 
 }

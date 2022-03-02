@@ -172,6 +172,7 @@ SettingsUi {
         
         comboBox.model = model
         Logger.log_debug("Settings Setup")
+        return true
     }
 }
 

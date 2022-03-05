@@ -92,3 +92,8 @@ function add_graph(name,graph) {
 function set_axis(xAxis, yAxis) {
     get_interface().set_axis(xAxis, yAxis)
 }
+
+
+function testSlot(x) {
+    get_interface().testSlot(x)
+}

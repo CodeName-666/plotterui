@@ -154,3 +154,8 @@ function log_stack(stack) {
 function ui_setup_status(status) {
     backend.ui_setup_done = status
 }
+
+
+function testSlot(x) {
+    backend.testSlot(x)
+}

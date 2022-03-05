@@ -168,10 +168,12 @@ SettingsUi {
 
 
     function setup(settings) {
-        var model = settings["interfaces"];
-        
+        //var model = settings["interfaces"];
+        var model = ["Test"]
+        console.log(model)
         comboBox.model = model
         Logger.log_debug("Settings Setup")
+
         return true
     }
 }

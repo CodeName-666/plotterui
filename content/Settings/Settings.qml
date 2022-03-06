@@ -7,14 +7,17 @@ SettingsUi {
 
     Component.onCompleted: {
         Logger.log_debug("SettingsUi Completed")
-        set_interface(comboBox.displayText)
+        set_interface(interfaceComboBox.displayText)
     }
 
     comboBox.onActivated:
     {
-        set_interface(comboBox.displayText)
+        set_interface(interfaceComboBox.displayText)
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function set_interface(interface_name)
     {
         if( interface_name === "Serial" )
@@ -42,24 +45,35 @@ SettingsUi {
         }
     }
 
-
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function backupSettings()
     {
-        old_interface = comboBox.currentText
-        old_settings = get_settings(comboBox.currentText);
+        old_interface = interfaceComboBox.currentText
+        old_settings = get_settings(interfaceComboBox.currentText);
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function updateComPorts(new_com_ports)
     {
        serialSettings.com_ports = new_com_ports
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function restoreSettings()
     {
         set_interface(old_interface);
         set_settings(old_interface, old_settings);
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function get_serial_settings()
     {
         return {
@@ -69,9 +83,11 @@ SettingsUi {
                 "parity": serialSettings.parityComboBox.currentText,
                 "stop": serialSettings.stopBitsCombo.currentValue
                }
-
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function get_telnet_settings()
     {
         return  {
@@ -80,6 +96,9 @@ SettingsUi {
                 }
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function get_test_settings()
     {
         var retVal =  {
@@ -87,10 +106,12 @@ SettingsUi {
             "color": testSettings.colorView.color,
             "type": qsTr(testSettings.typeCombo.currentText)
            }
-
         return retVal;
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function get_settings(interface_name)
     {
         if(interface_name === "Telnet")
@@ -113,14 +134,18 @@ SettingsUi {
         }
     }
 
-
-
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function set_telnet_settings(settings)
     {
        telnetSettings.ipInput.text = settings["ip"];
        telnetSettings.portInput.text = settings["port"];
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function set_serial_settings(settings)
     {
        set_combobox(serialSettings.comComboBox, settings["port"]);
@@ -130,6 +155,9 @@ SettingsUi {
        serialSettings.baudInput.text = settings["baud"];
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function set_test_settings(settings)
     {
         testSettings.nameInput.text = settings["name"];
@@ -137,6 +165,9 @@ SettingsUi {
         set_combobox(testSettings.typeCombo,settings["type"]);
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function set_settings(interface_name, settings)
     {
         if(interface_name === "Telnet")
@@ -151,7 +182,6 @@ SettingsUi {
         {
             return set_test_settings(settings);
         }
-
         else
         {
             Logger.log_error("Invalid Configuration....")
@@ -159,21 +189,34 @@ SettingsUi {
         }
     }
 
-
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function set_combobox(combobox, txt, type = "txt")
     {
          var idx = combobox.find(txt, Qt.MatchExactly);
-         comboBox.currentIndex = idx;
+         interfaceComboBox.currentIndex = idx;
     }
 
-
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function setup(settings) {
-        //var model = settings["interfaces"];
-        var model = ["Test"]
-        console.log(model)
-        comboBox.model = model
-        Logger.log_debug("Settings Setup")
+        // Settings for available interfaces
+        var interface_model = settings["interfaces"];
+        interfaceComboBox.model = interface_model;
 
+        // Get DATA of Serial settings data Models
+        var serial_config = settings["serial"];
+        var data_size_model = serial_config["dataBits"];
+        var parity_bits_model = serial_config["parityBits"];
+        var stop_bits_model = serial_config["stopBits"];
+        // Set DATA of Serial settings data Models
+        serialSettings.dataSizeComboBox.model = data_size_model;
+        serialSettings.parityComboBox.model = parity_bits_model;
+        serialSettings.stopBitsCombo.model = stop_bits_model;
+
+        Logger.log_debug("Settings Setup")
         return true
     }
 }

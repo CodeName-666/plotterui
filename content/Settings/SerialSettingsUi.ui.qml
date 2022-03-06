@@ -44,7 +44,7 @@ Item {
                     id: comComboBox
 
                     height: 20
-                    model: ["COM1", "COM2"]
+                    //model: ["COM1", "COM2"]
                     Layout.fillWidth: true
                 }
 
@@ -76,9 +76,9 @@ Item {
                     id: dataSizeComboBox
                     height: 23
                     textRole: "name"
-                    valueRole: "val"
+                    valueRole: "value"
                     Layout.fillWidth: true
-                    model: DataSizeModel {}
+                    //model: DataSizeModel {}
                 }
 
                 Text {
@@ -92,9 +92,9 @@ Item {
                     id: parityComboBox
                     Layout.fillWidth: true
                     textRole: "name"
-                    valueRole: "val"
+                    valueRole: "value"
                     height: 23
-                    model: ParityBitsModel {}
+                    //model: ParityBitsModel {}
                 }
 
                 Text {
@@ -108,9 +108,9 @@ Item {
                     id: stopBitsCombo
                     Layout.fillWidth: true
                     textRole: "name"
-                    valueRole: "val"
+                    valueRole: "value"
                     height: 23
-                    model: StopBitsModel {}
+                    //model: StopBitsModel {}
                 }
             }
 

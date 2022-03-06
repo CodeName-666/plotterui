@@ -34,11 +34,11 @@ AppUi {
 
     function acceptSettings()
     {
-        var cSettings =settings.get_settings(settings.comboBox.currentText);
+        var cSettings =settings.get_settings(settings.interfaceComboBox.currentText);
 
         Logger.log_info("Accept Setting " + cSettings);
 
-        BackendInterface.set_settings(settings.comboBox.currentText,cSettings);
+        BackendInterface.set_settings(settings.interfaceComboBox.currentText,cSettings);
         settingsPopup.close();
     }
 

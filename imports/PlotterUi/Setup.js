@@ -121,8 +121,6 @@ function getBackendEvents() {
 
 function ui_setup(ui_settings) {
 
-    console.log("Setup: " + typeof ui_settings)
-    
     let ret = application_handle.settings.setup(ui_settings)
     let status = false
 

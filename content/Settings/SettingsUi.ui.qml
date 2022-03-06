@@ -11,7 +11,7 @@ Item {
     implicitWidth: 400
     implicitHeight: 400
 
-    property alias comboBox: comboBox
+    property alias interfaceComboBox: interfaceComboBox
     property alias telnetSettings: telnetSettings
     property alias serialSettings: serialSettings
     property alias okButton: okButton
@@ -35,9 +35,9 @@ Item {
         id: text1
         text: qsTr("Connection Type:")
         anchors.left: parent.left
-        anchors.right: comboBox.left
-        anchors.top: comboBox.top
-        anchors.bottom: comboBox.bottom
+        anchors.right: interfaceComboBox.left
+        anchors.top: interfaceComboBox.top
+        anchors.bottom: interfaceComboBox.bottom
         font.pixelSize: 12
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
@@ -48,7 +48,7 @@ Item {
     }
 
     ComboBox {
-        id: comboBox
+        id: interfaceComboBox
         width: 143
         height: 23
         //        textRole: "name"
@@ -64,7 +64,7 @@ Item {
         id: serialSettings
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: comboBox.bottom
+        anchors.top: interfaceComboBox.bottom
         anchors.bottom: okButton.top
         anchors.rightMargin: 5
         anchors.leftMargin: 5
@@ -77,7 +77,7 @@ Item {
         id: telnetSettings
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: comboBox.bottom
+        anchors.top: interfaceComboBox.bottom
         anchors.bottom: okButton.top
         anchors.rightMargin: 5
         anchors.leftMargin: 5
@@ -90,7 +90,7 @@ Item {
         id: testSettings
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: comboBox.bottom
+        anchors.top: interfaceComboBox.bottom
         anchors.bottom: okButton.top
         anchors.rightMargin: 5
         anchors.leftMargin: 5

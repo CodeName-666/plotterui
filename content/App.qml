@@ -10,8 +10,6 @@ AppUi {
     }
 
     Component.onCompleted: {
-
-
         if(typeof Backend !== 'undefined')
         {
             Logger.setup(Provider,false);
@@ -24,14 +22,24 @@ AppUi {
             Logger.log_debug("App Simulatort Init");
             Setup.setup("BACKEND_SIMULATOR", this);
         }
+        connect_signals();
 
 
-        settings.okButton.clicked.connect(acceptSettings)
-        settings.cancleButton.clicked.connect(cancleSettings)
-        toolbar.settingsButton.triggered.connect(openSettingsMenu)
         Logger.log_debug("App Completed");
       }
 
+
+    function connect_signals() {
+        settings.okButton.clicked.connect(acceptSettings)
+        settings.cancleButton.clicked.connect(cancleSettings)
+        toolbar.settingsButton.triggered.connect(openSettingsMenu)
+
+        BackendInterface.events().comPortUpdate.connect(settings.updateComPorts)
+    }
+
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function acceptSettings()
     {
         var cSettings =settings.get_settings(settings.interfaceComboBox.currentText);
@@ -42,6 +50,9 @@ AppUi {
         settingsPopup.close();
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function cancleSettings()
     {
         Logger.log_info("cancel settings");
@@ -49,12 +60,18 @@ AppUi {
         settingsPopup.close();
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function openSettingsMenu()
     {
         settings.backupSettings();
         settingsPopup.open();
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function setConfig()
     {
 

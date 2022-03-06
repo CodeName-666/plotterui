@@ -58,8 +58,12 @@ SettingsUi {
      * FUNCTION
      ******************************************************************/
     function updateComPorts(new_com_ports)
-    {
-       serialSettings.com_ports = new_com_ports
+    {   
+        Logger.log_info("New COM Ports detected:");
+        for (let i = 0; i < new_com_ports.length; i++) {
+            Logger.log_info("COM-Port: " + new_com_ports[i]);
+        }
+        serialSettings.comComboBox.model = new_com_ports
     }
 
     /*******************************************************************

@@ -76,7 +76,7 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
     // Connect the BackendEvent "setupConfig" with the internal setupConfig Slot
     // Depandent on the used interface the Signal SetupConfig can be triggered from 
     // the Simulator or from the Python Backend directly to set all needed configurations.
-    backend_events.ui_setup.connect(ui_setup)
+    backend_events.uiSetup.connect(uiSetup)
     if(is_interface(BACKEND_SIMULATOR))
     {
         Simulator.setup(application_handle, backend_events);
@@ -118,8 +118,10 @@ function getBackendEvents() {
     return backend_events;
 }
 
-
-function ui_setup(ui_settings) {
+/*******************************************************************
+ * FUNCTION
+ ******************************************************************/
+function uiSetup(ui_settings) {
 
     let ret = application_handle.settings.setup(ui_settings)
     let status = false

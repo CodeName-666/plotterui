@@ -16,7 +16,7 @@ function get_interface() {
     } else if (Setup.is_interface(Setup.BACKEND_SIMULATOR)) {
         interface = Simulator
     } else {
-        Logger.log_error("GET INTERACE: Invalid Interface")
+        Logger.log_error("GET INTERFACE: Invalid Interface")
         interface = undefined
     }
     return interface

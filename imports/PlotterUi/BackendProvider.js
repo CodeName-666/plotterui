@@ -32,7 +32,8 @@ function connect_signals( events) {
 
     backend.new_graph.connect(events.newGraph);
     backend.scrollRight.connect(events.scrollRight);
-    backend.ui_setup.connect(events.ui_setup)
+    backend.ui_setup.connect(events.uiSetup);
+    backend.com_port_update.connect(events.comPortUpdate);
 
 }
 

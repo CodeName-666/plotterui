@@ -42,9 +42,8 @@ Item {
 
                 ComboBox {
                     id: comComboBox
-
                     height: 20
-                    //model: ["COM1", "COM2"]
+                    //model: com_ports
                     Layout.fillWidth: true
                 }
 

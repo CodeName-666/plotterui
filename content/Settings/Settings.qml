@@ -10,7 +10,7 @@ SettingsUi {
         set_interface(interfaceComboBox.displayText)
     }
 
-    comboBox.onActivated:
+    interfaceComboBox.onActivated:
     {
         set_interface(interfaceComboBox.displayText)
     }

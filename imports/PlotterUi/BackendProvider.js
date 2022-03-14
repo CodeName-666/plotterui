@@ -41,7 +41,7 @@ function connect_signals( events) {
  * INTERNAL FUNCTION
  ******************************************************************/
 function is_valid() {
-    return (backend != undefined)
+    return (backend !== undefined)
 }
 
 /*******************************************************************

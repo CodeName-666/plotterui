@@ -176,13 +176,15 @@ function set_settings(type, settings) {
 function connect() {
     if(!is_connected())
     {
+        let time = 100;
         Logger.log_debug("Connect to interface: " + current_interface)
         switch (current_interface) {
             case "Test":
                 if (settings_valid()) {
                     connected = true;
                     create_demo_lines();
-                    update_timer = new Timer.Timer(application_handle,100, true, true, backend_simulator_loop)
+                    update_timer = new Timer.Timer(application_handle,time, true, true, backend_simulator_loop)
+                    timer_frequency = 1/((time+50)/1000)
                 }
                 break
             case "Serial":

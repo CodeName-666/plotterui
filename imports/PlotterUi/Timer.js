@@ -5,7 +5,7 @@
  ******************************************************************/
 function Timer(parent, interval, start = false, repeat = false, callback = undefined) {
 
-    var cTimer = Qt.createQmlObject(' import QtQuick 2.15; Timer {}',parent);
+    var cTimer = Qt.createQmlObject(' import QtQuick 6.4; Timer {}',parent);
 
     cTimer.interval = interval
     cTimer.repeat = repeat

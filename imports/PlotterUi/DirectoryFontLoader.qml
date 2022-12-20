@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
+import QtQuick 6.4
 import Qt.labs.folderlistmodel 2.15
 
 QtObject {
@@ -37,7 +37,7 @@ QtObject {
     property string relativeFontDirectory: "fonts"
 
     function loadFont(url) {
-        var fontLoader = Qt.createQmlObject('import QtQuick 2.15; FontLoader { source: "' + url + '"; }',
+        var fontLoader = Qt.createQmlObject('import QtQuick 6.4; FontLoader { source: "' + url + '"; }',
                                             loader,
                                             "dynamicFontLoader");
     }

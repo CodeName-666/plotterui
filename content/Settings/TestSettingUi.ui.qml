@@ -1,7 +1,8 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick 6.4
+import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
-import QtQuick.Dialogs 1.3
+import QtQuick.Dialogs
+
 
 Item {
     implicitHeight: 200

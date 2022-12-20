@@ -1,9 +1,9 @@
-import QtQuick 2.15
+import QtQuick 6.4
 import "content"
 import QtCharts 2.15
 
 import QtQuick.Window 2.15
-import QtQuick.Controls 2.15
+import QtQuick.Controls 6.4
 import QtQuick.Timeline 1.0
 import QtCharts 2.3
 import QtQuick.Layouts 1.15

@@ -1,5 +1,5 @@
 .pragma library
-.import QtQuick 2.15 as Quick
+.import QtQuick 6.4 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.15 as QuickCharts
 .import "BackendLogger.js" as Logger

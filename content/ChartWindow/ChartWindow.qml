@@ -1,4 +1,4 @@
-import QtQuick 2.15
+import QtQuick 6.4
 import QtCharts 2.15
 import PlotterUi 1.0
 

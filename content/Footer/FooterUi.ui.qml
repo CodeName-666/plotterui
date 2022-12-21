@@ -1,6 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Extras 1.4
+//import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.11
 import "../../imports/PlotterUi"
 
@@ -8,7 +8,7 @@ ToolBar {
 
     width:  Constants.width
 
-    property alias keepAliveStatus: keepAliveStatus
+   // property alias keepAliveStatus: keepAliveStatus
     property alias keepAliveInfoText: keepAliveInfo.text
 
     RowLayout {
@@ -32,10 +32,10 @@ ToolBar {
             } // to visualize the spacer
         }
 
-        StatusIndicator {
+        /*StatusIndicator {
             id: keepAliveStatus
             Layout.fillHeight: true
             Layout.rightMargin: 10
-        }
+        }*/
     }
 }

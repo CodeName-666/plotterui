@@ -29,6 +29,7 @@
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QApplication>
 
 #include "app_environment.h"
 #include "import_qml_plugins.h"

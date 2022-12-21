@@ -1,51 +1,51 @@
-import QtQuick 2.15
+import QtQuick 6.4
 import QtCharts 2.3
 import QtQuick.Layouts 1.11
-import QtQuick.Controls 2.15
+import QtQuick.Controls 6.4
 
 Item {
-    //property alias chart: chart
-    //property alias xAxis: xAxis
-    //property alias yAxis: yAxis
-    //property alias zoomInButton: zoomInButton
-    //property alias zoomOutButton: zoomOutButton
+    property alias chart: chart
+    property alias xAxis: xAxis
+    property alias yAxis: yAxis
+    property alias zoomInButton: zoomInButton
+    property alias zoomOutButton: zoomOutButton
 
     ChartView {
         id: chart
-        //title: "Top-5 car brand shares in Finland"
-        //objectName: "chart"
-        //anchors.fill: parent
-        //legend.alignment: Qt.AlignBottom
-        //antialiasing: true
-        //theme: ChartView.ChartThemeDark
+        title: "Top-5 car brand shares in Finland"
+        objectName: "chart"
+        anchors.fill: parent
+        legend.alignment: Qt.AlignBottom
+        antialiasing: true
+        theme: ChartView.ChartThemeDark
 
-    //    ColumnLayout {
-    //        x: 519
-    //        anchors.right: parent.right
-    //        anchors.top: parent.top
-    //        anchors.topMargin: 21
-    //        anchors.rightMargin: 21
-    //        Button {
-    //            id: zoomInButton
-    //            text: "+"
-    //        }
+        ColumnLayout {
+            x: 519
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: 21
+            anchors.rightMargin: 21
+            Button {
+                id: zoomInButton
+                text: "+"
+            }
 
-    //        Button {
-    //            id: zoomOutButton
-    //            text: "-"
-    //        }
-    //    }
-    //    ValueAxis {
-    //        id: xAxis
-    //        min: 0
-    //        max: 10
-    //    }
+            Button {
+                id: zoomOutButton
+                text: "-"
+            }
+        }
+        ValueAxis {
+            id: xAxis
+            min: 0
+            max: 10
+        }
 
-    //    ValueAxis {
-    //        id: yAxis
-    //        min: 0
-    //        max: 10
-    //    }
+        ValueAxis {
+            id: yAxis
+            min: 0
+            max: 10
+        }
     }
 }
 

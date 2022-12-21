@@ -101,4 +101,5 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.rightMargin: 0
     }
+
 }

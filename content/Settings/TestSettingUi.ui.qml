@@ -3,7 +3,6 @@ import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
 import QtQuick.Dialogs
 
-
 Item {
     implicitHeight: 200
     implicitWidth: 350

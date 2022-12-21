@@ -1,5 +1,5 @@
 import QtQuick 6.4
-import QtCharts 2.15
+import QtCharts 2.3
 import PlotterUi 1.0
 
 
@@ -17,7 +17,7 @@ ChartWindowUi{
         BackendInterface.set_axis(xAxis,yAxis)
         Logger.log_debug("CHARTVIEW Completed");
     }
-    
+
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
@@ -45,7 +45,7 @@ ChartWindowUi{
 
 
     function setup(settings) {
-                
+
     }
 }
 

@@ -1,5 +1,5 @@
 import QtQuick 6.4
-import QtCharts 2.0
+import QtCharts 2.3
 import QtQuick.Layouts 1.11
 import QtQuick.Controls 6.4
 

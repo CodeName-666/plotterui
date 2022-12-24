@@ -1,9 +1,6 @@
 Module PlotterUi
 singleton Constants 1.0 Constants.qml
 DirectoryFontLoader 1.0 DirectoryFontLoader.qml
-BackendInterface 1.0 BackendInterface.js
 Setup 1.0 Setup.js
 Logger 1.0 BackendLogger.js
-Simulator 1.0 BackendSimulator.js
 Rand 1.0 Random.js
-Provider 1.0 BackendProvider.js

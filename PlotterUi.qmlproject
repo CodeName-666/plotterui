@@ -9,7 +9,7 @@ Project {
     }
 
     JavaScriptFiles {
-        directory: "."
+        directory: [".", "imports/PlotterUi", "/imports/Backend"]
     }
 
     ImageFiles {
@@ -42,20 +42,20 @@ Project {
         QT_LOGGING_RULES: "qt.qml.connections=false"
         QT_ENABLE_HIGHDPI_SCALING: "0"
         /* Useful for debugging
-       QSG_VISUALIZE=batches
-       QSG_VISUALIZE=clip
-       QSG_VISUALIZE=changes
-       QSG_VISUALIZE=overdraw
+        QSG_VISUALIZE=batches
+        SG_VISUALIZE=clip
+        SG_VISUALIZE=changes
+        SG_VISUALIZE=overdraw
        */
     }
 	
 	 qt6Project: true
 
     /* List of plugin directories passed to QML runtime */
-    importPaths: [ ".", "imports", "asset_imports","content"]
+    importPaths: [ ".", "imports", "imports/Backend","content"]
 
     /* Required for deployment */
-    targetDirectory: "/opt/UntitledProject1"
+    targetDirectory: "../build/Plotter"
 	
 	qdsVersion: "3.9"
 

@@ -1,5 +1,5 @@
 import QtQuick 6.4
-import PlotterUi 1.0
+import Backend 1.0
 
 SettingsUi {
 

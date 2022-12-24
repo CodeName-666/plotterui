@@ -3,8 +3,8 @@
 .import QtQml 2.15 as Qml
 .import QtCharts 2.3 as QuickCharts
 .import "BackendLogger.js" as Logger
-.import "DataGen.js" as Data
-.import "Timer.js" as Timer
+.import "../PlotterUi/DataGen.js" as Data
+.import "../PlotterUi/Timer.js" as Timer
 
 
 //--- Simulator Setup ----

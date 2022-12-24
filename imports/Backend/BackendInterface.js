@@ -3,7 +3,7 @@
 .import "BackendSimulator.js" as Simulator
 .import "BackendProvider.js" as Provider
 .import "BackendLogger.js" as Logger
-.import "Setup.js" as Setup
+.import "../PlotterUi/Setup.js" as Setup
 
 
 /*******************************************************************

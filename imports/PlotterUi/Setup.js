@@ -1,8 +1,8 @@
 .pragma library
 .import QtQuick 6.4 as Quick
-.import "BackendSimulator.js" as Simulator
-.import "BackendProvider.js" as Provider
-.import "BackendLogger.js" as Logger
+.import "../Backend/BackendSimulator.js" as Simulator
+.import "../Backend/BackendProvider.js" as Provider
+.import "../Backend/BackendLogger.js" as Logger
 
 
 

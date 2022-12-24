@@ -4,7 +4,7 @@ import QtQuick.Controls 6.4
 import QtQuick.Timeline 1.0
 import QtCharts 2.3
 import QtQuick.Layouts 1.15
-import "../imports/PlotterUi"
+import PlotterUi 1.0
 import "Footer"
 import "MainMenu"
 import "ChartWindow"

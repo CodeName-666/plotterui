@@ -9,7 +9,7 @@ Project {
     }
 
     JavaScriptFiles {
-        directory: [".", "imports/PlotterUi", "/imports/Backend"]
+        directory: "."
     }
 
     ImageFiles {

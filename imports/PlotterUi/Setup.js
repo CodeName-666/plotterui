@@ -4,8 +4,6 @@
 .import "../Backend/BackendProvider.js" as Provider
 .import "../Backend/BackendLogger.js" as Logger
 
-
-
 const UNKOWN_INTERFACE = 0;
 const PYTHON_BACKEND = 1;
 const BACKEND_SIMULATOR = 2;
@@ -15,6 +13,7 @@ var application_handle = undefined
 var used_backend_interface = undefined
 var qml_start_up_done = false   //true == DONE/ false == NOT DONE
 var backend_events = undefined
+var path_to_backend_events = "../Backend/BackendEvents.qml"
 
 /*******************************************************************
  * FUNCTION
@@ -46,19 +45,22 @@ function is_interface(interface_type)
  ******************************************************************/
 function get_backend_interface(use_backend)
 {
+    var ret = BACKEND_INTERFACES[UNKOWN_INTERFACE]
     if(!isNaN(use_backend))
     {
-        return BACKEND_INTERFACES[use_backend];
+        ret = BACKEND_INTERFACES[use_backend];
     }
     else
     {
+        console.log(BACKEND_INTERFACES.length)
         for (let i = 0; i < BACKEND_INTERFACES.length; i++) {
             if(use_backend === BACKEND_INTERFACES[i])
             {
-                return BACKEND_INTERFACES[i]
+                ret = BACKEND_INTERFACES[i]
             }
         }
     }
+    return ret
 }
 
 /*******************************************************************
@@ -100,13 +102,39 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
  * FUNCTION
  ******************************************************************/
 function createBackendEventObject() {
-    var component = Qt.createComponent("BackendEvents.qml");
+
     var events = undefined
-    if (component.status === Quick.Component.Ready) {
+    var component = Qt.createComponent(path_to_backend_events);
+
+
+    console.log("Ready: " + Quick.Component.Ready)
+    console.log("Null: " + Quick.Component.Null)
+    console.log("Loading: " + Quick.Component.Loading)
+
+    switch(component.status)
+    {
+    case Quick.Component.Ready:
         events = component.createObject(application_handle)
         Logger.log_debug("Create Event Object - Events Created", arguments.callee.name);
-    } else {
-       Logger.log_error("Create Event Object - Error during Events Creation");
+        break;
+
+    case Quick.Component.Null:
+        Logger.log_debug("NULL");
+        break;
+
+    case Quick.Component.Loading:
+        Logger.log_debug("Loading");
+        break;
+
+    case Quick.Component.Error:
+        Logger.log_debug("Error");
+        break;
+
+    default:
+        console.log(component.status)
+        console.log(component instanceof "BackendEvents")
+        break;
+
     }
     return events
 }

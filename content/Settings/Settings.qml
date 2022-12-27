@@ -19,6 +19,22 @@ SettingsUi {
         set_interface(interfaceComboBox.displayText)
     }
 
+    function get_interface_by_name(interface_name)
+    {
+        switch(interface_name)
+        {
+        case "Serial":
+            return serialSettings;
+        case "Telnet":
+            return telnetSettings;
+        case "Test":
+            return testSettings;
+        default:
+            return undefined
+
+        }
+    }
+
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
@@ -85,19 +101,12 @@ SettingsUi {
      ******************************************************************/
     function get_settings(interface_name)
     {
-        if(interface_name === "Telnet")
-        {
-            return telnetSettings.get_settings();
-        }
-        else if (interface_name === "Serial")
-        {
-            return serialSettings.get_settings();
-        }
-        else if (interface_name === "Test")
-        {
-            return testSettings.get_settings();
-        }
+        var ui = get_interface_by_name(interface_name);
 
+        if (ui !== undefined)
+        {
+            return ui.get_settings()
+        }
         else
         {
             Logger.log_error("Invalid Configuration....")
@@ -145,6 +154,8 @@ SettingsUi {
         // Settings for available interfaces
         var interface_model = settings["interfaces"];
         interfaceComboBox.model = interface_model;
+
+
 
         // Get DATA of Serial settings data Models
         //var serial_config = settings["serial"];

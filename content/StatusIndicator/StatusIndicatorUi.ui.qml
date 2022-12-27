@@ -9,29 +9,21 @@ Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on
 import QtQuick 6.4
 import QtQuick.Controls 6.4
 import QtQuick.Layouts 6.3
-import "Indicator"
 
 Item {
-    width: 500
-    height: 50
 
-    RowLayout {
-        id: row_layout
+    //width: 100
+    //height: 100
+    property alias indicator: indicator
+
+    Rectangle {
+        id: indicator
+        radius: 50
+        border.color: "#776f6f"
+        border.width: 7
         anchors.fill: parent
-        layoutDirection: Qt.LeftToRight
-        layer.enabled: false
-
-        Text {
-
-            text: "hello World"
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-        }
-
-        Indicator {
-            id: indicator
-            Layout.preferredHeight: row_layout.height * 0.8
-            Layout.preferredWidth: row_layout.height * 0.8
-        }
+        z: 0
+        clip: false
+        color: "grey"
     }
 }

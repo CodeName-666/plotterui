@@ -1,14 +1,14 @@
 import QtQuick 6.4
 import QtQuick.Controls 6.4
-//import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.11
-import "../../imports/PlotterUi"
+import "../StatusIndicator"
+import PlotterUi 1.0
 
 ToolBar {
 
     width:  Constants.width
 
-   // property alias keepAliveStatus: keepAliveStatus
+    property alias keepAliveStatus: keepAliveStatus
     property alias keepAliveInfoText: keepAliveInfo.text
 
     RowLayout {
@@ -32,10 +32,12 @@ ToolBar {
             } // to visualize the spacer
         }
 
-        /*StatusIndicator {
+        StatusIndicator {
             id: keepAliveStatus
-            Layout.fillHeight: true
+            Layout.preferredHeight: parent.height
+            Layout.preferredWidth: parent.height
             Layout.rightMargin: 10
-        }*/
+
+        }
     }
 }

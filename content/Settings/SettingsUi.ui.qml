@@ -21,9 +21,6 @@ Item {
     property alias cancleButton: cancleButton
     property alias testSettings: testSettings
 
-    property var old_settings: ({})
-    property var old_interface: ({})
-
     Text {
         text: qsTr("Settings:")
         anchors.left: parent.left

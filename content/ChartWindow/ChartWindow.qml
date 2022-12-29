@@ -6,6 +6,9 @@ import Backend 1.0
 
 ChartWindowUi{
 
+    /*******************************************************************
+     * EVENT
+     ******************************************************************/
     zoomInButton.onClicked: chart.zoomIn()
     zoomOutButton.onClicked: chart.zoomOut()
 

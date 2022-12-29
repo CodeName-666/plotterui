@@ -8,17 +8,28 @@ import "TestSettings"
 SettingsUi {
 
     id: settings_menu
+    property var old_settings: ({})
+    property var old_interface: ({})
 
+    /*******************************************************************
+     * EVENT
+     ******************************************************************/
     Component.onCompleted: {
         Logger.log_debug("SettingsUi Completed")
         set_interface(interfaceComboBox.displayText)
     }
 
+    /*******************************************************************
+     * EVENT
+     ******************************************************************/
     interfaceComboBox.onActivated:
     {
         set_interface(interfaceComboBox.displayText)
     }
 
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function get_interface_by_name(interface_name)
     {
         switch(interface_name)
@@ -40,28 +51,28 @@ SettingsUi {
      ******************************************************************/
     function set_interface(interface_name)
     {
-        if( interface_name === "Serial" )
+
+        switch(interface_name)
         {
+        case "Serial":
             telnetSettings.visible = false;
             serialSettings.visible = true;
             testSettings.visible = false;
-        }
-        else if(interface_name === "Telnet")
-        {
+            break;
+        case "Telnet":
             telnetSettings.visible = true;
             serialSettings.visible = false;
             testSettings.visible = false;
-        }
-        else if (interface_name === "Test")
-        {
+            break;
+        case "Test":
             telnetSettings.visible = false;
             serialSettings.visible = false;
             testSettings.visible = true;
-        }
+            break
 
-        else
-        {
+        default:
             Logger.log_error("SettingsUi: Invalid Settingsoption...")
+
         }
     }
 
@@ -110,7 +121,7 @@ SettingsUi {
         else
         {
             Logger.log_error("Invalid Configuration....")
-            return 0
+            return false
         }
     }
 
@@ -119,22 +130,16 @@ SettingsUi {
      ******************************************************************/
     function set_settings(interface_name, settings)
     {
-        if(interface_name === "Telnet")
+        var ui = get_interface_by_name(interface_name)
+
+        if(ui !== undefined)
         {
-            return telnetSettings.set_settings(settings);
-        }
-        else if (interface_name === "Serial")
-        {
-            return serialSettings.set_settings(settings);
-        }
-        else if (interface_name === "Test")
-        {
-            return testSettings.set_settings(settings);
+            return ui.set_settings(settings);
         }
         else
         {
             Logger.log_error("Invalid Configuration....")
-            return 0
+            return false
         }
     }
 

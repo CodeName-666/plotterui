@@ -106,35 +106,19 @@ function createBackendEventObject() {
     var events = undefined
     var component = Qt.createComponent(path_to_backend_events);
 
-
-    console.log("Ready: " + Quick.Component.Ready)
-    console.log("Null: " + Quick.Component.Null)
-    console.log("Loading: " + Quick.Component.Loading)
-
-    switch(component.status)
+    if(component.status === Quick.Component.Ready)
     {
-    case Quick.Component.Ready:
+
         events = component.createObject(application_handle)
         Logger.log_debug("Create Event Object - Events Created", arguments.callee.name);
-        break;
-
-    case Quick.Component.Null:
-        Logger.log_debug("NULL");
-        break;
-
-    case Quick.Component.Loading:
-        Logger.log_debug("Loading");
-        break;
-
-    case Quick.Component.Error:
-        Logger.log_debug("Error");
-        break;
-
-    default:
-        console.log(component.status)
-        console.log(component instanceof "BackendEvents")
-        break;
-
+    }
+    else if(component.status === Quick.Component.Error)
+    {
+        Logger.log_error("Create Event Object - Events Created", arguments.callee.name);
+    }
+    else
+    {
+        Logger.log_debug("")
     }
     return events
 }

@@ -81,7 +81,7 @@ function log_debug(msg) {
  * FUNCTION SLOT
  ******************************************************************/
 function log_stack(stack) {
-    imulator.log_stack(msg)
+    Simulator.log_stack(msg)
 }
 
 /*******************************************************************

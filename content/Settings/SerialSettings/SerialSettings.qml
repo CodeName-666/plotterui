@@ -16,6 +16,7 @@ SerialSettingsUi {
        set_combobox(stopBitsCombo, settings["stop"]);
 
        baudInput.text = settings["baud"];
+       return
     }
 
     /*******************************************************************

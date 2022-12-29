@@ -13,11 +13,14 @@ qt6_add_qml_module(PlotterUi
     URI "PlotterUi"
     VERSION 1.0
     QML_FILES
-        Constants.qml
-        DirectoryFontLoader.qml
-        EventListModel.qml
         EventListSimulator.qml
+        EventListModel.qml
+        DirectoryFontLoader.qml
+        Constants.qml
     RESOURCES
-        BackendInterface.js
+        Timer.js
+        Setup.js
+        Random.js
+        DataGen.js
 
 )

@@ -72,7 +72,6 @@ SettingsUi {
 
         default:
             Logger.log_error("SettingsUi: Invalid Settingsoption...")
-
         }
     }
 

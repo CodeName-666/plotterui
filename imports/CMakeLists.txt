@@ -2,3 +2,4 @@
 ### Do not change
 
 add_subdirectory(PlotterUi)
+add_subdirectory(Backend)

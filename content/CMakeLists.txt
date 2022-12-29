@@ -8,26 +8,30 @@ qt6_add_qml_module(content
     URI "content"
     VERSION 1.0
     QML_FILES
+        AppUi.qml
         App.qml
-        ChartWindow/ChartWindow.qml
-        ChartWindow/ChartWindowUi.ui.qml
-        Footer/Footer.qml
-        Footer/FooterUi.ui.qml
-        MainMenu/MainMenu.qml
-        MainMenu/MainMenuUi.ui.qml
-        Models/ComPortModel.qml
-        Models/ConnectionModel.qml
-        Models/DataSizeModel.qml
-        Models/ParityBitsModel.qml
-        Models/StopBitsModel.qml
-        Settings/Settings.qml
-        Settings/SettingsUi.ui.qml
-        Settings/SerialSettings/SerialSettings.qml
-        Settings/SerialSettings/SerialSettingsUi.ui.qml
-        Settings/TelnetSettings/GridTestUi.ui.qml
-        Settings/TelnetSettings/TelnetSettings.qml
-        Settings/TelnetSettings/TelnetSettingsUi.ui.qml
-        Toolbar/Toolbar.qml
         Toolbar/ToolbarUi.ui.qml
+        Toolbar/Toolbar.qml
+        StatusIndicator/StatusIndicatorUi.ui.qml
+        StatusIndicator/StatusIndicator.qml
+        Settings/SettingsUi.ui.qml
+        Settings/Settings.qml
+        Settings/TestSettings/TestSettingUi.ui.qml
+        Settings/TestSettings/TestSettings.qml
+        Settings/TelnetSettings/TelnetSettingsUi.ui.qml
+        Settings/TelnetSettings/TelnetSettings.qml
+        Settings/SerialSettings/SerialSettingsUi.ui.qml
+        Settings/SerialSettings/SerialSettings.qml
+        Models/StopBitsModel.qml
+        Models/ParityBitsModel.qml
+        Models/DataSizeModel.qml
+        Models/ConnectionModel.qml
+        Models/ComPortModel.qml
+        MainMenu/MainMenuUi.ui.qml
+        MainMenu/MainMenu.qml
+        Footer/FooterUi.ui.qml
+        Footer/Footer.qml
+        ChartWindow/ChartWindowUi.ui.qml
+        ChartWindow/ChartWindow.qml
 
 )

@@ -6,8 +6,6 @@ import PlotterUi 1.0
 
 ToolBar {
 
-    width:  Constants.width
-
     property alias keepAliveStatus: keepAliveStatus
     property alias keepAliveInfoText: keepAliveInfo.text
 

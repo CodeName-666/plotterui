@@ -9,8 +9,20 @@ ChartWindowUi{
     /*******************************************************************
      * EVENT
      ******************************************************************/
-    zoomInButton.onClicked: chart.zoomIn()
-    zoomOutButton.onClicked: chart.zoomOut()
+    //zoomInButton.onClicked: chart.zoomIn()
+    //zoomOutButton.onClicked: chart.zoomOut()
+
+    chartMouseArea.onMouseXChanged: {
+        if ((mouse.buttons & Qt.LeftButton) == Qt.LeftButton) {
+            chartViewItem.scrollLeft(mouseX - horizontalScrollMask.x)
+            horizontalScrollMask.x = mouseX
+        }
+    }
+    chartMouseArea.onPressed: {
+        if (mouse.button === Qt.LeftButton) {
+            horizontalScrollMask.x = mouseX
+        }
+    }
 
     Component.onCompleted:  {
 

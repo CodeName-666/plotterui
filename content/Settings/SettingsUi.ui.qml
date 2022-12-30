@@ -6,7 +6,6 @@ import "SerialSettings"
 import "TelnetSettings"
 import "TestSettings"
 
-import Models 1.0
 
 Item {
     id: settings_menu

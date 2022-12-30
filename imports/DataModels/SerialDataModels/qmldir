@@ -1,4 +1,4 @@
-Module Models
+Module SerialDataModels
 
 ComPortModel 1.0 ComPortModel.qml
 ConnectionModel 1.0 ConnectionModel.qml

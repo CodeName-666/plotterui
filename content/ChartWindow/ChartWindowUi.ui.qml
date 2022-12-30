@@ -9,6 +9,7 @@ Item {
     property alias xAxis: xAxis
     property alias yAxis: yAxis
     property alias title: chart.title
+    property alias chartMouseArea: chartMouseArea
 
     ChartView {
         id: chart

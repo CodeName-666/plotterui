@@ -60,7 +60,7 @@ function connect() {
     if (settings_valid()) {
         get_interface().connect()
     } else {
-        log_error("invalid settings")
+         Logger.log_error("invalid settings")
     }
 }
 

@@ -72,23 +72,7 @@ function connect_events( events) {
  ******************************************************************/
 function backend_simulator_loop() {
 
-    if(is_connected()) {
-        switch (current_interface) {
-            case "Serial":
-                backend_simulator_serial_loop()
-                break
-            case "Telnet":
-                backend_simulator_telnet_loop()
-                break
-            case "Test":
-                backend_simulator_test_loop()
-                break
-            default:
-                Logger.log_error("Invalid interface")
-                break
-        }
-    }
-
+    backend_simulator_test_loop()
     update_time_count();
 }
 
@@ -104,16 +88,6 @@ function get_run_time() {
 function get_frequency() {
     return timer_frequency;
 }
-
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function backend_simulator_serial_loop() {}
-
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function backend_simulator_telnet_loop() {}
 
 /*******************************************************************
  * FUNCTION
@@ -178,20 +152,19 @@ function connect() {
     {
         let time = 100;
         Logger.log_debug("Connect to interface: " + current_interface)
-        switch (current_interface) {
-            case "Test":
-                if (settings_valid()) {
-                    connected = true;
-                    create_demo_lines();
-                    update_timer = new Timer.Timer(application_handle,time, true, true, backend_simulator_loop)
-                    timer_frequency = 1/((time+50)/1000)
-                }
-                break
-            case "Serial":
-            case "Telnet":
-            default:
-                Logger.log_warning("No simulation avalilable")
-                break
+        if (current_interface === "Test")
+        {
+
+            if (settings_valid())
+            {
+                connected = true;
+                create_demo_lines();
+                update_timer = new Timer.Timer(application_handle,time, true, true, backend_simulator_loop)
+                timer_frequency = 1/((time+50)/1000)
+            }
+        }
+        else {
+            Logger.log_warning("No simulation avalilable.")
         }
      }
 }
@@ -283,11 +256,9 @@ function add_graph(name, graph) {
 }
 
 
-
 function set_plot_area(area) {
     plot_area = area;
 }
-
 
 function set_axis(x_axis, y_axis) {
     xAxis = x_axis;

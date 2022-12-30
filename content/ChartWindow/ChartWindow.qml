@@ -6,6 +6,8 @@ import Backend 1.0
 
 ChartWindowUi{
 
+    property var mouseX: 0
+
     /*******************************************************************
      * EVENT
      ******************************************************************/
@@ -14,13 +16,28 @@ ChartWindowUi{
 
     chartMouseArea.onMouseXChanged: {
         if ((mouse.buttons & Qt.LeftButton) == Qt.LeftButton) {
-            chartViewItem.scrollLeft(mouseX - horizontalScrollMask.x)
+            chart.scrollLeft(mouseX - horizontalScrollMask.x)
             horizontalScrollMask.x = mouseX
         }
     }
     chartMouseArea.onPressed: {
         if (mouse.button === Qt.LeftButton) {
             horizontalScrollMask.x = mouseX
+        }
+    }
+
+    chartMouseArea.onWheel: {
+        // Vergrößern oder Verkleinern des Bereichs der Achse, wenn das Mausrad gedreht wird
+        if (wheel.angleDelta.y > 0) {
+            xAxis.min += 1 // Verkleinern des Bereichs der Achse um 1
+            xAxis.max -= 1
+            yAxis.min += 1
+            yAxis.max -= 1
+        } else {
+            xAxis.min -= 1 // Vergrößern des Bereichs der Achse um 1
+            xAxis.max += 1
+            yAxis.min -= 1
+            yAxis.max += 1
         }
     }
 

@@ -9,7 +9,6 @@ Item {
     property alias xAxis: xAxis
     property alias yAxis: yAxis
     property alias title: chart.title
-    property alias chartMouseArea: chartMouseArea
 
     ChartView {
         id: chart
@@ -63,3 +62,20 @@ Item {
         }
     }
 }
+
+/*
+MouseArea {
+     anchors.fill: parent
+     onWheel: {
+         // Vergrößern oder Verkleinern des Intervalls, wenn das Mausrad gedreht wird
+         if (wheel.angleDelta.y > 0) {
+             xAxis.interval *= 0.5 // Verkleinern des Intervalls um 50%
+             yAxis.interval *= 0.5
+         } else {
+             xAxis.interval *= 2 // Vergrößern des Intervalls um 100%
+             yAxis.interval *= 2
+         }
+     }
+ }
+}
+*/

@@ -13,6 +13,13 @@ ChartWindowUi{
     //zoomInButton.onClicked: chart.zoomIn()
     //zoomOutButton.onClicked: chart.zoomOut()
 
+    chartMouseArea.onMouseYChanged: {
+        if ((chartMouseArea.pressedButtons & Qt.LeftButton) === Qt.LeftButton) {
+            chart.scrollUp(chartMouseArea.mouseY - verticalScrollMask.y)
+            verticalScrollMask.y = chartMouseArea.mouseY
+        }
+    }
+
     chartMouseArea.onMouseXChanged: {
         if ((chartMouseArea.pressedButtons & Qt.LeftButton) === Qt.LeftButton) {
             chart.scrollLeft(chartMouseArea.mouseX - horizontalScrollMask.x)
@@ -23,6 +30,7 @@ ChartWindowUi{
     chartMouseArea.onPressed: {
         if (chartMouseArea.pressedButtons === Qt.LeftButton) {
             horizontalScrollMask.x = chartMouseArea.mouseX
+            verticalScrollMask.y = chartMouseArea.mouseY
         }
     }
 

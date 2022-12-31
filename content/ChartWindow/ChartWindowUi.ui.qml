@@ -11,6 +11,7 @@ Item {
     property alias title: chart.title
     property alias chartMouseArea: chartMouseArea
     property alias horizontalScrollMask: horizontalScrollMask
+    property alias verticalScrollMask: verticalScrollMask
 
     ChartView {
         id: chart
@@ -26,6 +27,14 @@ Item {
                 width:  20
                 height: 20
                 id: horizontalScrollMask
+                //visible: false
+        }
+
+        Rectangle {
+                color: "yellow"
+                width:  20
+                height: 20
+                id: verticalScrollMask
                 //visible: false
         }
 

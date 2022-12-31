@@ -4,7 +4,7 @@ import QtQuick.Controls 6.4
 TestSettingUi {
 
     colorDialog.onAccepted: {
-        colorView.color = colorDialog.color;
+        colorView.color = colorDialog.selectedColor;
         colorDialog.close();
     }
 

@@ -6,7 +6,6 @@ import Backend 1.0
 
 ChartWindowUi{
 
-    property var mouseX: 0
 
     /*******************************************************************
      * EVENT
@@ -15,14 +14,15 @@ ChartWindowUi{
     //zoomOutButton.onClicked: chart.zoomOut()
 
     chartMouseArea.onMouseXChanged: {
-        if ((mouse.buttons & Qt.LeftButton) == Qt.LeftButton) {
-            chart.scrollLeft(mouseX - horizontalScrollMask.x)
-            horizontalScrollMask.x = mouseX
+        if ((chartMouseArea.pressedButtons & Qt.LeftButton) === Qt.LeftButton) {
+            chart.scrollLeft(chartMouseArea.mouseX - horizontalScrollMask.x)
+
+            horizontalScrollMask.x = chartMouseArea.mouseX
         }
     }
     chartMouseArea.onPressed: {
-        if (mouse.button === Qt.LeftButton) {
-            horizontalScrollMask.x = mouseX
+        if (chartMouseArea.pressedButtons === Qt.LeftButton) {
+            horizontalScrollMask.x = chartMouseArea.mouseX
         }
     }
 

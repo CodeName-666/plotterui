@@ -2,7 +2,6 @@ import QtQuick 6.4
 import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.11
 import "../StatusIndicator"
-import PlotterUi 1.0
 
 ToolBar {
 

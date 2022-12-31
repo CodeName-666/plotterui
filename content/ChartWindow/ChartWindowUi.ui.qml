@@ -10,6 +10,7 @@ Item {
     property alias yAxis: yAxis
     property alias title: chart.title
     property alias chartMouseArea: chartMouseArea
+    property alias horizontalScrollMask: horizontalScrollMask
 
     ChartView {
         id: chart
@@ -19,6 +20,14 @@ Item {
         legend.alignment: Qt.AlignBottom
         antialiasing: true
         theme: ChartView.ChartThemeDark
+
+        Rectangle {
+                color: "yellow"
+                width:  20
+                height: 20
+                id: horizontalScrollMask
+                //visible: false
+        }
 
         MouseArea {
             id: chartMouseArea

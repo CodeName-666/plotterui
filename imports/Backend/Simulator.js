@@ -104,7 +104,7 @@ function backend_simulator_test_loop() {
                 let f = get_frequency();
                 let y = Data.sinus(x,1000,2,0,5);
 
-                console.log("Sinus = ", y)
+                //console.log("Sinus = ", y)
                 value["graph"].append(tick_points,y);
                 break;
             case "Rectangle":
@@ -113,7 +113,7 @@ function backend_simulator_test_loop() {
         }
     }
     tick_points += yPoint
-    backend_events.scrollRight(xPoint)
+   // backend_events.scrollRight(xPoint)
 
 }
 

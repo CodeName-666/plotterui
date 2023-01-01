@@ -12,8 +12,15 @@ import QtQuick.Layouts 1.3
 
 Item {
 
+    property bool autoRepeat: false
+    property int autoRepeatDelay: 300
+    property int autoRepeatInterval: 100
+
     property alias zoomInButton: zoomInButton
     property alias zoomOutButton: zoomOutButton
+    signal zoomInButtonClicked()
+    signal zoomOutButtonClicked()
+
 
     ColumnLayout {
         id: columnLayout
@@ -22,18 +29,26 @@ Item {
 
         Button {
             id: zoomInButton
+            autoRepeat: parent.parent.autoRepeat
+            autoRepeatDelay: parent.parent.autoRepeatDelay
+            autoRepeatInterval: parent.parent.autoRepeatInterval
             text: "+"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Layout.preferredHeight: parent.height / 2
             Layout.fillWidth: true
+
         }
 
         Button {
             id: zoomOutButton
+            autoRepeat: parent.parent.autoRepeat
+            autoRepeatDelay: parent.parent.autoRepeatDelay
+            autoRepeatInterval: parent.parent.autoRepeatInterval
             text: "-"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Layout.preferredHeight: parent.height / 2
             Layout.fillWidth: true
+
         }
     }
 }

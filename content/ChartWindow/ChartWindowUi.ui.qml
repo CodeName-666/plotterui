@@ -12,6 +12,8 @@ Item {
     property alias chartMouseArea: chartMouseArea
     property alias horizontalScrollMask: horizontalScrollMask
     property alias verticalScrollMask: verticalScrollMask
+    property alias zoomY: zoomY
+    property alias zoomX: zoomX
 
     ChartView {
         id: chart
@@ -23,19 +25,19 @@ Item {
         theme: ChartView.ChartThemeDark
 
         Rectangle {
-                color: "yellow"
-                width:  20
-                height: 20
-                id: horizontalScrollMask
-                //visible: false
+            color: "yellow"
+            width: 20
+            height: 20
+            id: horizontalScrollMask
+            //visible: false
         }
 
         Rectangle {
-                color: "yellow"
-                width:  20
-                height: 20
-                id: verticalScrollMask
-                //visible: false
+            color: "yellow"
+            width: 20
+            height: 20
+            id: verticalScrollMask
+            //visible: false
         }
 
         MouseArea {
@@ -54,6 +56,7 @@ Item {
 
             height: 100
             width: 125
+            autoRepeat: true
         }
 
         ZoomButtons {
@@ -65,7 +68,7 @@ Item {
 
             height: 100
             width: 125
-
+            autoRepeat: true
         }
 
         ValueAxis {
@@ -98,3 +101,4 @@ MouseArea {
  }
 }
 */
+

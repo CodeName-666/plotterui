@@ -6,33 +6,22 @@ import Backend 1.0
 
 ChartWindowUi{
 
-
+    enum ZoomDir{
+        ZOOM_IN,
+        ZOOM_OUT
+    }
     /*******************************************************************
      * EVENT
      ******************************************************************/
-    //zoomInButton.onClicked: chart.zoomIn()
-    //zoomOutButton.onClicked: chart.zoomOut()
+    zoomX.onZoomInButtonClicked: console.log("Zoom In X")
+    zoomX.onZoomOutButtonClicked: console.log("Zoom Out X")
 
-    chartMouseArea.onMouseYChanged: {
-        if ((chartMouseArea.pressedButtons & Qt.LeftButton) === Qt.LeftButton) {
-            chart.scrollUp(chartMouseArea.mouseY - verticalScrollMask.y)
-            verticalScrollMask.y = chartMouseArea.mouseY
-        }
-    }
+    zoomY.onZoomInButtonClicked: console.log("Zoom In Y")
+    zoomY.onZoomOutButtonClicked: console.log("Zoom Out Y")
 
-    chartMouseArea.onMouseXChanged: {
-        if ((chartMouseArea.pressedButtons & Qt.LeftButton) === Qt.LeftButton) {
-            chart.scrollLeft(chartMouseArea.mouseX - horizontalScrollMask.x)
-
-            horizontalScrollMask.x = chartMouseArea.mouseX
-        }
-    }
-    chartMouseArea.onPressed: {
-        if (chartMouseArea.pressedButtons === Qt.LeftButton) {
-            horizontalScrollMask.x = chartMouseArea.mouseX
-            verticalScrollMask.y = chartMouseArea.mouseY
-        }
-    }
+    chartMouseArea.onMouseYChanged: scrollVertical()
+    chartMouseArea.onMouseXChanged: scrollHorizontal()
+    chartMouseArea.onPressed: scrollButtonClicked()
 
     chartMouseArea.onWheel: {
         // Vergrößern oder Verkleinern des Bereichs der Achse, wenn das Mausrad gedreht wird
@@ -83,7 +72,79 @@ ChartWindowUi{
         return line
     }
 
+    /*******************************************************************
+     * @brief: Scroll Horizontal
+     *
+     * This function use the as key the left mouse button to identify if
+     * it should be scrolled or not.
+     *
+     * To scrool a pixel need to be provided. To do this, a rectangle (horizontalScrollMask)
+     * will be used.
+     *
+     * Used Events:
+     * onPressed: Backup current mouse postion an intialize the horizontalScrollMask with it.
+     * onMouseXChanged: Calculate the delta beteen the stored horizontalScrollMask position and the current mouse postion.
+     *                  This delta value represents the scrolled pixels.After this calculation, update the
+     *                  horizontalScrollMask whit the new position for the next delta calculation.
+     *
+     ******************************************************************/
+    function scrollHorizontal() {
+        if ((chartMouseArea.pressedButtons & Qt.LeftButton) === Qt.LeftButton) {
+            chart.scrollLeft(chartMouseArea.mouseX - horizontalScrollMask.x)
 
+            horizontalScrollMask.x = chartMouseArea.mouseX
+        }
+    }
+
+    /*******************************************************************
+     * @brief: Scroll Horizontal
+     *
+     * This function use the as key the left mouse button to identify if
+     * it should be scrolled or not.
+     *
+     * To scrool a pixel need to be provided. To do this, a rectangle (verticalScrollMask)
+     * will be used.
+     *
+     * Used Events:
+     * onPressed: Backup current mouse postion an intialize the verticalScrollMask with it.
+     * onMouseXChanged: Calculate the delta beteen the stored verticalScrollMask position and the current mouse postion.
+     *                  This delta value represents the scrolled pixels.After this calculation, update the
+     *                  verticalScrollMask whit the new position for the next delta calculation.
+     *
+     ******************************************************************/
+    function scrollVertical() {
+        if ((chartMouseArea.pressedButtons & Qt.LeftButton) === Qt.LeftButton) {
+            chart.scrollUp(chartMouseArea.mouseY - verticalScrollMask.y)
+            verticalScrollMask.y = chartMouseArea.mouseY
+        }
+    }
+
+    /*******************************************************************
+     * @brief: Scroll Button Clicked
+     *
+     * This function use the as key the left mouse button to identify if
+     * it should be scrolled or not.
+     *
+     * To scrool a pixel need to be provided. To do this, a rectangle (verticalScrollMask)
+     * will be used.
+     *
+     * Used Events:
+     * onPressed: Backup current mouse postion an intialize the verticalScrollMask with it.
+     * onMouseXChanged: Calculate the delta beteen the stored verticalScrollMask position and the current mouse postion.
+     *                  This delta value represents the scrolled pixels.After this calculation, update the
+     *                  verticalScrollMask whit the new position for the next delta calculation.
+     *
+     ******************************************************************/
+    function scrollButtonClicked() {
+        if (chartMouseArea.pressedButtons === Qt.LeftButton) {
+            horizontalScrollMask.x = chartMouseArea.mouseX
+            verticalScrollMask.y = chartMouseArea.mouseY
+        }
+    }
+
+    /*******************************************************************
+     * FUNCTION
+     ******************************************************************/
     function setup(settings) {
 
     }

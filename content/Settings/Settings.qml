@@ -159,8 +159,6 @@ SettingsUi {
         var interface_model = settings["interfaces"];
         interfaceComboBox.model = interface_model;
 
-
-
         // Get DATA of Serial settings data Models
         //var serial_config = settings["serial"];
         //var data_size_model = serial_config["dataBits"];
@@ -168,7 +166,7 @@ SettingsUi {
         //var stop_bits_model = serial_config["stopBits"];
         // Set DATA of Serial settings data Models
         //serialSettings.dataSizeComboBox.model = data_size_model;
-        //serialSettings.parityComboBox.model = parity_bits_model;
+        //serialSettings.parityComboBox.model = parity_bits_model;s
         //serialSettings.stopBitsCombo.model = stop_bits_model;
 
         Logger.log_debug("Settings Setup")

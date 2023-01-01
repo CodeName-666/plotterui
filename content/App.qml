@@ -34,6 +34,8 @@ AppUi {
     function connect_signals() {
         settings.okButton.clicked.connect(acceptSettings)
         settings.cancleButton.clicked.connect(cancleSettings)
+
+
         toolbar.settingsButton.triggered.connect(openSettingsMenu)
 
         BackendInterface.events().comPortUpdate.connect(settings.updateComPorts)

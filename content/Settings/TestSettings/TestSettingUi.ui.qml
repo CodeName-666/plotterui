@@ -1,18 +1,14 @@
 import QtQuick 6.4
 import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
-import QtQuick.Dialogs
+import QtQuick.Dialogs 1.3
 
 Item {
-    implicitHeight: 200
-    implicitWidth: 350
-
     property alias colorDialog: colorDialog
     property alias colorView: colorView
     property alias colorButton: colorButton
     property alias nameInput: nameInput
     property alias typeCombo: typeCombo
-    height: 300
 
     ColorDialog {
         id: colorDialog

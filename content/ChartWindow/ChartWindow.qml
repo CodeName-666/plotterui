@@ -6,22 +6,36 @@ import Backend 1.0
 
 ChartWindowUi{
 
-    enum ZoomDir{
-        ZOOM_IN,
-        ZOOM_OUT
-    }
     /*******************************************************************
      * EVENT
      ******************************************************************/
-    zoomX.onZoomInButtonClicked: console.log("Zoom In X")
-    zoomX.onZoomOutButtonClicked: console.log("Zoom Out X")
+    zoomX.onZoomInButtonClicked:  zoom(xAxis,"ZOOM_IN")
+    zoomX.onZoomOutButtonClicked: zoom(xAxis,"ZOOM_OUT")
 
-    zoomY.onZoomInButtonClicked: console.log("Zoom In Y")
-    zoomY.onZoomOutButtonClicked: console.log("Zoom Out Y")
+    zoomY.onZoomInButtonClicked:  zoom(yAxis,"ZOOM_IN")
+    zoomY.onZoomOutButtonClicked: zoom(yAxis,"ZOOM_OUT")
 
     chartMouseArea.onMouseYChanged: scrollVertical()
     chartMouseArea.onMouseXChanged: scrollHorizontal()
     chartMouseArea.onPressed: scrollButtonClicked()
+
+
+    function zoom(axis, zoom_dir) {
+
+        switch (zoom_dir)
+        {
+        case "ZOOM_IN":
+            axis.min -= 1 // Vergrößern des Bereichs der Achse um 1
+            axis.max += 1
+            break
+        case "ZOOM_OUT":
+            axis.min += 1 // Verkleinern des Bereichs der Achse um 1
+            axis.max -= 1
+            break
+        default:
+
+        }
+    }
 
     chartMouseArea.onWheel: {
         // Vergrößern oder Verkleinern des Bereichs der Achse, wenn das Mausrad gedreht wird

@@ -1,7 +1,7 @@
 import QtQuick 6.4
 import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
-import QtQuick.Dialogs 1.3
+import QtQuick.Dialogs
 
 Item {
     property alias colorDialog: colorDialog

@@ -17,7 +17,7 @@ QtObject {
     /**
      * @brief Com Port Update Event
      */
-    signal comPortUpdate(var portList);
+    signal com_port_update(var portList);
     /**
      * @brief Setup Settings Event
      *

@@ -32,19 +32,19 @@ AppUi {
 
 
     function connect_signals() {
-        settings.okButton.clicked.connect(acceptSettings)
-        settings.cancleButton.clicked.connect(cancleSettings)
+        settings.okButton.clicked.connect(accept_settings)
+        settings.cancleButton.clicked.connect(cancle_settings)
 
 
-        toolbar.settingsButton.triggered.connect(openSettingsMenu)
+        toolbar.settingsButton.triggered.connect(open_settings)
 
-        BackendInterface.events().comPortUpdate.connect(settings.updateComPorts)
+        BackendInterface.events().com_port_update.connect(settings.update_com_ports)
     }
 
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function acceptSettings()
+    function accept_settings()
     {
         var cSettings =settings.get_settings(settings.interfaceComboBox.currentText);
 
@@ -57,19 +57,19 @@ AppUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function cancleSettings()
+    function cancle_settings()
     {
         Logger.log_info("cancel settings");
-        settings.restoreSettings();
+        settings.restore_settings();
         settingsPopup.close();
     }
 
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function openSettingsMenu()
+    function open_settings()
     {
-        settings.backupSettings();
+        settings.backup_settings();
         settingsPopup.open();
     }
 

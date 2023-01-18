@@ -78,7 +78,7 @@ SettingsUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function backupSettings()
+    function backup_settings()
     {
         old_interface = interfaceComboBox.currentText
         old_settings = get_settings(interfaceComboBox.currentText);
@@ -87,7 +87,7 @@ SettingsUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function updateComPorts(new_com_ports)
+    function update_com_ports(new_com_ports)
     {   
         Logger.log_info("New COM Ports detected:");
         for (let i = 0; i < new_com_ports.length; i++) {
@@ -99,7 +99,7 @@ SettingsUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function restoreSettings()
+    function restore_settings()
     {
         set_interface(old_interface);
         set_settings(old_interface, old_settings);

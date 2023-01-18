@@ -33,7 +33,7 @@ function connect_signals(events) {
     backend.new_graph.connect(events.newGraph);
     backend.scrollRight.connect(events.scrollRight);
     backend.ui_setup.connect(events.uiSetup);
-    backend.com_port_update.connect(events.comPortUpdate);
+    backend.com_port_update.connect(events.com_port_update);
 
 }
 
@@ -90,58 +90,38 @@ function set_axis(xAxis, yAxis) {
  * FUNCTION SLOT
  ******************************************************************/
 function log_error(msg) {
-    if (backend !== undefined)
-        backend.log_error(msg);
-    else
-        console.log(msg)
+    backend.log_error(msg);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_warning(msg) {
-    if (backend !== undefined)
-        backend.log_warning(msg);
-    else
-        console.log(msg)
+    backend.log_warning(msg);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_info(msg) {
-    if (backend !== undefined)
-        backend.log_info(msg);
-    else
-        console.log(msg)
+    backend.log_info(msg);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_debug(msg) {
-    if (backend !== undefined)
-        backend.log_debug(msg);
-    else
-        console.log(msg)
+    backend.log_debug(msg);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function log_stack(stack) {
-    if (backend !== undefined)
-        backend.log_qml_stack(stack)
-    else
-        console.log(stack)
+    backend.log_qml_stack(stack)
 }
 
 
 function ui_setup_status(status) {
     backend.ui_setup_done = status
-}
-
-
-function testSlot(x) {
-    backend.testSlot(x)
 }

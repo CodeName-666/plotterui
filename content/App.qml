@@ -1,5 +1,5 @@
 import QtQuick 6.4
-import PlotterUi 1.0
+import Common 1.0
 import Backend 1.0
 
 
@@ -16,13 +16,13 @@ AppUi {
         {
             Logger.setup(Provider,false);
             Logger.log_debug("App Backend Init");
-            Setup.setup("PYTHON_BACKEND", this, Backend);
+            App.setup("PYTHON_BACKEND", this, Backend);
         }
         else
         {
             Logger.setup(Simulator,false);
             Logger.log_debug("App Simulatort Init");
-            Setup.setup("BACKEND_SIMULATOR", this);
+            App.setup("BACKEND_SIMULATOR", this);
         }
         connect_signals();
 

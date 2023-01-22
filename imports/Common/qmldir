@@ -1,5 +1,5 @@
 Module Common
 singleton Constants 1.0 Constants.qml
 DirectoryFontLoader 1.0 DirectoryFontLoader.qml
-Setup 1.0 Setup.js
+App 1.0 App.js
 Rand 1.0 Random.js

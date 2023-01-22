@@ -6,20 +6,20 @@
 
 
 
-var backend = undefined
+var python_backend = undefined
 
 /*******************************************************************
  * INTERNAL FUNCTION
  ******************************************************************/
-function setup(python_backend, events) {
+function setup(py_backend, events) {
 
    if(python_backend !== undefined)
     {
-        backend = python_backend;
+        python_backend = py_backend;
         connect_signals(events);
 
-        backend.log_info("Setup Done");
-        backend.backend_setup_done = true ;
+        python_backend.log_info("Setup Done");
+        python_backend.backend_setup_done = true ;
     } else {
         /* TBD */
     }
@@ -30,10 +30,10 @@ function setup(python_backend, events) {
  ******************************************************************/
 function connect_signals(events) {
 
-    backend.new_graph.connect(events.newGraph);
-    backend.scrollRight.connect(events.scrollRight);
-    backend.ui_setup.connect(events.uiSetup);
-    backend.com_port_update.connect(events.com_port_update);
+    python_backend.new_graph.connect(events.newGraph);
+    python_backend.scrollRight.connect(events.scrollRight);
+    python_backend.ui_setup.connect(events.uiSetup);
+    python_backend.com_port_update.connect(events.com_port_update);
 
 }
 
@@ -42,7 +42,7 @@ function connect_signals(events) {
  * FUNCTION
  ******************************************************************/
 function set_settings(interface_type, settings) {
-    backend.set_settings(interface_type, settings)
+    python_backend.set_settings(interface_type, settings)
 
 }
 
@@ -50,21 +50,21 @@ function set_settings(interface_type, settings) {
  * FUNCTION
  ******************************************************************/
 function get_settings(interface_type) {
-    return backend.get_settings()
+    return python_backend.get_settings()
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
 function settings_valid() {
-    return backend.settings_valid();
+    return python_backend.settings_valid();
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
  function add_graph(name, graph) {
-    backend.add_graph(name, graph);
+    python_backend.add_graph(name, graph);
 }
 
 
@@ -72,7 +72,7 @@ function settings_valid() {
  * FUNCTION SLOT
  ******************************************************************/
 function set_plot_area(area) {
-    backend.plot_area = area
+    python_backend.plot_area = area
 }
 
 
@@ -80,48 +80,65 @@ function set_plot_area(area) {
  * FUNCTION
  ******************************************************************/
 function set_axis(xAxis, yAxis) {
-    backend.xAxis = xAxis;
-    backend.yAxis = yAxis;
+    python_backend.xAxis = xAxis;
+    python_backend.yAxis = yAxis;
 }
 
-
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_error(msg) {
-    backend.log_error(msg);
-}
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_warning(msg) {
-    backend.log_warning(msg);
-}
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_info(msg) {
-    backend.log_info(msg);
-}
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_debug(msg) {
-    backend.log_debug(msg);
-}
-
-/*******************************************************************
- * FUNCTION SLOT
- ******************************************************************/
-function log_stack(stack) {
-    backend.log_qml_stack(stack)
-}
-
-
+/**
+ * @brief 
+ * @param {boolean} status 
+ */
 function ui_setup_status(status) {
-    backend.ui_setup_done = status
+    python_backend.ui_setup_done = status
 }
+
+/**
+ * @brief Log Error Slot
+ * @param {String} msg Message which explains the error
+ * 
+ * Slot to log an error.
+ */
+function log_error(msg) {
+    python_backend.log_error(msg);
+}
+
+/**
+ * @brief Log Warning Slot
+ * @param {String} msg Message which explains the error
+ * 
+ * Function to log an warning.
+ */
+function log_warning(msg) {
+    python_backend.log_warning(msg);
+}
+
+/**
+ * @brief Log Info Slot
+ * @param {String} msg Message which contains the info
+ * 
+ * Function to log an info.
+ */
+function log_info(msg) {
+    python_backend.log_info(msg);
+}
+
+/**
+ * @brief Log Debug Slot
+ * @param {String} msg Message which contains the debug message
+ * 
+ * Function to log an debug.
+ */
+function log_debug(msg) {
+    python_backend.log_debug(msg);
+}
+
+/**
+ * @brief Logging Stack Sltt
+ * @param {String} msg Stack of QML code
+ * 
+ * Function to log an info.
+ */
+function log_stack(stack) {
+    python_backend.log_qml_stack(stack)
+}
+

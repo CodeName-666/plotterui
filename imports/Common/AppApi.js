@@ -1,8 +1,11 @@
 .pragma library
 .import QtQuick 6.4 as Quick
-.import "../Backend/Simulator/BackendSimulator.js" as Simulator
-.import "../Backend/Python/BackendProvider.js" as Provider
-.import "../Backend/BackendLogger.js" as Logger
+//.import "../Backend/Simulator/BackendSimulator.js" as Simulator
+//.import "../Backend/Python/BackendProvider.js" as Provider
+//.import "../Backend/BackendLogger.js" as Logger
+.import Simulator 1.0 as Simulator
+.import Provider 1.0 as Provider
+.import Logger 1.0 as Logger
 
 const UNKOWN_INTERFACE = 0;
 const PYTHON_BACKEND = 1;

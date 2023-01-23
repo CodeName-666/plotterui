@@ -1,5 +1,7 @@
 Module Common
 singleton Constants 1.0 Constants.qml
 DirectoryFontLoader 1.0 DirectoryFontLoader.qml
-App 1.0 App.js
+AppApi 1.0 AppApi.js
 Rand 1.0 Random.js
+Timer 1.0 Timer.js
+DataGen 1.0 DataGen.js

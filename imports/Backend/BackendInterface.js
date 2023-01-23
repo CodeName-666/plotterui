@@ -1,17 +1,20 @@
 .pragma library
 .import QtQuick 6.4 as Quick
-.import "BackendSimulator.js" as Simulator
-.import "BackendProvider.js" as Provider
-.import "BackendLogger.js" as Logger
-.import "../PlotterUi/Setup.js" as Setup
-
+//.import "BackendSimulator.js" as Simulator
+//.import "BackendProvider.js" as Provider
+//.import "BackendLogger.js" as Logger
+//.import "../PlotterUi/Setup.js" as Setup
+.import Simulator 1.0 as Simulator
+.import Provider 1.0 as Provider
+.import Logger 1.0 as Logger
+.import AppApi 1.0 as AppApi
 
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
 function get_interface() {
     var interface
-    if (Setup.is_interface(Setup.PYTHON_BACKEND)) {
+    if (AppApi.is_interface(Setup.PYTHON_BACKEND)) {
         interface = Provider
     } else if (Setup.is_interface(Setup.BACKEND_SIMULATOR)) {
         interface = Simulator
@@ -26,7 +29,7 @@ function get_interface() {
  * FUNCTION
  ******************************************************************/
 function events() {
-    return Setup.getBackendEvents()
+    return AppApi.getBackendEvents()
 }
 
 

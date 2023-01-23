@@ -78,4 +78,6 @@ Project {
     primaryLanguage: "de"
 
 
+
+    mainUiFile: "imports/Common/AppApi.js"
 }

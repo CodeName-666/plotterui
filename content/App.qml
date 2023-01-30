@@ -16,13 +16,13 @@ AppUi {
         {
             Logger.setup(Provider,false);
             Logger.log_debug("App Backend Init");
-            AppApi.setup("PYTHON_BACKEND", this, Backend);
+            AppApi.app_setup("PYTHON_BACKEND", this, Backend);
         }
         else
         {
             Logger.setup(Simulator,false);
             Logger.log_debug("App Simulatort Init");
-            AppApi.setup("BACKEND_SIMULATOR", this);
+            AppApi.app_setup("BACKEND_SIMULATOR", this);
         }
         connect_signals();
 

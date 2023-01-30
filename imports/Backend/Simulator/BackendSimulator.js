@@ -2,13 +2,16 @@
 .import QtQuick 6.4 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.3 as QuickCharts
-.import Simulator 1.0 as Simulator
+.import "Simulator.js" as Simulator
 
+/*=================================================================*/
+/*=== Internal Used Functions =====================================*/
+/*=================================================================*/
 
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function setup(app, events) {
+/**
+ *
+ */
+function internal_setup(app, events) {
     Simulator.setup(app,events)
 }
 

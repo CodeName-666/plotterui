@@ -2,16 +2,21 @@
 .import QtQuick 6.4 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.3 as QuickCharts
-//.import "BackendLogger.js" as Logger
-.import Logger 1.0 as Logger
+.import "../BackendLogger.js" as Logger
+
 
 
 var python_backend = undefined
 
-/*******************************************************************
- * INTERNAL FUNCTION
- ******************************************************************/
-function setup(py_backend, events) {
+
+/*=================================================================*/
+/*=== Internal Used Functions =====================================*/
+/*=================================================================*/
+
+/**
+ *
+ */
+function internal_setup(py_backend, events) {
 
    if(python_backend !== undefined)
     {

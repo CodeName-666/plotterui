@@ -1,17 +1,23 @@
 .pragma library
 .import QtQuick 6.4 as Quick
-//.import "BackendSimulator.js" as Simulator
-//.import "BackendProvider.js" as Provider
-//.import "BackendLogger.js" as Logger
-//.import "../PlotterUi/Setup.js" as Setup
-.import Simulator 1.0 as Simulator
-.import Provider 1.0 as Provider
-.import Logger 1.0 as Logger
-.import AppApi 1.0 as AppApi
+.import "Simulator/BackendSimulator.js" as Simulator
+.import "Python/BackendProvider.js" as Provider
+.import "BackendLogger.js" as Logger
+.import "../Common/AppApi.AppApi.js" as AppApi
 
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
+/*=================================================================*/
+/*=== Internal Used Functions =====================================*/
+/*=================================================================*/
+
+/**
+ * @brief Get Interface
+ *
+ * @return Returns the correct interface which has to be used.
+ * Possible Interfaces are:
+ * - Provider: Interface to Python Backend
+ * - Simulator: Interface to QML Simulater
+ * - Undefined: Unknown setup called, therefore undefined
+ */
 function get_interface() {
     var interface
     if (AppApi.is_interface(Setup.PYTHON_BACKEND)) {
@@ -25,6 +31,7 @@ function get_interface() {
     return interface
 }
 
+
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
@@ -32,6 +39,11 @@ function events() {
     return AppApi.getBackendEvents()
 }
 
+
+
+/*=================================================================*/
+/*=== Backend Interfaces ==========================================*/
+/*=================================================================*/
 
 function set_settings(interface_type, settings) {
     return get_interface().set_settings(interface_type, settings)

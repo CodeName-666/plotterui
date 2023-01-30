@@ -29,11 +29,12 @@ function is_interface(interface_type)
         if(interface_type <= (BACKEND_INTERFACES.length -1))
         {
             ret = (used_backend_interface === BACKEND_INTERFACES[interface_type])
-        } else {
-            ret = false;
         }
-    } else {
-        for (let i = 0; i < BACKEND_INTERFACES.length; i++) {
+    }
+    else
+    {
+        for (let i = 0; i < BACKEND_INTERFACES.length; i++)
+        {
             if(interface_type === BACKEND_INTERFACES[i])
             {
                 ret = true;
@@ -56,7 +57,8 @@ function get_backend_interface(use_backend)
     else
     {
         console.log(BACKEND_INTERFACES.length)
-        for (let i = 0; i < BACKEND_INTERFACES.length; i++) {
+        for (let i = 0; i < BACKEND_INTERFACES.length; i++)
+        {
             if(use_backend === BACKEND_INTERFACES[i])
             {
                 ret = BACKEND_INTERFACES[i]
@@ -66,31 +68,41 @@ function get_backend_interface(use_backend)
     return ret
 }
 
-/*******************************************************************
- * FUNCTION
- ******************************************************************/
-function setup(use_backend, applicationHandle, python_backend_object = undefined)
+/**
+ * @brief Apps Setup
+ * @param {String} use_backend Backend which has to be used, @see BACKEND_INTERFACES
+ * @param {Object} applicationHandle QML main object of this project (this-Object).
+ * @pram {Object}  python_backend_object Python class which was set in the python setup and provides all neede interfaces between python and qml.
+ *
+ * This function is the general init function of the Java Script files. It gets all needed
+ * objects and also does some setup on the correct backend
+ *
+ */
+function app_setup(use_backend, applicationHandle, python_backend_object = undefined)
 {
     used_backend_interface = get_backend_interface(use_backend);
     qml_start_up_done = true;
 
     // Store appliction handle internal.
     application_handle = applicationHandle;
+
     // Create BackendEvents QML object to provide alle needed Signals for the APP
-    backend_events = createBackendEventObject();
+    backend_events = create_backend_event_object();
+
     // Connect the BackendEvent "setupConfig" with the internal setupConfig Slot
     // Depandent on the used interface the Signal SetupConfig can be triggered from 
     // the Simulator or from the Python Backend directly to set all needed configurations.
-    backend_events.uiSetup.connect(uiSetup)
+    backend_events.ui_setup.connect(ui_setup)
+
     if(is_interface(BACKEND_SIMULATOR))
     {
-        Simulator.setup(application_handle, backend_events);
+        Simulator.internal_setup(application_handle, backend_events);
     }
     else if(is_interface(PYTHON_BACKEND))
     {
         if (python_backend_object !== undefined)
         {
-            Provider.setup(python_backend_object, backend_events);
+            Provider.internal_setup(python_backend_object, backend_events);
         } else {
             Logger.log_error("Backend invalid");
         }
@@ -104,7 +116,7 @@ function setup(use_backend, applicationHandle, python_backend_object = undefined
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function createBackendEventObject() {
+function create_backend_event_object() {
 
     var events = undefined
     var component = Qt.createComponent(path_to_backend_events);
@@ -129,14 +141,14 @@ function createBackendEventObject() {
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function getBackendEvents() {
+function get_backend_events() {
     return backend_events;
 }
 
 /*******************************************************************
  * FUNCTION
  ******************************************************************/
-function uiSetup(ui_settings) {
+function ui_setup(ui_settings) {
 
     let ret = application_handle.settings.setup(ui_settings)
     let status = false

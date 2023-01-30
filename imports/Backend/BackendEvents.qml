@@ -23,7 +23,7 @@ QtObject {
      *
      * Event to setup the Settings Ui
      */
-    signal uiSetup(var settings)
+    signal ui_setup(var settings)
 
 
 }

@@ -1,9 +1,9 @@
 .pragma library
 .import QtQuick 6.4 as Quick
-.import "Simulator/BackendSimulator.js" as Simulator
-.import "Python/BackendProvider.js" as Provider
+.import "./Simulator/BackendSimulator.js" as Simulator
+.import "./Python/BackendProvider.js" as Provider
 .import "BackendLogger.js" as Logger
-.import "../Common/AppApi.AppApi.js" as AppApi
+.import "../Common/AppApi.js" as AppApi
 
 /*=================================================================*/
 /*=== Internal Used Functions =====================================*/

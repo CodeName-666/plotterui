@@ -4,8 +4,8 @@
 .import QtCharts 2.3 as QuickCharts
 .import Logger 1.0 as Logger
 
-.import "../Common/DataGen.js" as Data
-.import "../Common/Timer.js" as Timer
+.import "../../Common/DataGen.js" as Data
+.import "../../Common/Timer.js" as Timer
 
 
 

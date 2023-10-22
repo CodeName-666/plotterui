@@ -61,7 +61,14 @@ function log_info(msg) {
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
-function log_debug(msg, caller) {
+function log_debug(msg, caller = undefined) {
+
+    var fnc_name
+
+    if(caller !== undefined)
+    {
+        fnc_name = caller.name
+    }
 
     log_messages('DEBUG',msg);
 }

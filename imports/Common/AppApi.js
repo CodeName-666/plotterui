@@ -1,11 +1,9 @@
 .pragma library
 .import QtQuick 6.4 as Quick
-//.import "../Backend/Simulator/BackendSimulator.js" as Simulator
-//.import "../Backend/Python/BackendProvider.js" as Provider
-//.import "../Backend/BackendLogger.js" as Logger
-.import Simulator 1.0 as Simulator
-.import Provider 1.0 as Provider
-.import Logger 1.0 as Logger
+.import "../Backend/BackendLogger.js" as Logger
+.import "../Backend/Python/BackendProvider.js" as Provider
+.import "../Backend/Simulator/BackendSimulator.js" as Simulator
+
 
 const UNKOWN_INTERFACE = 0;
 const PYTHON_BACKEND = 1;
@@ -14,8 +12,9 @@ var BACKEND_INTERFACES = ["UNKOWN", "PYTHON_BACKEND", "BACKEND_SIMULATOR"];
 
 var application_handle = undefined
 var used_backend_interface = undefined
-var qml_start_up_done = false   //true == DONE/ false == NOT DONE
 var backend_events = undefined
+
+var qml_start_up_done = false   //true == DONE/ false == NOT DONE
 var path_to_backend_events = "../Backend/BackendEvents.qml"
 
 /*******************************************************************
@@ -120,16 +119,15 @@ function create_backend_event_object() {
 
     var events = undefined
     var component = Qt.createComponent(path_to_backend_events);
-
     if(component.status === Quick.Component.Ready)
     {
 
         events = component.createObject(application_handle)
-        Logger.log_debug("Create Event Object - Events Created", arguments.callee.name);
+        Logger.log_debug("Create Event Object - Events Created", create_backend_event_object);
     }
     else if(component.status === Quick.Component.Error)
     {
-        Logger.log_error("Create Event Object - Events Created", arguments.callee.name);
+        Logger.log_error("Create Event Object - Events Created");
     }
     else
     {

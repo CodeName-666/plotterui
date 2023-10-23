@@ -3,7 +3,7 @@
 .import "BackendLogger.js" as Logger
 .import "./Simulator/BackendSimulator.js" as Simulator
 .import "./Python/BackendProvider.js" as Provider
-.import "./../Common/AppApi.js" as AppApi
+.import "../Common/AppApi.js" as AppApi
 
 /*=================================================================*/
 /*=== Internal Used Functions =====================================*/
@@ -36,7 +36,7 @@ function get_interface() {
  * FUNCTION
  ******************************************************************/
 function events() {
-    return AppApi.getBackendEvents()
+    return AppApi.get_backend_events()
 }
 
 

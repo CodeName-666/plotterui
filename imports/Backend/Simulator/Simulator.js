@@ -2,8 +2,8 @@
 .import QtQuick 6.4 as Quick
 .import QtQml 2.15 as Qml
 .import QtCharts 2.3 as QuickCharts
-.import Logger 1.0 as Logger
 
+.import "../BackendLogger.js" as Logger
 .import "../../Common/DataGen.js" as Data
 .import "../../Common/Timer.js" as Timer
 

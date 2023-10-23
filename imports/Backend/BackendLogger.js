@@ -40,22 +40,22 @@ function setup(logger_interface, stack_logging = true, logger_level = NOTSET) {
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
-function log_error(msg) {
-    log_messages('ERROR',msg);
+function log_error(msg, caller = undefined) {
+    log_messages('ERROR',msg, caller);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
-function log_warning(msg) {
-    log_messages('WARNING',msg);
+function log_warning(msg, caller = undefined) {
+    log_messages('WARNING',msg, caller);
 }
 
 /*******************************************************************
  * FUNCTION SLOT
  ******************************************************************/
-function log_info(msg) {
-    log_messages('INFO',msg);
+function log_info(msg, caller = undefined) {
+    log_messages('INFO',msg, caller);
 }
 
 /*******************************************************************
@@ -63,14 +63,7 @@ function log_info(msg) {
  ******************************************************************/
 function log_debug(msg, caller = undefined) {
 
-    var fnc_name
-
-    if(caller !== undefined)
-    {
-        fnc_name = caller.name
-    }
-
-    log_messages('DEBUG',msg);
+    log_messages('DEBUG',msg, caller);
 }
 
 
@@ -81,8 +74,15 @@ function log_internal(type, msg) {
 
 
 
-function log_messages(type, msg)
+function log_messages(type, msg, caller = undefined )
 {
+
+    var fnc_name
+    if(caller !== undefined)
+    {
+        fnc_name = caller.name
+    }
+
     if(interface !== undefined)
     {
         switch(type) {

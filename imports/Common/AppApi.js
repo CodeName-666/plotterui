@@ -55,7 +55,6 @@ function get_backend_interface(use_backend)
     }
     else
     {
-        console.log(BACKEND_INTERFACES.length)
         for (let i = 0; i < BACKEND_INTERFACES.length; i++)
         {
             if(use_backend === BACKEND_INTERFACES[i])

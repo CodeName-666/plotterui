@@ -28,7 +28,7 @@ function rect(x, low, high, width) {
 
     if(edge)
     {
-        if(rect_pos == low)
+        if(rect_pos === low)
             rect_pos = high;
         else
             rect_pos = low;

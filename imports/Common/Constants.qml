@@ -3,6 +3,7 @@ import QtQuick 6.4
 
 QtObject {
 
+
     readonly property bool use_simulation_backend: true
 
     readonly property int width: 1280

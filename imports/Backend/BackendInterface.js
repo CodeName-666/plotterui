@@ -5,32 +5,6 @@
 .import "./Python/BackendProvider.js" as Provider
 .import "../Common/AppApi.js" as AppApi
 
-/*=================================================================*/
-/*=== Internal Used Functions =====================================*/
-/*=================================================================*/
-
-/**
- * @brief Get Interface
- *
- * @return Returns the correct interface which has to be used.
- * Possible Interfaces are:
- * - Provider: Interface to Python Backend
- * - Simulator: Interface to QML Simulater
- * - Undefined: Unknown setup called, therefore undefined
- */
-function get_interface() {
-    var interface
-    if (AppApi.is_interface(Setup.PYTHON_BACKEND)) {
-        interface = Provider
-    } else if (Setup.is_interface(Setup.BACKEND_SIMULATOR)) {
-        interface = Simulator
-    } else {
-        Logger.log_error("GET INTERFACE: Invalid Interface")
-        interface = undefined
-    }
-    return interface
-}
-
 
 /*******************************************************************
  * FUNCTION

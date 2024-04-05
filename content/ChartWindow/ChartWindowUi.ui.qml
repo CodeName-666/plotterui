@@ -71,13 +71,13 @@ Item {
             autoRepeat: true
         }
 
-        ValueAxis {
+        ValuesAxis {
             id: xAxis
             min: 0
             max: 10
         }
 
-        ValueAxis {
+        ValuesAxis {
             id: yAxis
             min: 0
             max: 10

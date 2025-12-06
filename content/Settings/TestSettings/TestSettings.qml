@@ -40,7 +40,10 @@ TestSettingUi {
      ******************************************************************/
     function set_combobox(combobox, txt, type = "txt")
     {
-         var idx = combobox.find(txt, Qt.MatchExactly);
-         //interfaceComboBox.currentIndex = idx;
+        if(txt === undefined || txt === null)
+            return
+        var idx = combobox.find(txt, Qt.MatchExactly);
+        if(idx >= 0)
+            combobox.currentIndex = idx;
     }
 }

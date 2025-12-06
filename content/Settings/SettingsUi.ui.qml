@@ -1,130 +1,82 @@
 import QtQuick 6.4
-import QtQuick.Layouts 1.11
+import QtQuick.Layouts 1.15
 import QtQuick.Controls 6.4
 
-import "SerialSettings"
-import "TelnetSettings"
-import "TestSettings"
-
-
-Item {
+Rectangle {
     id: settings_menu
-
-    implicitWidth: 400
-    implicitHeight: 400
+    implicitWidth: 420
+    implicitHeight: 360
+    radius: 8
+    color: "#f5f5f5"
+    border.color: "#d0d0d0"
 
     property alias interfaceComboBox: interfaceComboBox
-    property alias telnetSettings: telnetSettings
-    property alias serialSettings: serialSettings
     property alias okButton: okButton
     property alias cancleButton: cancleButton
-    property alias testSettings: testSettings
+    property alias settingsLoader: settingsLoader
 
-    Text {
-        text: qsTr("Settings:")
-        anchors.left: parent.left
-        anchors.top: parent.top
-        font.bold: true
-        font.pointSize: 13
-        anchors.leftMargin: 10
-        anchors.topMargin: 10
-    }
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 14
 
-    Text {
-        id: text1
-        text: qsTr("Connection Type:")
-        anchors.left: parent.left
-        anchors.right: interfaceComboBox.left
-        anchors.top: interfaceComboBox.top
-        anchors.bottom: interfaceComboBox.bottom
-        font.pixelSize: 12
-        horizontalAlignment: Text.AlignLeft
-        verticalAlignment: Text.AlignVCenter
-        anchors.leftMargin: 10
-        anchors.topMargin: 0
-        anchors.bottomMargin: 0
-        anchors.rightMargin: 6
-    }
+        Text {
+            text: qsTr("Connection Settings")
+            font.bold: true
+            font.pixelSize: 20
+            color: "#333333"
+            Layout.fillWidth: true
+        }
 
-    ComboBox {
-        id: interfaceComboBox
-        width: 143
-        height: 23
-        //        textRole: "name"
-        //        valueRole: "val"
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.rightMargin: 44
-        anchors.topMargin: 40
-        //model: ["Serial", "Telnet", "Test"]
-    }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
 
-    SerialSettings {
-        id: serialSettings
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: interfaceComboBox.bottom
-        anchors.bottom: okButton.top
-        anchors.rightMargin: 5
-        anchors.leftMargin: 5
-        anchors.bottomMargin: 10
-        anchors.topMargin: 10
-        visible: true
-    }
+            Text {
+                text: qsTr("Interface")
+                font.pixelSize: 14
+                color: "#5c5c5c"
+            }
 
-    TelnetSettings {
-        id: telnetSettings
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: interfaceComboBox.bottom
-        anchors.bottom: okButton.top
-        anchors.rightMargin: 5
-        anchors.leftMargin: 5
-        anchors.bottomMargin: 10
-        anchors.topMargin: 10
-        visible: false
-    }
+            ComboBox {
+                id: interfaceComboBox
+                Layout.fillWidth: true
+                implicitHeight: 34
+            }
+        }
 
-    TestSettings {
-        id: testSettings
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: interfaceComboBox.bottom
-        anchors.bottom: okButton.top
-        anchors.rightMargin: 5
-        anchors.leftMargin: 5
-        anchors.bottomMargin: 10
-        anchors.topMargin: 10
-        visible: false
-    }
+        Rectangle {
+            id: contentCard
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            radius: 6
+            color: "#ffffff"
+            border.color: "#e0e0e0"
 
-    Button {
-        id: okButton
-        width: 79
-        height: 23
-        text: qsTr("OK")
-        anchors.right: cancleButton.left
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: 6
-        anchors.bottomMargin: 16
-    }
+            Loader {
+                id: settingsLoader
+                anchors.fill: parent
+            }
+        }
 
-    Button {
-        id: cancleButton
-        width: 100
-        height: 23
-        text: qsTr("Cancle")
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: 16
-        anchors.bottomMargin: 16
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+
+            Item { Layout.fillWidth: true }
+
+            Button {
+                id: cancleButton
+                text: qsTr("Cancel")
+                Layout.preferredWidth: 110
+            }
+
+            Button {
+                id: okButton
+                text: qsTr("Apply")
+                highlighted: true
+                Layout.preferredWidth: 110
+            }
+        }
     }
 }
-
-/*##^##
-Designer {
-    D{i:0;autoSize:true;formeditorZoom:0.66;height:480;width:640}D{i:1}D{i:2}D{i:3}D{i:4}
-D{i:5}D{i:6}D{i:7}D{i:8}
-}
-##^##*/
-

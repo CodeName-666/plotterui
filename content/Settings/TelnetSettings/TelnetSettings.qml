@@ -10,7 +10,7 @@ TelnetSettingsUi {
     function get_settings()
     {
         return  {
-                 "ip": ipInput.text,
+                 "host": ipInput.text,
                  "port": parseInt(portInput.text)
                 }
     }
@@ -21,7 +21,9 @@ TelnetSettingsUi {
      ******************************************************************/
     function set_settings(settings)
     {
-       ipInput.text = settings["ip"];
-       portInput.text = settings["port"];
+        if(!settings)
+            return
+        ipInput.text = settings["host"] !== undefined ? settings["host"] : settings["ip"];
+        portInput.text = settings["port"] !== undefined ? settings["port"] : "";
     }
 }

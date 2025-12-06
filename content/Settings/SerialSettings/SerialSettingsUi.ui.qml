@@ -42,7 +42,7 @@ Item {
                 ComboBox {
                     id: comComboBox
                     height: 20
-                    //model: com_ports
+                    model: serial_settings.com_ports
                     Layout.fillWidth: true
                 }
 
@@ -76,7 +76,7 @@ Item {
                     textRole: "name"
                     valueRole: "value"
                     Layout.fillWidth: true
-                    //model: DataSizeModel {}
+                    model: DataSizeModel {}
                 }
 
                 Text {
@@ -92,7 +92,7 @@ Item {
                     textRole: "name"
                     valueRole: "value"
                     height: 23
-                    //model: ParityBitsModel {}
+                    model: ParityBitsModel {}
                 }
 
                 Text {
@@ -108,7 +108,7 @@ Item {
                     textRole: "name"
                     valueRole: "value"
                     height: 23
-                    //model: StopBitsModel {}
+                    model: StopBitsModel {}
                 }
             }
 

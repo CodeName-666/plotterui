@@ -10,13 +10,34 @@ SettingsUi {
     id: settings_menu
     property var old_settings: ({})
     property var old_interface: ({})
+    property string currentInterfaceName: ""
+    property string currentCanonicalInterface: ""
+    readonly property var _interfaceAliases: ({
+        "Telnet Client": "Telnet",
+        "Telnet Server": "Telnet",
+        "MQTT": "Test",
+        "CAN": "Test"
+    })
+    readonly property var _componentTemplates: ({
+        "Serial": serialSettingsComponent,
+        "Telnet": telnetSettingsComponent,
+        "Test": testSettingsComponent
+    })
+    property var _storedSettings: ({})
+
+    Component { id: serialSettingsComponent; SerialSettings { } }
+    Component { id: telnetSettingsComponent; TelnetSettings { } }
+    Component { id: testSettingsComponent; TestSettings { } }
 
     /*******************************************************************
      * EVENT
      ******************************************************************/
     Component.onCompleted: {
         Logger.log_debug("SettingsUi Completed")
-        set_interface(interfaceComboBox.displayText)
+        if(interfaceComboBox.currentText !== "")
+        {
+            set_interface(interfaceComboBox.currentText)
+        }
     }
 
     /*******************************************************************
@@ -24,30 +45,30 @@ SettingsUi {
      ******************************************************************/
     interfaceComboBox.onActivated:
     {
-        set_interface(interfaceComboBox.displayText)
+        set_interface(interfaceComboBox.currentText)
     }
+
+    settingsLoader.onLoaded: apply_stored_settings()
 
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function get_interface_by_name(interface_name)
-    {
-        switch(interface_name)
-        {
-        case "Serial":
-            return serialSettings;
-        case "Telnet":
-        case "Telnet Client":
-        case "Telnet Server":
-            return telnetSettings;
-        case "Test":
-        case "MQTT":
-        case "CAN":
-            return testSettings;
-        default:
-            return undefined
+    function canonical_interface_name(interface_name) {
+        if(!interface_name)
+            return ""
+        if(_componentTemplates[interface_name])
+            return interface_name
+        if(_interfaceAliases[interface_name] !== undefined)
+            return _interfaceAliases[interface_name]
+        return ""
+    }
 
-        }
+    function get_interface_template(interface_name)
+    {
+        var canonical = canonical_interface_name(interface_name)
+        if(canonical !== "")
+            return _componentTemplates[canonical]
+        return undefined
     }
 
     /*******************************************************************
@@ -55,36 +76,38 @@ SettingsUi {
      ******************************************************************/
     function set_interface(interface_name)
     {
-
-        switch(interface_name)
+        if(interface_name === undefined || interface_name === null || interface_name === "")
         {
-        case "Serial":
-            telnetSettings.visible = false;
-            serialSettings.visible = true;
-            testSettings.visible = false;
-            break;
-        case "Telnet":
-        case "Telnet Client":
-        case "Telnet Server":
-            telnetSettings.visible = true;
-            serialSettings.visible = false;
-            testSettings.visible = false;
-            break;
-        case "Test":
-            telnetSettings.visible = false;
-            serialSettings.visible = false;
-            testSettings.visible = true;
-            break
-        case "MQTT":
-        case "CAN":
-            telnetSettings.visible = false;
-            serialSettings.visible = false;
-            testSettings.visible = true;
-            Logger.log_warning("SettingsUi: No dedicated UI for " + interface_name + ", using test settings");
-            break
+            Logger.log_warning("SettingsUi: Empty interface selection ignored")
+            return
+        }
 
-        default:
+        if(currentInterfaceName !== "" && interface_name !== currentInterfaceName)
+        {
+            get_settings(currentInterfaceName)
+        }
+
+        var template = get_interface_template(interface_name)
+        if(template === undefined)
+        {
             Logger.log_error("SettingsUi: Invalid Settingsoption...")
+            return
+        }
+
+        currentInterfaceName = interface_name
+        currentCanonicalInterface = canonical_interface_name(interface_name)
+        if(interfaceComboBox.currentText !== interface_name)
+        {
+            var idx = interfaceComboBox.model.indexOf(interface_name)
+            if(idx >= 0)
+                interfaceComboBox.currentIndex = idx
+        }
+
+        settingsLoader.sourceComponent = template
+
+        if(interface_name === "MQTT" || interface_name === "CAN")
+        {
+            Logger.log_warning("SettingsUi: No dedicated UI for " + interface_name + ", using generic settings")
         }
     }
 
@@ -93,8 +116,11 @@ SettingsUi {
      ******************************************************************/
     function backup_settings()
     {
-        old_interface = interfaceComboBox.currentText
-        old_settings = get_settings(interfaceComboBox.currentText);
+        if(interfaceComboBox.currentText !== "")
+        {
+            old_interface = interfaceComboBox.currentText
+            old_settings = get_settings(interfaceComboBox.currentText);
+        }
     }
 
     /*******************************************************************
@@ -106,7 +132,7 @@ SettingsUi {
         for (let i = 0; i < new_com_ports.length; i++) {
             Logger.log_info("COM-Port: " + new_com_ports[i]);
         }
-        serialSettings.comComboBox.model = new_com_ports
+        serialSettings.com_ports = new_com_ports
     }
 
     /*******************************************************************
@@ -114,8 +140,12 @@ SettingsUi {
      ******************************************************************/
     function restore_settings()
     {
-        set_interface(old_interface);
-        set_settings(old_interface, old_settings);
+        if(old_interface !== undefined && old_interface !== null)
+        {
+            set_interface(old_interface);
+            if(old_settings)
+                set_settings(old_interface, old_settings);
+        }
     }
 
 
@@ -124,17 +154,25 @@ SettingsUi {
      ******************************************************************/
     function get_settings(interface_name)
     {
-        var ui = get_interface_by_name(interface_name);
-
-        if (ui !== undefined)
-        {
-            return ui.get_settings()
-        }
-        else
-        {
-            Logger.log_error("Invalid Configuration....")
+        if(!interface_name)
             return false
+
+        if(interface_name === currentInterfaceName)
+        {
+            var active = settingsLoader.item
+            if(active && typeof active.get_settings === "function")
+            {
+                _storedSettings[interface_name] = active.get_settings()
+            }
         }
+
+        if(_storedSettings[interface_name] !== undefined)
+        {
+            return _storedSettings[interface_name]
+        }
+
+        Logger.log_error("Invalid Configuration....")
+        return false
     }
 
     /*******************************************************************
@@ -142,26 +180,35 @@ SettingsUi {
      ******************************************************************/
     function set_settings(interface_name, settings)
     {
-        var ui = get_interface_by_name(interface_name)
-
-        if(ui !== undefined)
-        {
-            return ui.set_settings(settings);
-        }
-        else
-        {
-            Logger.log_error("Invalid Configuration....")
+        if(!interface_name)
             return false
+
+        _storedSettings[interface_name] = settings
+
+        if(interface_name === currentInterfaceName)
+        {
+            var active = settingsLoader.item
+            if(active && typeof active.set_settings === "function")
+            {
+                active.set_settings(settings);
+            }
         }
+        return true
     }
 
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function set_combobox(combobox, txt, type = "txt")
+    function apply_stored_settings()
     {
-         var idx = combobox.find(txt, Qt.MatchExactly);
-         interfaceComboBox.currentIndex = idx;
+        if(currentInterfaceName === "")
+            return
+        var active = settingsLoader.item
+        var stored = _storedSettings[currentInterfaceName]
+        if(active && stored && typeof active.set_settings === "function")
+        {
+            active.set_settings(stored)
+        }
     }
 
     /*******************************************************************
@@ -171,6 +218,11 @@ SettingsUi {
         // Settings for available interfaces
         var interface_model = settings["interfaces"];
         interfaceComboBox.model = interface_model;
+        if(interface_model.length > 0)
+        {
+            interfaceComboBox.currentIndex = 0
+            set_interface(interfaceComboBox.currentText)
+        }
 
         // Get DATA of Serial settings data Models
         //var serial_config = settings["serial"];

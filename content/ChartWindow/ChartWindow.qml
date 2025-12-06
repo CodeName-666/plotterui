@@ -1,10 +1,13 @@
 import QtQuick 6.4
 import QtCharts 2.3
 import Backend 1.0
+import PlotterUi 1.0
+import Common 1.0
 
 
 
 ChartWindowUi{
+    property var appController: App.get_app()
 
     /*******************************************************************
      * EVENT
@@ -53,11 +56,18 @@ ChartWindowUi{
     }
 
     Component.onCompleted:  {
-
-        BackendInterface.events().newGraph.connect(new_graph)
-        BackendInterface.events().scrollRight.connect(chart.scrollRight)
-        BackendInterface.set_plot_area(chart.plotArea)
-        BackendInterface.set_axis(xAxis,yAxis)
+        var controller = appController !== undefined && appController !== null ? appController : App.get_app()
+        if(controller !== undefined && controller !== null)
+        {
+            var events = controller.events()
+            if(events !== undefined && events !== null)
+            {
+                events.newGraph.connect(new_graph)
+                events.scrollRight.connect(chart.scrollRight)
+            }
+            controller.set_plot_area(chart.plotArea)
+            controller.set_axis(xAxis,yAxis)
+        }
         Logger.log_debug("CHARTVIEW Completed");
     }
 
@@ -67,7 +77,11 @@ ChartWindowUi{
     function new_graph(name, color) {
         var graph = create_graph(name, color);
         Logger.log_debug("New Graph created: Name = " + name + "| Color = " + color );
-        BackendInterface.add_graph(name, graph);
+        var controller = appController !== undefined && appController !== null ? appController : App.get_app()
+        if(controller !== undefined && controller !== null)
+        {
+            controller.add_graph(name, graph);
+        }
     }
 
 

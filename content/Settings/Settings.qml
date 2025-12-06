@@ -37,8 +37,12 @@ SettingsUi {
         case "Serial":
             return serialSettings;
         case "Telnet":
+        case "Telnet Client":
+        case "Telnet Server":
             return telnetSettings;
         case "Test":
+        case "MQTT":
+        case "CAN":
             return testSettings;
         default:
             return undefined
@@ -60,6 +64,8 @@ SettingsUi {
             testSettings.visible = false;
             break;
         case "Telnet":
+        case "Telnet Client":
+        case "Telnet Server":
             telnetSettings.visible = true;
             serialSettings.visible = false;
             testSettings.visible = false;
@@ -68,6 +74,13 @@ SettingsUi {
             telnetSettings.visible = false;
             serialSettings.visible = false;
             testSettings.visible = true;
+            break
+        case "MQTT":
+        case "CAN":
+            telnetSettings.visible = false;
+            serialSettings.visible = false;
+            testSettings.visible = true;
+            Logger.log_warning("SettingsUi: No dedicated UI for " + interface_name + ", using test settings");
             break
 
         default:

@@ -1,28 +1,37 @@
 import QtQuick 6.4
 import Common 1.0
 import Backend 1.0
+import PlotterUi 1.0
 
 
 AppUi {
+    id: appRoot
+
+    property var appController: null
+    property var simulatorBackend: null
 
 
     connectButton.onClicked:
     {
-        BackendInterface.connect()
+        if(appController !== null)
+        {
+            appController.connect()
+        }
     }
 
     Component.onCompleted: {
+        appController = App.create()
+
         if(typeof Backend !== 'undefined')
         {
-            Logger.setup(Provider,false);
             Logger.log_debug("App Backend Init");
-            App.setup( this, Backend);
+            appController.setup(appRoot, Backend);
         }
         else
         {
-            Logger.setup(Simulator,false);
-            Logger.log_debug("App Simulatort Init");
-            App.app("BACKEND_SIMULATOR", this);
+            Logger.log_debug("App Simulator Init");
+            simulatorBackend = new Simulator.Simulator()
+            appController.setup(appRoot, simulatorBackend);
         }
         connect_signals();
 
@@ -38,7 +47,10 @@ AppUi {
 
         toolbar.settingsButton.triggered.connect(open_settings)
 
-        BackendInterface.events().com_port_update.connect(settings.update_com_ports)
+        if(appController !== null && appController.events() !== undefined)
+        {
+            appController.events().com_port_update.connect(settings.update_com_ports)
+        }
     }
 
     /*******************************************************************
@@ -50,7 +62,10 @@ AppUi {
 
         Logger.log_info("Accept Setting " + cSettings);
 
-        BackendInterface.set_settings(settings.interfaceComboBox.currentText,cSettings);
+        if(appController !== null)
+        {
+            appController.set_settings(settings.interfaceComboBox.currentText,cSettings);
+        }
         settingsPopup.close();
     }
 

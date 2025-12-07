@@ -2,7 +2,6 @@ import QtQuick 6.4
 import QtCharts 2.3
 import QtQuick.Layouts 1.11
 import QtQuick.Controls 6.4
-import "ZoomButtons"
 
 Item {
     property alias chart: chart
@@ -12,12 +11,11 @@ Item {
     property alias chartMouseArea: chartMouseArea
     property alias horizontalScrollMask: horizontalScrollMask
     property alias verticalScrollMask: verticalScrollMask
-    property alias zoomY: zoomY
-    property alias zoomX: zoomX
+    property alias chartControls: chartControls
 
     ChartView {
         id: chart
-        title: "Top-5 car brand shares in Finland"
+        title: "Data Plot"
         objectName: "chart"
         anchors.fill: parent
         legend.alignment: Qt.AlignBottom
@@ -25,50 +23,25 @@ Item {
         theme: ChartView.ChartThemeDark
 
         Rectangle {
-            color: "yellow"
-            width: 20
-            height: 20
+            color: "transparent"
+            width: 1
+            height: 1
             id: horizontalScrollMask
-            //visible: false
+            visible: false
         }
 
         Rectangle {
-            color: "yellow"
-            width: 20
-            height: 20
+            color: "transparent"
+            width: 1
+            height: 1
             id: verticalScrollMask
-            //visible: false
+            visible: false
         }
 
         MouseArea {
             id: chartMouseArea
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
-        }
-
-        ZoomButtons {
-            id: zoomY
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.leftMargin: 30
-            anchors.topMargin: 30
-            anchors.rightMargin: 21
-
-            height: 100
-            width: 125
-            autoRepeat: true
-        }
-
-        ZoomButtons {
-            id: zoomX
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 30
-            anchors.rightMargin: 30
-
-            height: 100
-            width: 125
-            autoRepeat: true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
         }
 
         ValuesAxis {
@@ -83,22 +56,16 @@ Item {
             max: 10
         }
     }
-}
 
-/*
-MouseArea {
-     anchors.fill: parent
-     onWheel: {
-         // Vergrößern oder Verkleinern des Intervalls, wenn das Mausrad gedreht wird
-         if (wheel.angleDelta.y > 0) {
-             xAxis.interval *= 0.5 // Verkleinern des Intervalls um 50%
-             yAxis.interval *= 0.5
-         } else {
-             xAxis.interval *= 2 // Vergrößern des Intervalls um 100%
-             yAxis.interval *= 2
-         }
-     }
- }
+    // Compact zoom controls - top-right corner, semi-transparent on hover
+    ChartControls {
+        id: chartControls
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.topMargin: 16
+        anchors.rightMargin: 16
+        width: 160
+        height: 44
+        z: 100
+    }
 }
-*/
-

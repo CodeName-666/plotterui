@@ -12,7 +12,7 @@ Rectangle {
 
     property alias interfaceComboBox: interfaceComboBox
     property alias okButton: okButton
-    property alias cancleButton: cancleButton
+    property alias cancelButton: cancelButton
     property alias settingsLoader: settingsLoader
 
     ColumnLayout {
@@ -66,7 +66,7 @@ Rectangle {
             Item { Layout.fillWidth: true }
 
             Button {
-                id: cancleButton
+                id: cancelButton
                 text: qsTr("Cancel")
                 Layout.preferredWidth: 110
             }

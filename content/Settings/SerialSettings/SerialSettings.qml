@@ -9,14 +9,14 @@ SerialSettingsUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function set_settings(settings)
+    function setSettings(settings)
     {
        if(!settings)
            return
-       set_combobox(comComboBox, settings["port"], "text");
-       set_combobox(dataSizeComboBox, settings["size"], "value");
-       set_combobox(parityComboBox, settings["parity"], "value");
-       set_combobox(stopBitsCombo, settings["stop_bits"] !== undefined ? settings["stop_bits"] : settings["stop"], "value");
+       setCombobox(comComboBox, settings["port"], "text");
+       setCombobox(dataSizeComboBox, settings["size"], "value");
+       setCombobox(parityComboBox, settings["parity"], "value");
+       setCombobox(stopBitsCombo, settings["stop_bits"] !== undefined ? settings["stop_bits"] : settings["stop"], "value");
 
        baudInput.text = settings["baud"] !== undefined ? settings["baud"] : "";
        return
@@ -25,7 +25,7 @@ SerialSettingsUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function set_combobox(combobox, value, role = "text")
+    function setCombobox(combobox, value, role = "text")
     {
          if(value === undefined || value === null)
             return
@@ -37,7 +37,7 @@ SerialSettingsUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function get_settings()
+    function getSettings()
     {
         const baud = parseInt(baudInput.text)
         return {

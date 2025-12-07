@@ -15,7 +15,7 @@ TestSettingUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function get_settings()
+    function getSettings()
     {
         var retVal =  {
             "name": qsTr(nameInput.text),
@@ -28,7 +28,7 @@ TestSettingUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function set_settings(settings)
+    function setSettings(settings)
     {
         nameInput.text = settings["name"];
         colorView.color = settings["color"];

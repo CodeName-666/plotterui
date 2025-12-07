@@ -5,3 +5,4 @@ Rand 1.0 Random.js
 Timer 1.0 Timer.js
 DataGen 1.0 DataGen.js
 Base 1.0 Base.js
+singleton Validators 1.0 Validators.qml

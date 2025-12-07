@@ -111,28 +111,52 @@ class AppClass {
             return false
         }
         var connection_type = this.current_interface !== undefined ? this.current_interface : ""
+        console.log("AppController: Attempting to connect with interface:", connection_type)
+
+        if(!connection_type || connection_type === "")
+        {
+            console.error("AppController: No interface selected! current_interface is:", this.current_interface)
+            return false
+        }
+
         if(this.backend_tx_events && this.backend_tx_events.connectTo)
         {
+            console.log("AppController: Calling backend_tx_events.connectTo with:", connection_type)
             this.backend_tx_events.connectTo(connection_type)
             return true
         }
         if(typeof this.used_backend_interface.connectTo === "function")
+        {
+            console.log("AppController: Calling used_backend_interface.connectTo with:", connection_type)
             return this.used_backend_interface.connectTo(connection_type)
+        }
         if(typeof this.used_backend_interface.connect === "function")
+        {
+            console.log("AppController: Calling used_backend_interface.connect()")
             return this.used_backend_interface.connect()
+        }
         console.warn("AppController: Backend does not implement connect/connectTo")
         return false
     }
 
     set_settings(interface_type, settings)
     {
+        console.log("AppController: set_settings called with interface:", interface_type, "settings:", JSON.stringify(settings))
         this.current_interface = interface_type
+        console.log("AppController: current_interface set to:", this.current_interface)
+
         if(this.used_backend_interface && typeof this.used_backend_interface.set_settings === "function")
         {
             if(this.backend_tx_events && this.backend_tx_events.set_settings)
+            {
+                console.log("AppController: Calling backend_tx_events.set_settings")
                 this.backend_tx_events.set_settings(interface_type, settings)
+            }
             else
+            {
+                console.log("AppController: Calling used_backend_interface.set_settings directly")
                 return this.used_backend_interface.set_settings(interface_type, settings)
+            }
             return true
         }
         console.warn("AppController: Backend does not implement set_settings")

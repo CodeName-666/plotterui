@@ -3,22 +3,43 @@ import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
 import DataModels.SerialDataModels 1.0
 import Common 1.0
+import Backend 1.0
 import "components"
 
 Drawer {
     id: navDrawer
     property var window
-    property var appController
     property var settingsPopup
     property alias startButton: controlsCard.startButton
     property alias stopButton: controlsCard.stopButton
     property alias sourceCombo: controlsCard.sourceCombo
+
+    // Get appController from App.qml via window reference
+    function getAppController() {
+        if(window && typeof window.getAppController === "function") {
+            return window.getAppController()
+        }
+        Logger.log_error("NavDrawer: Cannot get appController - window.getAppController not available")
+        return null
+    }
 
     width: Math.min((window ? window.width : 800) * 0.4, 360)
     height: window ? window.height : 600
     edge: Qt.LeftEdge
     interactive: true
     modal: true
+
+    Component.onCompleted: {
+        Logger.log_debug("NavDrawer completed")
+    }
+
+    onOpened: {
+        Logger.log_debug("NavDrawer opened")
+    }
+
+    onClosed: {
+        Logger.log_debug("NavDrawer closed")
+    }
 
     ListModel {
         id: navModel
@@ -38,10 +59,19 @@ Drawer {
         ControlsCard {
             id: controlsCard
             Layout.fillWidth: true
-            appController: navDrawer.appController
-            onInterfaceChanged: {
-                if(appController)
-                    appController.current_interface = iface
+            appController: navDrawer.getAppController()
+            onInterfaceChanged: function(iface) {
+                Logger.log_debug("NavDrawer: Interface changed to: " + iface)
+                var controller = navDrawer.getAppController()
+                if(controller)
+                {
+                    controller.current_interface = iface
+                    Logger.log_info("NavDrawer: Set current_interface to: " + iface)
+                }
+                else
+                {
+                    Logger.log_warning("NavDrawer: Cannot set interface - appController is null")
+                }
             }
         }
 
@@ -116,6 +146,7 @@ Drawer {
                             anchors.fill: parent
                             hoverEnabled: true
                             onClicked: {
+                                Logger.log_debug("NavDrawer: Menu item clicked: " + title)
                                 navList.currentIndex = index
                                 navDrawer.close()
                             }
@@ -130,8 +161,15 @@ Drawer {
             text: qsTr("Settings")
             Layout.fillWidth: true
             onClicked: {
+                Logger.log_info("NavDrawer: Settings button clicked")
                 if(settingsPopup)
+                {
                     settingsPopup.open()
+                }
+                else
+                {
+                    Logger.log_error("NavDrawer: settingsPopup is null")
+                }
             }
         }
     }

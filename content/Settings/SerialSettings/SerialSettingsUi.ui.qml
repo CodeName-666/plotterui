@@ -116,10 +116,6 @@ Item {
                 id: spacer
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                //Rectangle {
-                //    anchors.fill: parent
-                //    color: "#ffaaaa"
-                //}
             }
         }
     }

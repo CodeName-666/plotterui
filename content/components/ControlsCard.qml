@@ -2,6 +2,7 @@ import QtQuick 6.4
 import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
 import DataModels.SerialDataModels 1.0
+import Backend 1.0
 
 Rectangle {
     id: controlsCard
@@ -15,6 +16,16 @@ Rectangle {
     property alias stopButton: stopButton
     property alias sourceCombo: sourceCombo
     property var appController: null
+
+    Component.onCompleted: {
+        Logger.log_debug("ControlsCard completed. appController is: " + (appController ? "available" : "null"))
+        updateInterfaceSettings()
+    }
+
+    onAppControllerChanged: {
+        Logger.log_debug("ControlsCard: appController changed. Is now: " + (appController ? "available" : "null"))
+        updateInterfaceSettings()
+    }
 
     ColumnLayout {
         id: contentLayout
@@ -50,35 +61,55 @@ Rectangle {
             currentIndex: model && model.count > 0 ? 0 : -1
             onCurrentIndexChanged: {
                 if(sourceCombo.currentText !== undefined) {
-                    controlsCard.interfaceChanged(sourceCombo.currentText)
-
-                    // Auto-set default settings for Test interface
-                    if(sourceCombo.currentText === "Test") {
-                        setDefaultTestSettings()
-                    }
+                    Logger.log_debug("ControlsCard: Interface changed to: " + sourceCombo.currentText)
+                    updateInterfaceSettings()
                 }
             }
             Component.onCompleted: {
-                if(sourceCombo.currentText !== undefined) {
-                    controlsCard.interfaceChanged(sourceCombo.currentText)
-
-                    // Auto-set default settings for Test interface on startup
-                    if(sourceCombo.currentText === "Test") {
-                        setDefaultTestSettings()
-                    }
-                }
+                Logger.log_debug("ControlsCard ComboBox completed. Current: " + sourceCombo.currentText + ", Model count: " + model.count)
             }
         }
     }
 
+    // Central function to update interface settings - eliminates code duplication
+    function updateInterfaceSettings() {
+        if(!sourceCombo.currentText) {
+            return
+        }
+
+        var interfaceName = sourceCombo.currentText
+
+        // Set current_interface in appController
+        if(appController) {
+            appController.current_interface = interfaceName
+            Logger.log_info("ControlsCard: Set appController.current_interface to: " + interfaceName)
+        } else {
+            Logger.log_warning("ControlsCard: appController is null, cannot set current_interface")
+            return
+        }
+
+        // Emit signal for other listeners
+        controlsCard.interfaceChanged(interfaceName)
+
+        // Auto-set default settings for Test interface
+        if(interfaceName === "Test") {
+            Logger.log_debug("ControlsCard: Setting default Test settings")
+            setDefaultTestSettings()
+        }
+    }
+
     function setDefaultTestSettings() {
+        Logger.log_debug("ControlsCard: setDefaultTestSettings called")
         if(appController && typeof appController.set_settings === "function") {
             var defaultTestSettings = {
                 "name": "Sinus Test",
                 "color": "#ff4444",
                 "type": "Sinus"
             }
+            Logger.log_info("ControlsCard: Setting Test interface with default settings: " + JSON.stringify(defaultTestSettings))
             appController.set_settings("Test", defaultTestSettings)
+        } else {
+            Logger.log_warning("ControlsCard: Cannot set Test settings - appController not available")
         }
     }
 }

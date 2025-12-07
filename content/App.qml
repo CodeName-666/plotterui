@@ -13,63 +13,145 @@ AppUi {
 
     connectButton.onClicked:
     {
-        if(appController !== null)
+        Logger.log_info("App: Connect button clicked")
+        if(Validators.isValid(appController))
         {
             appController.connect()
+        }
+        else
+        {
+            Logger.log_error("App: appController is null - cannot connect")
         }
     }
 
     Component.onCompleted: {
+        Logger.log_info("App: Component.onCompleted - Initializing application")
         appController = App.create()
+        Logger.log_debug("App: appController created, initial current_interface: " + appController.current_interface)
 
         if(typeof Backend !== 'undefined')
         {
-            Logger.log_debug("App Backend Init");
+            Logger.log_info("App: Using Backend interface");
             appController.setup(appRoot, Backend);
         }
         else
         {
-            Logger.log_debug("App Simulator Init");
+            Logger.log_info("App: Using Simulator backend");
             simulatorBackend = new Simulator.Simulator()
             appController.setup(appRoot, simulatorBackend);
         }
-        connect_signals();
+        connectSignals();
+
+        // Set initial interface from ControlsCard ComboBox
+        if(navDrawer && navDrawer.sourceCombo && navDrawer.sourceCombo.currentText) {
+            appController.current_interface = navDrawer.sourceCombo.currentText
+            Logger.log_info("App: Set initial current_interface to: " + appController.current_interface)
+        }
+
+        Logger.log_info("App: Initialization completed");
+    }
+
+    Component.onDestruction: {
+        Logger.log_info("App: Component.onDestruction - Cleaning up")
+        disconnectSignals()
+        Logger.log_info("App: Cleanup completed")
+    }
 
 
-        Logger.log_debug("App Completed");
-      }
+    function connectSignals() {
+        Logger.log_debug("App: connect_signals called")
 
+        if(Validators.isValid(settings) && Validators.isValid(settings.okButton))
+        {
+            settings.okButton.clicked.connect(acceptSettings)
+            Logger.log_debug("App: Connected settings OK button")
+        }
+        if(Validators.isValid(settings) && Validators.isValid(settings.cancelButton))
+        {
+            settings.cancelButton.clicked.connect(cancelSettings)
+            Logger.log_debug("App: Connected settings Cancel button")
+        }
 
-    function connect_signals() {
-        if(settings && settings.okButton)
-            settings.okButton.clicked.connect(accept_settings)
-        if(settings && settings.cancleButton)
-            settings.cancleButton.clicked.connect(cancle_settings)
-
-        if(appController !== null && appController.events() !== undefined)
+        if(Validators.isValid(appController) && Validators.isValidFunction(appController.events))
         {
             var events = appController.events()
-            events.com_port_update.connect(settings.update_com_ports)
-            events.ui_setup.connect(settings.setup)
-            if(events.status_message)
-                events.status_message.connect(show_status_message)
+            if(Validators.isValid(events)) {
+                events.com_port_update.connect(settings.updateComPorts)
+                events.ui_setup.connect(settings.setup)
+                if(Validators.isValid(events.status_message))
+                    events.status_message.connect(showStatusMessage)
+                Logger.log_debug("App: Connected backend event signals")
+            }
         }
 
-        // Fallback: pull UI config directly if signal was missed
-        if(typeof Backend !== 'undefined' && Backend.get_ui_config)
+        /*******************************************************************
+         * SETTINGS INITIALIZATION STRATEGY:
+         *
+         * The settings are initialized through multiple mechanisms to ensure
+         * robustness across different backend scenarios:
+         *
+         * 1. PRIMARY: Event-based (lines 69-79)
+         *    - Backend emits ui_setup signal with configuration
+         *    - Connected via events.ui_setup.connect(settings.setup)
+         *    - This is the preferred method for real backend
+         *
+         * 2. FALLBACK A: Direct config pull (below)
+         *    - Used if ui_setup signal was missed or not emitted yet
+         *    - Directly calls Backend.get_ui_config() to retrieve config
+         *    - Ensures UI is initialized even if timing issues occur
+         *
+         * 3. FALLBACK B: Simulator mode (below)
+         *    - Used when running without real backend
+         *    - Manually sets up Test interface for development/testing
+         ******************************************************************/
+
+        // Fallback A: pull UI config directly if signal was missed
+        if(typeof Backend !== 'undefined' && Validators.isValidFunction(Backend.get_ui_config))
         {
+            Logger.log_debug("App: [FALLBACK A] Pulling UI config from Backend")
             var cfg = Backend.get_ui_config()
-            if(cfg && cfg.interfaces)
+            if(Validators.isValid(cfg) && Validators.isValid(cfg.interfaces))
+            {
+                Logger.log_info("App: Setting up interfaces from Backend config: " + JSON.stringify(cfg.interfaces))
                 settings.setup(cfg)
+            }
         }
-        // Fallback for Simulator: manually setup with Test interface
-        else if(simulatorBackend !== null)
+        // Fallback B: Simulator mode with Test interface
+        else if(Validators.isValid(simulatorBackend))
         {
+            Logger.log_info("App: [FALLBACK B] Setting up Simulator with Test interface")
             settings.setup({"interfaces": ["Test"]})
         }
     }
 
-    function show_status_message(level, message)
+    function disconnectSignals() {
+        Logger.log_debug("App: disconnect_signals called")
+
+        if(Validators.isValid(settings) && Validators.isValid(settings.okButton))
+        {
+            settings.okButton.clicked.disconnect(acceptSettings)
+            Logger.log_debug("App: Disconnected settings OK button")
+        }
+        if(Validators.isValid(settings) && Validators.isValid(settings.cancelButton))
+        {
+            settings.cancelButton.clicked.disconnect(cancelSettings)
+            Logger.log_debug("App: Disconnected settings Cancel button")
+        }
+
+        if(Validators.isValid(appController) && Validators.isValidFunction(appController.events))
+        {
+            var events = appController.events()
+            if(Validators.isValid(events)) {
+                events.com_port_update.disconnect(settings.updateComPorts)
+                events.ui_setup.disconnect(settings.setup)
+                if(Validators.isValid(events.status_message))
+                    events.status_message.disconnect(showStatusMessage)
+                Logger.log_debug("App: Disconnected backend event signals")
+            }
+        }
+    }
+
+    function showStatusMessage(level, message)
     {
         if(footer && footer.showStatus)
             footer.showStatus(level, message)
@@ -78,15 +160,22 @@ AppUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function accept_settings()
+    function acceptSettings()
     {
-        var cSettings =settings.get_settings(settings.interfaceComboBox.currentText);
+        var currentInterface = settings.interfaceComboBox.currentText
+        Logger.log_debug("App: acceptSettings for interface: " + currentInterface)
 
-        Logger.log_info("Accept Setting " + cSettings);
+        var cSettings = settings.getSettings(currentInterface);
+
+        Logger.log_info("App: Accepting settings for " + currentInterface + ": " + JSON.stringify(cSettings));
 
         if(appController !== null)
         {
-            appController.set_settings(settings.interfaceComboBox.currentText,cSettings);
+            appController.setSettings(currentInterface, cSettings);
+        }
+        else
+        {
+            Logger.log_error("App: Cannot accept settings - appController is null")
         }
         settingsPopup.close();
     }
@@ -94,27 +183,28 @@ AppUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function cancle_settings()
+    function cancelSettings()
     {
-        Logger.log_info("cancel settings");
-        settings.restore_settings();
+        Logger.log_info("App: Cancelling settings - restoring previous values");
+        settings.restoreSettings();
         settingsPopup.close();
     }
 
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function open_settings()
+    function openSettings()
     {
-        settings.backup_settings();
+        Logger.log_debug("App: Opening settings dialog")
+        settings.backupSettings();
         settingsPopup.open();
     }
 
     /*******************************************************************
-     * FUNCTION
+     * FUNCTION - Returns the application controller instance
      ******************************************************************/
-    function setConfig()
+    function getAppController()
     {
-
+        return appController
     }
 }

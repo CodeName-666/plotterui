@@ -21,6 +21,10 @@ ApplicationWindow {
     color: Constants.backgroundColor
     title: qsTr(Constants.title)
 
+    // Note: appController property is defined in App.qml which inherits from AppUi
+    // We declare it here so NavDrawer can reference it
+    property var appController
+
     property alias settingsPopup: settingsPopup
     property alias settings: settings
     property alias chartWindow: chartWindow
@@ -34,19 +38,12 @@ ApplicationWindow {
 
     header: Toolbar {
         id: topToolbar
-        anchors.left: parent.left
-        anchors.right: parent.right
         onMenuRequested: navDrawer.open()
     }
 
     Item {
         id: mainArea
-        anchors {
-            top: topToolbar.bottom
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
-        }
+        anchors.fill: parent
 
         Footer {
             id: footer
@@ -71,7 +68,6 @@ ApplicationWindow {
     NavDrawer {
         id: navDrawer
         window: applicationWindow
-        appController: appController
         settingsPopup: settingsPopup
     }
 

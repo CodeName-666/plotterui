@@ -3,7 +3,7 @@ import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.11
 
 import PlotterUi 1.0
-import Models 1.0
+import SerialDataModels 1.0
 import Common 1.0
 
 

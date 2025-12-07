@@ -3,6 +3,7 @@ import Backend 1.0
 
 import "SerialSettings"
 import "TelnetSettings"
+import "MQTTSettings"
 import "TestSettings"
 
 SettingsUi {
@@ -15,18 +16,19 @@ SettingsUi {
     readonly property var _interfaceAliases: ({
         "Telnet Client": "Telnet",
         "Telnet Server": "Telnet",
-        "MQTT": "Test",
         "CAN": "Test"
     })
     readonly property var _componentTemplates: ({
         "Serial": serialSettingsComponent,
         "Telnet": telnetSettingsComponent,
+        "MQTT": mqttSettingsComponent,
         "Test": testSettingsComponent
     })
     property var _storedSettings: ({})
 
     Component { id: serialSettingsComponent; SerialSettings { } }
     Component { id: telnetSettingsComponent; TelnetSettings { } }
+    Component { id: mqttSettingsComponent; MQTTSettings { } }
     Component { id: testSettingsComponent; TestSettings { } }
 
     /*******************************************************************
@@ -105,7 +107,7 @@ SettingsUi {
 
         settingsLoader.sourceComponent = template
 
-        if(interface_name === "MQTT" || interface_name === "CAN")
+        if(interface_name === "CAN")
         {
             Logger.log_warning("SettingsUi: No dedicated UI for " + interface_name + ", using generic settings")
         }

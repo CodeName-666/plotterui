@@ -8,6 +8,7 @@ import Common 1.0
 
 ChartWindowUi{
     property var appController: App.get_app()
+    property var _graphs: ({})
 
     /*******************************************************************
      * EVENT
@@ -63,6 +64,7 @@ ChartWindowUi{
             if(events !== undefined && events !== null)
             {
                 events.newGraph.connect(new_graph)
+                events.append_graph_point.connect(append_graph_point)
                 events.scrollRight.connect(chart.scrollRight)
             }
             controller.set_plot_area(chart.plotArea)
@@ -77,11 +79,26 @@ ChartWindowUi{
     function new_graph(name, color) {
         var graph = create_graph(name, color);
         Logger.log_debug("New Graph created: Name = " + name + "| Color = " + color );
+        _graphs[name] = graph
         var controller = appController !== undefined && appController !== null ? appController : App.get_app()
         if(controller !== undefined && controller !== null)
         {
             controller.add_graph(name, graph);
         }
+    }
+
+    function append_graph_point(name, point)
+    {
+        if(!_graphs[name])
+        {
+            Logger.log_warning("append_graph_point: graph not found for " + name)
+            return
+        }
+        if(point === undefined)
+            return
+        var x = point.x !== undefined ? point.x : (point["x"] !== undefined ? point["x"] : 0)
+        var y = point.y !== undefined ? point.y : (point["y"] !== undefined ? point["y"] : 0)
+        _graphs[name].append(x, y)
     }
 
 

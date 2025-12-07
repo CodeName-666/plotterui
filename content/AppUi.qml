@@ -12,93 +12,88 @@ import "Toolbar"
 
 
 
-
 ApplicationWindow {
-
     id: applicationWindow
-
     objectName: "applicationWindow"
     width: Constants.width
     height: Constants.height
+    visible: true
     color: Constants.backgroundColor
     title: qsTr(Constants.title)
-    visible: true
 
-    property alias settings: settings
     property alias settingsPopup: settingsPopup
-    property alias toolbar: toolbar
     property alias chartWindow: chartWindow
     property alias connectButton: connectButton
+    property alias toolbar: topToolbar
 
     menuBar: MainMenu {
-        id: toolbar
+        id: menuBar
         settingsButton.onTriggered: settingsPopup.open()
     }
 
-    contentData: [
+    header: Toolbar {
+        id: topToolbar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        onConnectRequested: connectButton.clicked()
+        onSettingsRequested: settingsPopup.open()
+    }
 
-        ChartWindow {
-           id: chartWindow
-           objectName: "chartWindow"
-           anchors.fill: parent
-
+    ChartWindow {
+        id: chartWindow
+        anchors {
+            top: topToolbar.bottom
+            left: parent.left
+            right: parent.right
+            bottom: footer.top
+            margins: 6
         }
-    ]
+        objectName: "chartWindow"
+    }
 
+    footer: Footer {
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
 
     Drawer {
-        id: drawer
-
-        y: toolbar.height
-        width: applicationWindow.width / 3
-        height: applicationWindow.height - toolbar.height
-
-        modal: true
+        id: settingsDrawer
+        width: Math.min(applicationWindow.width * 0.4, 420)
+        height: applicationWindow.height
         interactive: true
-        position: 0.0
-        visible: false
+        modal: true
 
         ColumnLayout {
             anchors.fill: parent
-            spacing: 2
+            anchors.margins: 16
+            spacing: 12
 
             Settings {
                 Layout.fillWidth: true
-            }
-
-            Item {
                 Layout.fillHeight: true
             }
 
-            Button
-            {
+            Button {
                 id: connectButton
                 Layout.fillWidth: true
-                text: "Connect"
-                height: 50
+                height: 48
+                text: qsTr("Connect")
             }
         }
     }
 
     Popup {
         id: settingsPopup
-        width: parent.width * 0.5
-        height: parent.height * 0.6
+        width: parent.width * 0.55
+        height: parent.height * 0.65
         anchors.centerIn: parent
         modal: true
         focus: true
-        contentItem : Settings {
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
+        Settings {
             id: settings
             anchors.fill: parent
-
         }
-
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
     }
-
-    footer:  Footer{
-        anchors.right: parent.right
-        anchors.rightMargin: 0
-    }
-
 }

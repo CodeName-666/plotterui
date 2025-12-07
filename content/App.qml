@@ -49,8 +49,25 @@ AppUi {
 
         if(appController !== null && appController.events() !== undefined)
         {
-            appController.events().com_port_update.connect(settings.update_com_ports)
+            var events = appController.events()
+            events.com_port_update.connect(settings.update_com_ports)
+            events.ui_setup.connect(settings.setup)
+            if(events.status_message)
+                events.status_message.connect(show_status_message)
         }
+
+        if(typeof Backend !== 'undefined' && Backend.get_ui_config)
+        {
+            var cfg = Backend.get_ui_config()
+            if(cfg)
+                settings.setup(cfg)
+        }
+    }
+
+    function show_status_message(level, message)
+    {
+        if(footer && footer.showStatus)
+            footer.showStatus(level, message)
     }
 
     /*******************************************************************

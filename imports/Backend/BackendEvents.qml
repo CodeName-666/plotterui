@@ -11,6 +11,10 @@ QtObject {
      */
     signal newGraph(var name, var color);
     /**
+     * @brief Append a value to an existing graph
+     */
+    signal append_graph_point(var name, var point);
+    /**
      * @brief Scroll Right Event
      */
     signal scrollRight(var pixel);
@@ -24,6 +28,10 @@ QtObject {
      * Event to setup the Settings Ui
      */
     signal ui_setup(var settings)
+    /**
+     * @brief General status notification
+     */
+    signal status_message(var level, var message)
 
 
 }

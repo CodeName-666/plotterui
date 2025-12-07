@@ -13,10 +13,10 @@ SerialSettingsUi {
     {
        if(!settings)
            return
-       set_combobox(comComboBox, settings["port"]);
-       set_combobox(dataSizeComboBox, settings["size"]);
-       set_combobox(parityComboBox, settings["parity"]);
-       set_combobox(stopBitsCombo, settings["stop_bits"] !== undefined ? settings["stop_bits"] : settings["stop"]);
+       set_combobox(comComboBox, settings["port"], "text");
+       set_combobox(dataSizeComboBox, settings["size"], "value");
+       set_combobox(parityComboBox, settings["parity"], "value");
+       set_combobox(stopBitsCombo, settings["stop_bits"] !== undefined ? settings["stop_bits"] : settings["stop"], "value");
 
        baudInput.text = settings["baud"] !== undefined ? settings["baud"] : "";
        return
@@ -25,11 +25,11 @@ SerialSettingsUi {
     /*******************************************************************
      * FUNCTION
      ******************************************************************/
-    function set_combobox(combobox, txt, type = "txt")
+    function set_combobox(combobox, value, role = "text")
     {
-         if(txt === undefined || txt === null)
+         if(value === undefined || value === null)
             return
-         var idx = combobox.find(txt, Qt.MatchExactly);
+         var idx = combobox.find(value, Qt.MatchExactly, role);
          if(idx >= 0)
             combobox.currentIndex = idx;
     }
@@ -39,11 +39,12 @@ SerialSettingsUi {
      ******************************************************************/
     function get_settings()
     {
+        const baud = parseInt(baudInput.text)
         return {
                 "port": comComboBox.currentText,
-                "baud": parseInt(baudInput.text),
-                "size": dataSizeComboBox.currentText,
-                "parity": parityComboBox.currentText,
+                "baud": isNaN(baud) ? 0 : baud,
+                "size": dataSizeComboBox.currentValue !== undefined ? dataSizeComboBox.currentValue : dataSizeComboBox.currentText,
+                "parity": parityComboBox.currentValue !== undefined ? parityComboBox.currentValue : parityComboBox.currentText,
                 "stop_bits": stopBitsCombo.currentValue !== undefined ? stopBitsCombo.currentValue : stopBitsCombo.currentText
                }
     }

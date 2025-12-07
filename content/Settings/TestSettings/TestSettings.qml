@@ -32,7 +32,7 @@ TestSettingUi {
     {
         nameInput.text = settings["name"];
         colorView.color = settings["color"];
-        set_combobox(testSettings.typeCombo,settings["type"]);
+        set_combobox(typeCombo, settings["type"]);
     }
 
     /*******************************************************************

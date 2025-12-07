@@ -134,7 +134,8 @@ SettingsUi {
         for (let i = 0; i < new_com_ports.length; i++) {
             Logger.log_info("COM-Port: " + new_com_ports[i]);
         }
-        serialSettings.com_ports = new_com_ports
+        if(settingsLoader.item && settingsLoader.item.com_ports !== undefined)
+            settingsLoader.item.com_ports = new_com_ports
     }
 
     /*******************************************************************

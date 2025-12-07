@@ -9,16 +9,21 @@ MQTTSettingsUi {
      ******************************************************************/
     function get_settings()
     {
+        if(typeof hostInput === "undefined" || hostInput === null)
+            return {}
+        const portVal = parseInt(portInput.text)
+        const qosVal = parseInt(qosCombo.currentValue !== undefined ? qosCombo.currentValue : qosCombo.currentText)
+        const keepAliveVal = parseInt(keepAliveInput.text)
         return {
             "host": hostInput.text,
-            "port": parseInt(portInput.text),
+            "port": isNaN(portVal) ? 0 : portVal,
             "rx_topic": rxTopicInput.text,
             "tx_topic": txTopicInput.text,
             "client_id": clientIdInput.text,
             "username": usernameInput.text,
             "password": passwordInput.text,
-            "qos": parseInt(qosCombo.currentValue !== undefined ? qosCombo.currentValue : qosCombo.currentText),
-            "keepalive": parseInt(keepAliveInput.text)
+            "qos": isNaN(qosVal) ? 0 : qosVal,
+            "keepalive": isNaN(keepAliveVal) ? 60 : keepAliveVal
         }
     }
 
@@ -27,7 +32,7 @@ MQTTSettingsUi {
      ******************************************************************/
     function set_settings(settings)
     {
-        if(!settings)
+        if(!settings || typeof hostInput === "undefined" || hostInput === null)
             return
         hostInput.text = settings["host"] !== undefined ? settings["host"] : ""
         portInput.text = settings["port"] !== undefined ? settings["port"] : ""

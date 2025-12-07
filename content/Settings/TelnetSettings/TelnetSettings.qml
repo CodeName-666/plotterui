@@ -9,9 +9,10 @@ TelnetSettingsUi {
      ******************************************************************/
     function get_settings()
     {
+        const port = parseInt(portInput.text)
         return  {
                  "host": ipInput.text,
-                 "port": parseInt(portInput.text)
+                 "port": isNaN(port) ? 0 : port
                 }
     }
 

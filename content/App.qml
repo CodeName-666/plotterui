@@ -55,10 +55,11 @@ AppUi {
                 events.status_message.connect(show_status_message)
         }
 
+        // Fallback: pull UI config directly if signal was missed
         if(typeof Backend !== 'undefined' && Backend.get_ui_config)
         {
             var cfg = Backend.get_ui_config()
-            if(cfg)
+            if(cfg && cfg.interfaces)
                 settings.setup(cfg)
         }
     }

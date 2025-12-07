@@ -3,11 +3,15 @@ import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.11
 
 import PlotterUi 1.0
-import SerialDataModels 1.0
+import DataModels.SerialDataModels 1.0
 import Common 1.0
 
 
 ToolBar {
+
+    property alias startButton: startButton
+    property alias stopButton: stopButton
+    property alias settingsButton: settingsButton
 
     width: Constants.width
     height: 40
@@ -18,47 +22,17 @@ ToolBar {
         spacing: 0
 
         Button {
+            id: startButton
             Layout.fillWidth: true
             Layout.preferredHeight: parent.height
-
-            Text {
-                id: startButton
-                anchors.fill: parent
-                text: qsTr("Start")
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            background: Rectangle {
-                anchors.fill: parent
-                radius: 11
-                border.color: "#6a5a5a"
-                border.width: 2
-                color: parent.down ? "#d0d0d0" : "#e0e0e0"
-            }
+            text: qsTr("Start")
         }
 
         Button {
+            id: stopButton
             Layout.fillWidth: true
             Layout.preferredHeight: parent.height
-            Text {
-                id: stopButton
-                anchors.fill: parent
-                anchors.centerIn: parent
-                text: qsTr("Stop")
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                transformOrigin: Item.Center
-                layer.smooth: true
-            }
-
-            background: Rectangle {
-                anchors.fill: parent
-                radius: 11
-                border.color: "#6a5a5a"
-                border.width: 2
-                color: parent.down ? "#d0d0d0" : "#e0e0e0"
-            }
+            text: qsTr("Stop")
         }
         Item {
             Layout.preferredHeight: rlayout.height
@@ -92,6 +66,12 @@ ToolBar {
                     }
                 }
             }
+        }
+
+        ToolButton {
+            id: settingsButton
+            Layout.preferredHeight: parent.height
+            text: qsTr("Settings")
         }
     }
 }

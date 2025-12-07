@@ -10,9 +10,9 @@ Drawer {
     property var window
     property var appController
     property var settingsPopup
-    property alias startButton: navStartButton
-    property alias stopButton: navStopButton
-    property alias sourceCombo: navSourceCombo
+    property alias startButton: controlsCard.startButton
+    property alias stopButton: controlsCard.stopButton
+    property alias sourceCombo: controlsCard.sourceCombo
 
     width: Math.min((window ? window.width : 800) * 0.4, 360)
     height: window ? window.height : 600
@@ -38,8 +38,7 @@ Drawer {
         ControlsCard {
             id: controlsCard
             Layout.fillWidth: true
-            startButton.onClicked: navStartButton.clicked()
-            stopButton.onClicked: navStopButton.clicked()
+            appController: navDrawer.appController
             onInterfaceChanged: {
                 if(appController)
                     appController.current_interface = iface
@@ -54,39 +53,53 @@ Drawer {
             border.color: "#e0e0e0"
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 0
-                spacing: 4
+                anchors.margins: 8
+                spacing: 2
                 ListView {
                     id: navList
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    spacing: 4
+                    spacing: 2
                     model: navModel ? navModel : []
                     clip: true
                     section.property: "section"
                     section.delegate: Label {
+                        width: ListView.view.width
                         text: section
                         color: "#7a7a7a"
-                        font.pixelSize: 12
+                        font.pixelSize: 11
                         font.bold: true
-                        padding: 10
+                        leftPadding: 8
+                        topPadding: 8
+                        bottomPadding: 4
                         horizontalAlignment: Text.AlignLeft
                     }
                     delegate: Rectangle {
+                        id: menuItem
                         width: ListView.view.width
-                        height: 44
-                        color: ListView.isCurrentItem ? "#3b8cc0" : "transparent"
+                        height: 40
+                        color: {
+                            if (ListView.isCurrentItem) return "#3b8cc0"
+                            if (menuItemMouseArea.containsMouse) return "#f0f0f0"
+                            return "transparent"
+                        }
                         border.color: ListView.isCurrentItem ? "#2d6f99" : "transparent"
                         border.width: ListView.isCurrentItem ? 1 : 0
                         radius: 4
+
                         RowLayout {
                             anchors.fill: parent
-                            anchors.margins: 12
-                            spacing: 10
+                            anchors.leftMargin: 8
+                            anchors.rightMargin: 8
+                            anchors.topMargin: 6
+                            anchors.bottomMargin: 6
+                            spacing: 8
+
                             Label {
                                 text: "\u25A0"
                                 visible: iconName !== ""
                                 color: ListView.isCurrentItem ? "white" : "#444"
+                                font.pixelSize: 12
                             }
                             Label {
                                 text: title
@@ -97,8 +110,11 @@ Drawer {
                                 verticalAlignment: Text.AlignVCenter
                             }
                         }
+
                         MouseArea {
+                            id: menuItemMouseArea
                             anchors.fill: parent
+                            hoverEnabled: true
                             onClicked: {
                                 navList.currentIndex = index
                                 navDrawer.close()

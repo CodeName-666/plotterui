@@ -58,7 +58,7 @@ class Simulator {
         setup_done_status = true
         connect_events(events);
 
-        backend_events.uiSetup(simulator_settings)
+        backend_events.ui_setup(simulator_settings)
         Logger.log_debug("SIMULATOR setup done")
     }
 

@@ -62,6 +62,11 @@ AppUi {
             if(cfg && cfg.interfaces)
                 settings.setup(cfg)
         }
+        // Fallback for Simulator: manually setup with Test interface
+        else if(simulatorBackend !== null)
+        {
+            settings.setup({"interfaces": ["Test"]})
+        }
     }
 
     function show_status_message(level, message)

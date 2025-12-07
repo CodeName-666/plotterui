@@ -13,11 +13,7 @@ SettingsUi {
     property var old_interface: ({})
     property string currentInterfaceName: ""
     property string currentCanonicalInterface: ""
-    readonly property var _interfaceAliases: ({
-        "Telnet Client": "Telnet",
-        "Telnet Server": "Telnet",
-        "CAN": "Test"
-    })
+    readonly property var _interfaceAliases: ({})
     readonly property var _componentTemplates: ({
         "Serial": serialSettingsComponent,
         "Telnet": telnetSettingsComponent,
@@ -106,11 +102,6 @@ SettingsUi {
         }
 
         settingsLoader.sourceComponent = template
-
-        if(interface_name === "CAN")
-        {
-            Logger.log_warning("SettingsUi: No dedicated UI for " + interface_name + ", using generic settings")
-        }
     }
 
     /*******************************************************************

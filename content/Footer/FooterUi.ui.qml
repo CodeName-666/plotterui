@@ -1,9 +1,12 @@
 import QtQuick 6.4
 import QtQuick.Controls 6.4
-import QtQuick.Layouts 1.11
+import QtQuick.Layouts 1.15
 import "../StatusIndicator"
 
-ToolBar {
+Rectangle {
+    color: "#f5f5f5"
+    border.color: "#d0d0d0"
+    height: 36
 
     property alias keepAliveStatus: keepAliveStatus
     property alias keepAliveInfoText: keepAliveInfo.text
@@ -30,31 +33,25 @@ ToolBar {
 
     RowLayout {
         anchors.fill: parent
+        anchors.margins: 8
+        spacing: 8
+
         Label {
             id: keepAliveInfo
             Layout.fillHeight: true
-            Layout.leftMargin: 10
-            text: "Read Only"
-            horizontalAlignment: Text.AlignHCenter
+            text: "Ready"
+            color: "#333"
+            horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
         }
 
-        Item {
-            // spacer item
-            id: spacer
-            Layout.fillWidth: true
-            Rectangle {
-                anchors.fill: parent
-                color: "#ffaaaa"
-            } // to visualize the spacer
-        }
+        Item { Layout.fillWidth: true }
 
         StatusIndicator {
             id: keepAliveStatus
-            Layout.preferredHeight: parent.height
-            Layout.preferredWidth: parent.height
-            Layout.rightMargin: 10
-
+            Layout.preferredHeight: 20
+            Layout.preferredWidth: 20
         }
     }
 }

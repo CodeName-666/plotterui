@@ -11,10 +11,7 @@ import "MainMenu"
 import "ChartWindow"
 import "Settings"
 import "Toolbar"
-import "NavDrawer"
-
-
-
+import "."
 ApplicationWindow {
     id: applicationWindow
     objectName: "applicationWindow"

@@ -9,9 +9,7 @@ import Common 1.0
 
 ToolBar {
 
-    property alias startButton: startButton
-    property alias stopButton: stopButton
-    property alias settingsButton: settingsButton
+    property alias menuButton: menuButton
 
     width: Constants.width
     height: 40
@@ -21,57 +19,17 @@ ToolBar {
         anchors.fill: parent
         spacing: 0
 
-        Button {
-            id: startButton
-            Layout.fillWidth: true
-            Layout.preferredHeight: parent.height
-            text: qsTr("Start")
-        }
-
-        Button {
-            id: stopButton
-            Layout.fillWidth: true
-            Layout.preferredHeight: parent.height
-            text: qsTr("Stop")
-        }
-        Item {
-            Layout.preferredHeight: rlayout.height
-            Layout.preferredWidth: sourceText.width + (sourceCombo.width)
-            //Layout.fillWidth: true
-            Rectangle {
-                id: rect
-                anchors.fill: parent
-                anchors.centerIn: parent
-                radius: 11
-                border.color: "#6a5a5a"
-                border.width: 2
-                RowLayout {
-                    anchors.fill: parent
-                    Text {
-                        id: sourceText
-                        Layout.preferredHeight: rlayout.height
-                        text: qsTr("  SOURCE: ")
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        font.weight: Font.Normal
-                        font.bold: true
-                        textFormat: Text.PlainText
-                    }
-
-                    ComboBox {
-                        id: sourceCombo
-
-                        Layout.preferredHeight: rlayout.height - (rect.border.width * 2)
-                        model: ConnectionModel {}
-                    }
-                }
-            }
-        }
-
         ToolButton {
-            id: settingsButton
+            id: menuButton
             Layout.preferredHeight: parent.height
-            text: qsTr("Settings")
+            text: "\u2630" // simple menu glyph
+        }
+        Label {
+            Layout.fillWidth: true
+            text: qsTr(Constants.title)
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            font.bold: true
         }
     }
 }

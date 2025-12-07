@@ -41,11 +41,10 @@ AppUi {
 
 
     function connect_signals() {
-        settings.okButton.clicked.connect(accept_settings)
-        settings.cancleButton.clicked.connect(cancle_settings)
-
-
-        toolbar.settingsButton.triggered.connect(open_settings)
+        if(settings && settings.okButton)
+            settings.okButton.clicked.connect(accept_settings)
+        if(settings && settings.cancleButton)
+            settings.cancleButton.clicked.connect(cancle_settings)
 
         if(appController !== null && appController.events() !== undefined)
         {

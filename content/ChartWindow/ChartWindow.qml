@@ -21,6 +21,10 @@ ChartWindowUi{
     chartControls.onZoomOut: zoomChart(1.25)    // Zoom out 25%
     chartControls.onZoomReset: resetZoom()
     chartControls.onZoomFit: fitToData()
+    chartControls.onZoomYIn: zoomYAxis(0.8)     // Zoom Y axis in 20%
+    chartControls.onZoomYOut: zoomYAxis(1.25)   // Zoom Y axis out 25%
+    yAxisControls.onZoomYIn: zoomYAxis(0.8)
+    yAxisControls.onZoomYOut: zoomYAxis(1.25)
 
     /*******************************************************************
      * EVENT - Mouse Interactions
@@ -32,20 +36,25 @@ ChartWindowUi{
     /*******************************************************************
      * FUNCTION - Zoom chart by factor (proportional zoom)
      ******************************************************************/
+    function zoomAxis(axis, factor) {
+        var range = axis.max - axis.min
+        var center = (axis.max + axis.min) / 2
+        var newRange = range * factor
+
+        axis.min = center - newRange / 2
+        axis.max = center + newRange / 2
+    }
+
     function zoomChart(factor) {
-        var xRange = xAxis.max - xAxis.min
-        var yRange = yAxis.max - yAxis.min
+        zoomAxis(xAxis, factor)
+        zoomAxis(yAxis, factor)
+    }
 
-        var xCenter = (xAxis.max + xAxis.min) / 2
-        var yCenter = (yAxis.max + yAxis.min) / 2
-
-        var newXRange = xRange * factor
-        var newYRange = yRange * factor
-
-        xAxis.min = xCenter - newXRange / 2
-        xAxis.max = xCenter + newXRange / 2
-        yAxis.min = yCenter - newYRange / 2
-        yAxis.max = yCenter + newYRange / 2
+    /*******************************************************************
+     * FUNCTION - Zoom only Y axis by factor (proportional zoom)
+     ******************************************************************/
+    function zoomYAxis(factor) {
+        zoomAxis(yAxis, factor)
     }
 
     /*******************************************************************

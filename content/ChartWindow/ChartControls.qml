@@ -11,6 +11,8 @@ Rectangle {
     signal zoomOut()
     signal zoomReset()
     signal zoomFit()
+    signal zoomYIn()
+    signal zoomYOut()
 
     property bool expanded: false
     property int buttonSize: 32
@@ -27,6 +29,12 @@ Rectangle {
         NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
     }
 
+    // Size follows content so additional buttons are not clipped
+    implicitWidth: controlsRow.implicitWidth + 12
+    implicitHeight: controlsRow.implicitHeight + 12
+    width: implicitWidth
+    height: implicitHeight
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent
@@ -35,6 +43,7 @@ Rectangle {
     }
 
     RowLayout {
+        id: controlsRow
         anchors.fill: parent
         anchors.margins: 6
         spacing: 4
@@ -49,7 +58,7 @@ Rectangle {
             Layout.preferredHeight: buttonSize
 
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Zoom In (Ctrl++)")
+            ToolTip.text: qsTr("Zoom In (X+Y, Ctrl++)")
             ToolTip.delay: 500
 
             background: Rectangle {
@@ -79,7 +88,7 @@ Rectangle {
             Layout.preferredHeight: buttonSize
 
             ToolTip.visible: hovered
-            ToolTip.text: qsTr("Zoom Out (Ctrl+−)")
+            ToolTip.text: qsTr("Zoom Out (X+Y, Ctrl+−)")
             ToolTip.delay: 500
 
             background: Rectangle {
@@ -97,6 +106,74 @@ Rectangle {
             }
 
             onClicked: root.zoomOut()
+        }
+
+        // Separator
+        Rectangle {
+            Layout.preferredWidth: 1
+            Layout.preferredHeight: buttonSize - 8
+            Layout.alignment: Qt.AlignVCenter
+            color: "#404040"
+        }
+
+        // Zoom Y In
+        ToolButton {
+            id: zoomYInBtn
+            text: "Y+"
+            font.pixelSize: 16
+            font.bold: true
+            Layout.preferredWidth: buttonSize
+            Layout.preferredHeight: buttonSize
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Zoom In (Y axis)")
+            ToolTip.delay: 500
+
+            background: Rectangle {
+                color: parent.hovered ? "#404040" : "transparent"
+                radius: 4
+                border.color: parent.hovered ? "#606060" : "transparent"
+            }
+
+            contentItem: Text {
+                text: parent.text
+                font: parent.font
+                color: "#ffffff"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            onClicked: root.zoomYIn()
+        }
+
+        // Zoom Y Out
+        ToolButton {
+            id: zoomYOutBtn
+            text: "Y-"
+            font.pixelSize: 16
+            font.bold: true
+            Layout.preferredWidth: buttonSize
+            Layout.preferredHeight: buttonSize
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Zoom Out (Y axis)")
+            ToolTip.delay: 500
+
+            background: Rectangle {
+                color: parent.hovered ? "#404040" : "transparent"
+                radius: 4
+                border.color: parent.hovered ? "#606060" : "transparent"
+            }
+
+            contentItem: Text {
+                text: parent.text
+                font: parent.font
+                color: "#ffffff"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            onClicked: root.zoomYOut()
         }
 
         // Separator

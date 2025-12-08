@@ -102,9 +102,11 @@ Rectangle {
         Logger.log_debug("ControlsCard: setDefaultTestSettings called")
         if(appController && typeof appController.set_settings === "function") {
             var defaultTestSettings = {
-                "name": "Sinus Test",
+                "name": "Multi Test",
                 "color": "#ff4444",
-                "type": "Sinus"
+                "type": "Multi",
+                "use_timestamp": true,
+                "sample_ms": 50
             }
             Logger.log_info("ControlsCard: Setting Test interface with default settings: " + JSON.stringify(defaultTestSettings))
             appController.set_settings("Test", defaultTestSettings)

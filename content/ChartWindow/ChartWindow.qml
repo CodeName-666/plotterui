@@ -3,12 +3,14 @@ import QtCharts 2.3
 import Backend 1.0
 import PlotterUi 1.0
 import Common 1.0
+import "../Models"
 
 
 
 ChartWindowUi{
     property var appController: App.get_app()
-    property var _graphs: ({})
+    property var _graphs: ({})  // Legacy: keeping for backward compatibility during transition
+    property var chartLineModel: ChartLineModel {}  // New model-based line management
     property real initialXMin: 0
     property real initialXMax: 10
     property real initialYMin: 0
@@ -21,10 +23,19 @@ ChartWindowUi{
     chartControls.onZoomOut: zoomChart(1.25)    // Zoom out 25%
     chartControls.onZoomReset: resetZoom()
     chartControls.onZoomFit: fitToData()
-    chartControls.onZoomYIn: zoomYAxis(0.8)     // Zoom Y axis in 20%
-    chartControls.onZoomYOut: zoomYAxis(1.25)   // Zoom Y axis out 25%
-    yAxisControls.onZoomYIn: zoomYAxis(0.8)
-    yAxisControls.onZoomYOut: zoomYAxis(1.25)
+
+    /*******************************************************************
+     * EVENT - Y-Axis Controls
+     ******************************************************************/
+    Connections {
+        target: yAxisControls
+        function onZoomYIn() {
+            zoomYAxis(0.8)  // Zoom Y axis in 20%
+        }
+        function onZoomYOut() {
+            zoomYAxis(1.25)  // Zoom Y axis out 25%
+        }
+    }
 
     /*******************************************************************
      * EVENT - Mouse Interactions
@@ -135,7 +146,7 @@ ChartWindowUi{
             if(events !== undefined && events !== null)
             {
                 events.newGraph.connect(newGraph)
-                events.appendGraphPoint.connect(appendGraphPoint)
+                events.append_graph_point.connect(appendGraphPoint)
                 events.scrollRight.connect(chart.scrollRight)
             }
             controller.set_plot_area(chart.plotArea)
@@ -145,31 +156,59 @@ ChartWindowUi{
     }
 
     /*******************************************************************
-     * FUNCTION
+     * FUNCTION - Create new graph (updated for ID-based system)
+     *
+     * @param uniqueId - Unique identifier (format: "interface_dataId")
+     * @param displayName - User-friendly name
+     * @param color - Line color (int or hex string)
+     * @param interfaceType - Interface type (Serial, MQTT, etc.)
      ******************************************************************/
-    function newGraph(name, color) {
-        var graph = createGraph(name, color);
-        Logger.log_debug("New Graph created: Name = " + name + "| Color = " + color );
-        _graphs[name] = graph
+    function newGraph(uniqueId, displayName, color, interfaceType) {
+        // Extract dataId from uniqueId (format: "interface_dataId")
+        var parts = uniqueId.split("_")
+        var dataId = parts.length > 1 ? parseInt(parts[1]) : 0
+
+        // Create the chart series
+        var graph = createGraph(displayName, color);
+        Logger.log_info("New Graph created: ID = " + uniqueId + " | Name = " + displayName + " | Color = " + color);
+
+        // Store in legacy _graphs object (for backward compatibility)
+        _graphs[uniqueId] = graph
+
+        // Add to new model
+        chartLineModel.addLine(uniqueId, displayName, color, interfaceType, dataId, {}, graph)
+
+        // Register with backend controller
         var controller = appController !== undefined && appController !== null ? appController : App.get_app()
         if(controller !== undefined && controller !== null)
         {
-            controller.add_graph(name, graph);
+            controller.add_graph(uniqueId, graph);
         }
     }
 
-    function appendGraphPoint(name, point)
+    /*******************************************************************
+     * FUNCTION - Append point to graph (updated for ID-based system)
+     *
+     * @param uniqueId - Unique identifier of the graph line
+     * @param point - Point object with x and y coordinates
+     ******************************************************************/
+    function appendGraphPoint(uniqueId, point)
     {
-        if(!_graphs[name])
+        if(!_graphs[uniqueId])
         {
-            Logger.log_warning("appendGraphPoint: graph not found for " + name)
+            Logger.log_warning("appendGraphPoint: graph not found for " + uniqueId)
             return
         }
         if(point === undefined)
             return
         var x = point.x !== undefined ? point.x : (point["x"] !== undefined ? point["x"] : 0)
         var y = point.y !== undefined ? point.y : (point["y"] !== undefined ? point["y"] : 0)
-        _graphs[name].append(x, y)
+
+        // Check if line is visible before appending
+        var line = chartLineModel.getLine(uniqueId)
+        if(line && line.visible) {
+            _graphs[uniqueId].append(x, y)
+        }
     }
 
 

@@ -7,9 +7,12 @@ QtObject {
 
     /**
      * @brief New Graph Event
-     *
+     * @param uniqueId - Unique identifier (format: "interface_dataId")
+     * @param displayName - User-friendly display name
+     * @param color - Line color
+     * @param interfaceType - Interface type (Serial, MQTT, etc.)
      */
-    signal newGraph(var name, var color);
+    signal newGraph(var uniqueId, var displayName, var color, var interfaceType);
     /**
      * @brief Append a value to an existing graph
      */

@@ -72,7 +72,7 @@ Item {
                 ComboBox {
                     id: typeCombo
                     Layout.fillWidth: true
-                    model: ["Sinus", "Rectangle", "Ramp", "Line", "Random"]
+                    model: ["Sinus", "Rectangle", "Ramp", "Line", "Random", "Multi"]
                 }
 
                 Button {

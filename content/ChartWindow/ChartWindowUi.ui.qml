@@ -110,8 +110,8 @@ Item {
                 text: "Y+"
                 font.pixelSize: 16
                 font.bold: true
-                Layout.preferredWidth: buttonSize
-                Layout.preferredHeight: buttonSize
+                Layout.preferredWidth: yAxisControls.buttonSize
+                Layout.preferredHeight: yAxisControls.buttonSize
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Zoom In (Y axis)")
@@ -139,8 +139,8 @@ Item {
                 text: "Y-"
                 font.pixelSize: 16
                 font.bold: true
-                Layout.preferredWidth: buttonSize
-                Layout.preferredHeight: buttonSize
+                Layout.preferredWidth: yAxisControls.buttonSize
+                Layout.preferredHeight: yAxisControls.buttonSize
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Zoom Out (Y axis)")

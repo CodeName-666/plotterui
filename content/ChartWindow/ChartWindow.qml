@@ -1,9 +1,12 @@
 import QtQuick 6.4
+import QtQuick.Controls 6.4
 import QtCharts 2.3
 import Backend 1.0
 import PlotterUi 1.0
 import Common 1.0
 import "../Models"
+import "AddChartLineDialog"
+import "EditChartLineDialog"
 
 
 
@@ -50,7 +53,11 @@ ChartWindowUi{
         }
         function onLineSelected(uniqueId) {
             Logger.log_info("ChartWindow: Line selected: " + uniqueId)
-            // Future: open edit dialog
+            var line = chartLineModel.getLine(uniqueId)
+            if(line) {
+                editChartLineDialog.loadChartLine(uniqueId, line.displayName, line.color, line.interfaceType, line.dataId)
+                editChartLineDialog.open()
+            }
         }
     }
 
@@ -61,7 +68,77 @@ ChartWindowUi{
         target: fabButton
         function onClicked() {
             Logger.log_info("ChartWindow: FAB clicked - opening add line dialog")
-            // Future: open add chart line dialog
+            addChartLineDialog.open()
+        }
+    }
+
+    /*******************************************************************
+     * COMPONENT - Add Chart Line Dialog
+     ******************************************************************/
+    AddChartLineDialog {
+        id: addChartLineDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+
+        availableInterfaces: getAvailableInterfaces()
+        usedDataIds: getUsedDataIds()
+
+        onChartLineAdded: function(uniqueId, displayName, lineColor, interfaceType, dataId, interfaceSettings) {
+            Logger.log_info("ChartWindow: Chart line added via dialog: " + uniqueId)
+
+            // Add to model
+            var graph = createGraph(displayName, lineColor)
+            chartLineModel.addLine(uniqueId, displayName, lineColor, interfaceType, dataId, interfaceSettings, graph)
+
+            // Register with backend
+            var controller = appController !== undefined && appController !== null ? appController : App.get_app()
+            if(controller !== undefined && controller !== null) {
+                controller.add_graph(uniqueId, graph)
+            }
+
+            // Store in legacy _graphs object
+            _graphs[uniqueId] = graph
+
+            Logger.log_info("Chart line successfully added: " + displayName)
+        }
+    }
+
+    /*******************************************************************
+     * COMPONENT - Edit Chart Line Dialog
+     ******************************************************************/
+    EditChartLineDialog {
+        id: editChartLineDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+
+        onChartLineUpdated: function(uniqueId, displayName, lineColor) {
+            Logger.log_info("ChartWindow: Chart line updated: " + uniqueId)
+
+            // Update model
+            chartLineModel.updateLine(uniqueId, {
+                "displayName": displayName,
+                "color": lineColor
+            })
+
+            // Update series color if it exists
+            var line = chartLineModel.getLine(uniqueId)
+            if(line && line.seriesRef) {
+                line.seriesRef.name = displayName
+                line.seriesRef.color = lineColor
+            }
+
+            // Update backend
+            var controller = appController !== undefined && appController !== null ? appController : App.get_app()
+            if(controller !== undefined && controller !== null) {
+                controller.update_chart_line(uniqueId, displayName, lineColor.toString())
+            }
+
+            Logger.log_info("Chart line successfully updated: " + displayName)
+        }
+
+        onChartLineDeleted: function(uniqueId) {
+            Logger.log_info("ChartWindow: Chart line deleted: " + uniqueId)
+            removeChartLine(uniqueId)
         }
     }
 
@@ -323,6 +400,65 @@ ChartWindowUi{
             horizontalScrollMask.x = chartMouseArea.mouseX
             verticalScrollMask.y = chartMouseArea.mouseY
         }
+    }
+
+    /*******************************************************************
+     * FUNCTION - Get available interfaces from backend config
+     ******************************************************************/
+    function getAvailableInterfaces() {
+        var controller = appController !== undefined && appController !== null ? appController : App.get_app()
+        if(controller !== undefined && controller !== null) {
+            var uiConfig = controller.get_ui_config()
+            if(uiConfig && uiConfig.interfaces) {
+                return uiConfig.interfaces
+            }
+        }
+        // Fallback to default interfaces
+        return ["Serial", "Telnet", "MQTT", "Test"]
+    }
+
+    /*******************************************************************
+     * FUNCTION - Get list of used data IDs (uniqueId format)
+     ******************************************************************/
+    function getUsedDataIds() {
+        var usedIds = []
+        var lines = chartLineModel.getAllLines()
+        for(var i = 0; i < lines.length; i++) {
+            usedIds.push(lines[i].uniqueId)
+        }
+        return usedIds
+    }
+
+    /*******************************************************************
+     * FUNCTION - Remove chart line completely
+     ******************************************************************/
+    function removeChartLine(uniqueId) {
+        Logger.log_info("ChartWindow: Removing chart line: " + uniqueId)
+
+        // Get line from model before removing
+        var line = chartLineModel.getLine(uniqueId)
+
+        // Remove series from chart
+        if(line && line.seriesRef) {
+            chart.removeSeries(line.seriesRef)
+            Logger.log_debug("ChartWindow: Removed series from chart: " + uniqueId)
+        }
+
+        // Remove from model
+        chartLineModel.removeLine(uniqueId)
+
+        // Remove from legacy _graphs object
+        if(_graphs[uniqueId]) {
+            delete _graphs[uniqueId]
+        }
+
+        // Remove from backend
+        var controller = appController !== undefined && appController !== null ? appController : App.get_app()
+        if(controller !== undefined && controller !== null) {
+            controller.remove_chart_line(uniqueId)
+        }
+
+        Logger.log_info("Chart line successfully removed: " + uniqueId)
     }
 
     /*******************************************************************

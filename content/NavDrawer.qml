@@ -43,12 +43,8 @@ Drawer {
 
     ListModel {
         id: navModel
-        ListElement { section: "MAIN"; title: "News"; iconName: "newspaper" }
-        ListElement { section: "MAIN"; title: "Account"; iconName: "user" }
-        ListElement { section: "DATA"; title: "Images"; iconName: "image" }
-        ListElement { section: "DATA"; title: "Music"; iconName: "music" }
-        ListElement { section: "DATA"; title: "Video"; iconName: "video" }
-        ListElement { section: "DATA"; title: "Documents"; iconName: "file" }
+        ListElement { section: "APPLICATION"; title: "About"; iconName: "info" }
+        ListElement { section: "APPLICATION"; title: "Quit"; iconName: "exit" }
     }
 
     ColumnLayout {
@@ -148,6 +144,16 @@ Drawer {
                             onClicked: {
                                 Logger.log_debug("NavDrawer: Menu item clicked: " + title)
                                 navList.currentIndex = index
+
+                                // Handle menu actions
+                                if (title === "About") {
+                                    aboutDialog.open()
+                                } else if (title === "Quit") {
+                                    if (window) {
+                                        window.close()
+                                    }
+                                }
+
                                 navDrawer.close()
                             }
                         }
@@ -170,6 +176,72 @@ Drawer {
                 {
                     Logger.log_error("NavDrawer: settingsPopup is null")
                 }
+            }
+        }
+    }
+
+    // About Dialog
+    Dialog {
+        id: aboutDialog
+        title: qsTr("About Plotter")
+        anchors.centerIn: parent
+        modal: true
+        standardButtons: Dialog.Ok
+
+        width: 400
+        height: 300
+
+        background: Rectangle {
+            color: "#2d2d2d"
+            border.color: "#4d4d4d"
+            border.width: 1
+            radius: 8
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 16
+            anchors.fill: parent
+            anchors.margins: 20
+
+            Label {
+                text: qsTr("Plotter Application")
+                font.pixelSize: 24
+                font.bold: true
+                color: "#ffffff"
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Label {
+                text: qsTr("Version 1.0")
+                font.pixelSize: 14
+                color: "#cccccc"
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: "#4d4d4d"
+            }
+
+            Label {
+                text: qsTr("A multi-interface data plotting application supporting Serial, Telnet, MQTT, and Test interfaces.")
+                font.pixelSize: 12
+                color: "#aaaaaa"
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Item {
+                Layout.fillHeight: true
+            }
+
+            Label {
+                text: qsTr("© 2025 Plotter Project")
+                font.pixelSize: 10
+                color: "#888888"
+                Layout.alignment: Qt.AlignHCenter
             }
         }
     }

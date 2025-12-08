@@ -7,7 +7,6 @@ import QtQuick.Layouts 1.15
 import Common 1.0
 import DataModels.SerialDataModels 1.0
 import "Footer"
-import "MainMenu"
 import "ChartWindow"
 import "Settings"
 import "Toolbar"
@@ -30,11 +29,6 @@ ApplicationWindow {
     property alias chartWindow: chartWindow
     property alias connectButton: navDrawer.startButton
     property alias toolbar: topToolbar
-
-    menuBar: MainMenu {
-        id: menuBar
-        settingsButton.onTriggered: settingsPopup.open()
-    }
 
     header: Toolbar {
         id: topToolbar

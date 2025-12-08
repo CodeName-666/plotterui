@@ -2,6 +2,8 @@ import QtQuick 6.4
 import QtCharts 2.3
 import QtQuick.Layouts 1.11
 import QtQuick.Controls 6.4
+import "ChartLinesList"
+import "FloatingActionButton"
 
 Item {
     property alias chart: chart
@@ -13,6 +15,8 @@ Item {
     property alias verticalScrollMask: verticalScrollMask
     property alias chartControls: chartControls
     property alias yAxisControls: yAxisControls
+    property alias chartLinesList: chartLinesList
+    property alias fabButton: fabButton
 
     ChartView {
         id: chart
@@ -163,5 +167,28 @@ Item {
                 onClicked: yAxisControls.zoomYOut()
             }
         }
+    }
+
+    // Chart Lines List - right side panel
+    ChartLinesList {
+        id: chartLinesList
+        width: 280
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.topMargin: 10
+        anchors.bottomMargin: 10
+        anchors.rightMargin: 10
+        z: 90
+    }
+
+    // Floating Action Button - bottom-right corner
+    FloatingActionButton {
+        id: fabButton
+        anchors.right: chartLinesList.left
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 20
+        anchors.bottomMargin: 20
+        z: 110
     }
 }

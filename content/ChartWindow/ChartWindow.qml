@@ -38,6 +38,34 @@ ChartWindowUi{
     }
 
     /*******************************************************************
+     * EVENT - Chart Lines List
+     ******************************************************************/
+    chartLinesList.listView.model: chartLineModel
+
+    Connections {
+        target: chartLinesList
+        function onLineVisibilityToggled(uniqueId, visible) {
+            Logger.log_info("ChartWindow: Toggle visibility for " + uniqueId + " to " + visible)
+            chartLineModel.toggleVisibility(uniqueId, visible)
+        }
+        function onLineSelected(uniqueId) {
+            Logger.log_info("ChartWindow: Line selected: " + uniqueId)
+            // Future: open edit dialog
+        }
+    }
+
+    /*******************************************************************
+     * EVENT - Floating Action Button
+     ******************************************************************/
+    Connections {
+        target: fabButton
+        function onClicked() {
+            Logger.log_info("ChartWindow: FAB clicked - opening add line dialog")
+            // Future: open add chart line dialog
+        }
+    }
+
+    /*******************************************************************
      * EVENT - Mouse Interactions
      ******************************************************************/
     chartMouseArea.onMouseYChanged: scrollVertical()

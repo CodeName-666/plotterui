@@ -1,5 +1,6 @@
 import QtQuick 6.4
 import QtQuick.Controls 6.4
+import Backend 1.0
 import Common 1.0
 import SettingsCommon 1.0
 

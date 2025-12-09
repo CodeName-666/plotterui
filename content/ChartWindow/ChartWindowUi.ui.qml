@@ -18,11 +18,19 @@ Item {
     property alias chartLinesList: chartLinesList
     property alias fabButton: fabButton
 
+    property bool chartLinesListCollapsed: false
+    property int chartLinesListWidth: 280
+    property int chartLinesListCollapsedWidth: 50
+
     ChartView {
         id: chart
         title: "Data Plot"
         objectName: "chart"
-        anchors.fill: parent
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: chartLinesList.left
+        anchors.rightMargin: 10
         legend.alignment: Qt.AlignBottom
         antialiasing: true
         theme: ChartView.ChartThemeDark
@@ -169,10 +177,10 @@ Item {
         }
     }
 
-    // Chart Lines List - right side panel
+    // Chart Lines List - right side panel (collapsible)
     ChartLinesList {
         id: chartLinesList
-        width: 280
+        width: chartLinesListCollapsed ? chartLinesListCollapsedWidth : chartLinesListWidth
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
@@ -180,15 +188,35 @@ Item {
         anchors.bottomMargin: 10
         anchors.rightMargin: 10
         z: 90
+
+        isCollapsed: chartLinesListCollapsed
+
+        Behavior on width {
+            NumberAnimation {
+                duration: 250
+                easing.type: Easing.InOutQuad
+            }
+        }
+
+        collapseButton.onClicked: {
+            chartLinesListCollapsed = !chartLinesListCollapsed
+        }
     }
 
-    // Floating Action Button - bottom-right corner
+    // Floating Action Button - bottom-right corner (adjusts position based on panel state)
     FloatingActionButton {
         id: fabButton
         anchors.right: chartLinesList.left
         anchors.bottom: parent.bottom
-        anchors.rightMargin: 20
+        anchors.rightMargin: chartLinesListCollapsed ? 10 : 20
         anchors.bottomMargin: 20
         z: 110
+
+        Behavior on anchors.rightMargin {
+            NumberAnimation {
+                duration: 250
+                easing.type: Easing.InOutQuad
+            }
+        }
     }
 }

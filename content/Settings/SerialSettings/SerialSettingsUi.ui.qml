@@ -15,19 +15,28 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: SettingsTheme.margins.medium
-        spacing: SettingsTheme.spacing.medium
+        anchors.topMargin: SettingsTheme.margins.large
+        anchors.leftMargin: SettingsTheme.margins.large
+        anchors.rightMargin: SettingsTheme.margins.large
+        anchors.bottomMargin: SettingsTheme.margins.medium
+        spacing: SettingsTheme.spacing.large
 
         GridLayout {
             Layout.fillWidth: true
             columns: 2
-            columnSpacing: SettingsTheme.spacing.medium
-            rowSpacing: SettingsTheme.spacing.medium
+            columnSpacing: SettingsTheme.spacing.extraLarge
+            rowSpacing: SettingsTheme.spacing.large
 
             Label {
                 text: qsTr("COM - Port:")
                 font.pixelSize: SettingsTheme.fontSize.medium
                 color: SettingsTheme.textLabel
+                Layout.alignment: Qt.AlignVCenter
+                Layout.preferredHeight: SettingsTheme.heights.label
+                Layout.columnSpan: 1
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideNone
+                wrapMode: Text.NoWrap
             }
 
             ComboBox {
@@ -35,12 +44,18 @@ Item {
                 model: serial_settings.com_ports
                 Layout.fillWidth: true
                 Layout.preferredHeight: SettingsTheme.heights.combobox
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
 
             Label {
                 text: qsTr("Baudrate:")
                 font.pixelSize: SettingsTheme.fontSize.medium
                 color: SettingsTheme.textLabel
+                Layout.alignment: Qt.AlignVCenter
+                Layout.preferredHeight: SettingsTheme.heights.label
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideNone
+                wrapMode: Text.NoWrap
             }
 
             TextField {
@@ -49,12 +64,18 @@ Item {
                 Layout.preferredHeight: SettingsTheme.heights.input
                 placeholderText: qsTr("e.g. 9600, 115200")
                 inputMethodHints: Qt.ImhDigitsOnly
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
 
             Label {
                 text: qsTr("Datasize:")
                 font.pixelSize: SettingsTheme.fontSize.medium
                 color: SettingsTheme.textLabel
+                Layout.alignment: Qt.AlignVCenter
+                Layout.preferredHeight: SettingsTheme.heights.label
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideNone
+                wrapMode: Text.NoWrap
             }
 
             ComboBox {
@@ -64,21 +85,28 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: SettingsTheme.heights.combobox
                 model: DataSizeModel {}
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
 
             RowLayout {
                 spacing: SettingsTheme.spacing.small
+                Layout.alignment: Qt.AlignVCenter
+                Layout.preferredHeight: SettingsTheme.heights.label
 
                 Label {
                     text: qsTr("Parity:")
                     font.pixelSize: SettingsTheme.fontSize.medium
                     color: SettingsTheme.textLabel
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideNone
+                    wrapMode: Text.NoWrap
                 }
 
                 Label {
                     text: "ⓘ"
                     font.pixelSize: SettingsTheme.fontSize.small
                     color: SettingsTheme.textSecondary
+                    verticalAlignment: Text.AlignVCenter
 
                     MouseArea {
                         id: parityTooltipArea
@@ -101,12 +129,18 @@ Item {
                 valueRole: "value"
                 Layout.preferredHeight: SettingsTheme.heights.combobox
                 model: ParityBitsModel {}
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
 
             Label {
                 text: qsTr("Stop-Bits:")
                 font.pixelSize: SettingsTheme.fontSize.medium
                 color: SettingsTheme.textLabel
+                Layout.alignment: Qt.AlignVCenter
+                Layout.preferredHeight: SettingsTheme.heights.label
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideNone
+                wrapMode: Text.NoWrap
             }
 
             ComboBox {
@@ -116,6 +150,7 @@ Item {
                 valueRole: "value"
                 Layout.preferredHeight: SettingsTheme.heights.combobox
                 model: StopBitsModel {}
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
         }
 

@@ -73,6 +73,17 @@ ChartWindowUi{
     }
 
     /*******************************************************************
+     * EVENT - Backend Connections Changed
+     ******************************************************************/
+    Connections {
+        target: Backend
+        function onConnections_changed(connections) {
+            Logger.log_debug("ChartWindow: Connections changed - dialog will refresh on next open")
+            // No need to do anything here - dialog refreshes on open automatically
+        }
+    }
+
+    /*******************************************************************
      * COMPONENT - Add Chart Line Dialog
      ******************************************************************/
     AddChartLineDialog {
@@ -80,8 +91,14 @@ ChartWindowUi{
         parent: Overlay.overlay
         anchors.centerIn: parent
 
+        // Note: These are initial values only - dialog refreshes on open
         availableConnections: getAvailableConnections()
         usedDataIds: getUsedDataIds()
+
+        onAboutToShow: {
+            // Refresh connection list when dialog opens
+            refreshConnectionsList(getAvailableConnections(), getUsedDataIds())
+        }
 
         onChartLineAdded: function(uniqueId, displayName, lineColor, connectionId, dataId, interfaceSettings) {
             Logger.log_info("ChartWindow: Chart line added via dialog: " + uniqueId)

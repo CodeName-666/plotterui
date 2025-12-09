@@ -20,17 +20,19 @@ QtObject {
 
     // Spacing
     readonly property QtObject spacing: QtObject {
-        readonly property int small: 5
-        readonly property int medium: 10
-        readonly property int large: 16
+        readonly property int small: 8
+        readonly property int medium: 12
+        readonly property int large: 20
+        readonly property int extraLarge: 24
     }
 
     // Component Heights
     readonly property QtObject heights: QtObject {
-        readonly property int input: 36
-        readonly property int button: 36
-        readonly property int combobox: 36
-        readonly property int smallInput: 30
+        readonly property int input: 40
+        readonly property int button: 40
+        readonly property int combobox: 40
+        readonly property int smallInput: 32
+        readonly property int label: 40  // For consistent alignment with inputs
     }
 
     // Border Radius
@@ -38,6 +40,7 @@ QtObject {
         readonly property int small: 4
         readonly property int medium: 6
         readonly property int large: 8
+        readonly property int extraLarge: 10
     }
 
     // Font Sizes
@@ -46,12 +49,14 @@ QtObject {
         readonly property int medium: 14
         readonly property int large: 16
         readonly property int title: 20
+        readonly property int header: 18
     }
 
     // Margins
     readonly property QtObject margins: QtObject {
         readonly property int small: 8
-        readonly property int medium: 12
-        readonly property int large: 16
+        readonly property int medium: 16
+        readonly property int large: 20
+        readonly property int extraLarge: 24
     }
 }

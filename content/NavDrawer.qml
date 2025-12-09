@@ -80,106 +80,108 @@ Drawer {
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 8
-        anchors.margins: 12
+        anchors.topMargin: 16
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        anchors.bottomMargin: 16
+        spacing: 12
 
         // Connections Section (Collapsible)
         Rectangle {
             id: connectionsSection
             Layout.fillWidth: true
             Layout.preferredHeight: connectionsExpanded ?
-                (connectionsSectionContent.implicitHeight + 16) :
+                (connectionsSectionContent.implicitHeight + connectionsSectionHeader.height + 24) :
                 (connectionsSectionHeader.height + 16)
-            radius: 6
-            color: "#f4f4f4"
+            Layout.minimumHeight: connectionsSectionHeader.height + 16
+            radius: 8
+            color: "#f8f8f8"
             border.color: "#d0d0d0"
             border.width: 1
 
             Behavior on Layout.preferredHeight {
-                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+                NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
             }
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 8
-                spacing: 8
+                anchors.topMargin: 8
+                anchors.leftMargin: 12
+                anchors.rightMargin: 12
+                anchors.bottomMargin: 8
+                spacing: 12
 
                 // Header with Expand/Collapse button and Add button
-                Rectangle {
+                RowLayout {
                     id: connectionsSectionHeader
                     Layout.fillWidth: true
-                    height: 36
-                    color: "transparent"
+                    Layout.preferredHeight: 40
+                    spacing: 10
 
-                    RowLayout {
-                        anchors.fill: parent
-                        spacing: 8
+                    Button {
+                        id: expandCollapseButton
+                        text: connectionsExpanded ? "▼" : "▶"
+                        Layout.preferredWidth: 36
+                        Layout.preferredHeight: 32
+                        font.pixelSize: 11
 
-                        Button {
-                            id: expandCollapseButton
-                            text: connectionsExpanded ? "▼" : "▶"
-                            Layout.preferredWidth: 32
-                            Layout.preferredHeight: 28
-                            font.pixelSize: 10
-
-                            onClicked: {
-                                connectionsExpanded = !connectionsExpanded
-                                Logger.log_debug("NavDrawer: Connections section " +
-                                    (connectionsExpanded ? "expanded" : "collapsed"))
-                            }
-
-                            background: Rectangle {
-                                radius: 4
-                                color: expandCollapseButton.pressed ? "#e0e0e0" :
-                                       expandCollapseButton.hovered ? "#eeeeee" : "transparent"
-                                border.color: "#d0d0d0"
-                                border.width: 1
-                            }
+                        onClicked: {
+                            connectionsExpanded = !connectionsExpanded
+                            Logger.log_debug("NavDrawer: Connections section " +
+                                (connectionsExpanded ? "expanded" : "collapsed"))
                         }
 
-                        Label {
-                            text: qsTr("Connections") + " (" + connectionsListModel.count + ")"
-                            font.bold: true
-                            font.pixelSize: 14
-                            color: "#444"
-                            Layout.fillWidth: true
+                        background: Rectangle {
+                            radius: 4
+                            color: expandCollapseButton.pressed ? "#e0e0e0" :
+                                   expandCollapseButton.hovered ? "#eeeeee" : "transparent"
+                            border.color: "#d0d0d0"
+                            border.width: 1
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Connections") + " (" + connectionsListModel.count + ")"
+                        font.bold: true
+                        font.pixelSize: 14
+                        color: "#444"
+                        Layout.fillWidth: true
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    Button {
+                        id: addConnectionButton
+                        text: "+"
+                        Layout.preferredWidth: 36
+                        Layout.preferredHeight: 32
+                        font.pixelSize: 16
+                        font.bold: true
+
+                        onClicked: {
+                            addConnectionDialog.open()
+                        }
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Add Connection")
+                        ToolTip.delay: 500
+
+                        background: Rectangle {
+                            radius: 4
+                            color: {
+                                if (addConnectionButton.pressed) return "#1565c0"
+                                if (addConnectionButton.hovered) return "#1976d2"
+                                return "#2196f3"
+                            }
+                            border.color: "#1565c0"
+                            border.width: 1
+                        }
+
+                        contentItem: Text {
+                            text: addConnectionButton.text
+                            font: addConnectionButton.font
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                        }
-
-                        Button {
-                            id: addConnectionButton
-                            text: "+"
-                            Layout.preferredWidth: 32
-                            Layout.preferredHeight: 28
-                            font.pixelSize: 16
-                            font.bold: true
-
-                            onClicked: {
-                                addConnectionDialog.open()
-                            }
-
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Add Connection")
-                            ToolTip.delay: 500
-
-                            background: Rectangle {
-                                radius: 4
-                                color: {
-                                    if (addConnectionButton.pressed) return "#1565c0"
-                                    if (addConnectionButton.hovered) return "#1976d2"
-                                    return "#2196f3"
-                                }
-                                border.color: "#1565c0"
-                                border.width: 1
-                            }
-
-                            contentItem: Text {
-                                text: addConnectionButton.text
-                                font: addConnectionButton.font
-                                color: "white"
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
                         }
                     }
                 }
@@ -258,67 +260,68 @@ Drawer {
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            radius: 6
-            color: "transparent"
-            border.color: "#e0e0e0"
+            radius: 8
+            color: "#f8f8f8"
+            border.color: "#d0d0d0"
+            border.width: 1
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 8
-                spacing: 2
+                anchors.topMargin: 12
+                anchors.leftMargin: 12
+                anchors.rightMargin: 12
+                anchors.bottomMargin: 12
+                spacing: 4
+
+                Label {
+                    text: qsTr("APPLICATION")
+                    color: "#7a7a7a"
+                    font.pixelSize: 11
+                    font.bold: true
+                    Layout.fillWidth: true
+                    Layout.bottomMargin: 4
+                }
 
                 ListView {
                     id: navList
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    spacing: 2
+                    spacing: 4
                     model: navModel ? navModel : []
                     clip: true
-
-                    section.property: "section"
-                    section.delegate: Label {
-                        width: ListView.view.width
-                        text: section
-                        color: "#7a7a7a"
-                        font.pixelSize: 11
-                        font.bold: true
-                        leftPadding: 8
-                        topPadding: 8
-                        bottomPadding: 4
-                        horizontalAlignment: Text.AlignLeft
-                    }
 
                     delegate: Rectangle {
                         id: menuItem
                         width: ListView.view.width
-                        height: 40
+                        height: 44
                         color: {
-                            if (ListView.isCurrentItem) return "#3b8cc0"
-                            if (menuItemMouseArea.containsMouse) return "#f0f0f0"
+                            if (ListView.isCurrentItem) return "#2196f3"
+                            if (menuItemMouseArea.containsMouse) return "#e3f2fd"
                             return "transparent"
                         }
-                        border.color: ListView.isCurrentItem ? "#2d6f99" : "transparent"
+                        border.color: ListView.isCurrentItem ? "#1976d2" : "transparent"
                         border.width: ListView.isCurrentItem ? 1 : 0
-                        radius: 4
+                        radius: 6
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 8
-                            anchors.rightMargin: 8
-                            anchors.topMargin: 6
-                            anchors.bottomMargin: 6
-                            spacing: 8
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            anchors.topMargin: 8
+                            anchors.bottomMargin: 8
+                            spacing: 12
 
                             Label {
                                 text: "\u25A0"
                                 visible: iconName !== ""
-                                color: ListView.isCurrentItem ? "white" : "#444"
-                                font.pixelSize: 12
+                                color: ListView.isCurrentItem ? "white" : "#555"
+                                font.pixelSize: 14
                             }
                             Label {
                                 text: title
                                 color: ListView.isCurrentItem ? "white" : "#222"
                                 font.pixelSize: 14
+                                font.weight: Font.Medium
                                 Layout.fillWidth: true
                                 horizontalAlignment: Text.AlignLeft
                                 verticalAlignment: Text.AlignVCenter
@@ -355,7 +358,8 @@ Drawer {
             id: navSettingsButton
             text: qsTr("⚙ Settings")
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: 48
+            Layout.topMargin: 4
 
             onClicked: {
                 Logger.log_info("NavDrawer: Settings button clicked")
@@ -368,7 +372,7 @@ Drawer {
             }
 
             background: Rectangle {
-                radius: 6
+                radius: 8
                 color: {
                     if (navSettingsButton.pressed) return "#1565c0"
                     if (navSettingsButton.hovered) return "#1976d2"
@@ -380,7 +384,8 @@ Drawer {
 
             contentItem: Text {
                 text: navSettingsButton.text
-                font: navSettingsButton.font
+                font.pixelSize: 14
+                font.bold: true
                 color: "white"
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter

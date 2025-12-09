@@ -7,6 +7,8 @@ Item {
 
     property alias listView: listView
     property alias headerLabel: headerLabel
+    property alias collapseButton: collapseButton
+    property bool isCollapsed: false
 
     Rectangle {
         anchors.fill: parent
@@ -20,14 +22,47 @@ Item {
             anchors.margins: 8
             spacing: 8
 
-            // Header
-            Label {
-                id: headerLabel
-                text: qsTr("Chart Lines")
-                font.pixelSize: 14
-                font.bold: true
-                color: "#ffffff"
+            // Header with collapse button
+            RowLayout {
                 Layout.fillWidth: true
+                spacing: 8
+
+                Label {
+                    id: headerLabel
+                    text: qsTr("Chart Lines")
+                    font.pixelSize: 14
+                    font.bold: true
+                    color: "#ffffff"
+                    Layout.fillWidth: true
+                }
+
+                Button {
+                    id: collapseButton
+                    text: root.isCollapsed ? "◀" : "▶"
+                    font.pixelSize: 14
+                    font.bold: true
+                    Layout.preferredWidth: 32
+                    Layout.preferredHeight: 32
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: root.isCollapsed ? qsTr("Expand") : qsTr("Collapse")
+                    ToolTip.delay: 400
+
+                    background: Rectangle {
+                        color: parent.hovered ? "#4d4d4d" : "#3d3d3d"
+                        radius: 4
+                        border.color: "#606060"
+                        border.width: 1
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font: parent.font
+                        color: "#ffffff"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
             }
 
             // Separator
@@ -35,6 +70,7 @@ Item {
                 Layout.fillWidth: true
                 height: 1
                 color: "#4d4d4d"
+                visible: !root.isCollapsed
             }
 
             // List view
@@ -44,6 +80,15 @@ Item {
                 Layout.fillHeight: true
                 clip: true
                 spacing: 4
+                visible: !root.isCollapsed
+                opacity: root.isCollapsed ? 0.0 : 1.0
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.InOutQuad
+                    }
+                }
 
                 ScrollBar.vertical: ScrollBar {
                     policy: ScrollBar.AsNeeded

@@ -441,6 +441,12 @@ Dialog {
         return colors[dataId % colors.length]
     }
 
+    function refreshConnectionsList(connections, usedIds) {
+        root.availableConnections = connections
+        root.usedDataIds = usedIds
+        updateDataIdSuggestion()
+    }
+
     // Reset when opening
     Component.onCompleted: {
         updateDataIdSuggestion()

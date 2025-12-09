@@ -5,11 +5,12 @@ import SettingsCommon 1.0
 
 Rectangle {
     id: settings_menu
-    implicitWidth: 680
-    implicitHeight: 520
-    radius: SettingsTheme.radius.large
+    implicitWidth: 720
+    implicitHeight: 580
+    radius: SettingsTheme.radius.extraLarge
     color: SettingsTheme.settingsBackground
     border.color: SettingsTheme.borderColor
+    border.width: 1
 
     property alias okButton: okButton
     property alias cancelButton: cancelButton
@@ -24,12 +25,16 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: SettingsTheme.margins.large
+        anchors.topMargin: SettingsTheme.margins.large
+        anchors.leftMargin: SettingsTheme.margins.large
+        anchors.rightMargin: SettingsTheme.margins.large
+        anchors.bottomMargin: SettingsTheme.margins.large
         spacing: SettingsTheme.spacing.large
 
         // Header
         RowLayout {
             Layout.fillWidth: true
+            Layout.preferredHeight: 48
             spacing: SettingsTheme.spacing.medium
 
             Text {
@@ -39,6 +44,7 @@ Rectangle {
                 font.pixelSize: SettingsTheme.fontSize.title
                 color: SettingsTheme.textPrimary
                 Layout.fillWidth: true
+                verticalAlignment: Text.AlignVCenter
             }
 
             Button {
@@ -46,6 +52,7 @@ Rectangle {
                 text: qsTr("Load Preset")
                 icon.name: "document-open"
                 Layout.preferredHeight: SettingsTheme.heights.smallInput
+                Layout.preferredWidth: 120
             }
 
             Button {
@@ -53,6 +60,7 @@ Rectangle {
                 text: qsTr("Save Preset")
                 icon.name: "document-save"
                 Layout.preferredHeight: SettingsTheme.heights.smallInput
+                Layout.preferredWidth: 120
             }
         }
 
@@ -60,22 +68,28 @@ Rectangle {
         TabBar {
             id: tabBar
             Layout.fillWidth: true
+            Layout.preferredHeight: 44
+            spacing: 4
 
             TabButton {
                 text: qsTr("Serial")
-                width: implicitWidth
+                height: 40
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
             TabButton {
                 text: qsTr("Telnet")
-                width: implicitWidth
+                height: 40
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
             TabButton {
                 text: qsTr("MQTT")
-                width: implicitWidth
+                height: 40
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
             TabButton {
                 text: qsTr("Test")
-                width: implicitWidth
+                height: 40
+                font.pixelSize: SettingsTheme.fontSize.medium
             }
         }
 
@@ -84,12 +98,14 @@ Rectangle {
             id: contentCard
             Layout.fillWidth: true
             Layout.fillHeight: true
-            radius: SettingsTheme.radius.medium
+            radius: SettingsTheme.radius.large
             color: SettingsTheme.cardBackground
             border.color: SettingsTheme.borderColorLight
+            border.width: 1
 
             StackLayout {
                 anchors.fill: parent
+                anchors.margins: 0
                 currentIndex: tabBar.currentIndex
 
                 // Serial Settings

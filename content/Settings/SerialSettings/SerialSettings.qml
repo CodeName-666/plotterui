@@ -1,51 +1,62 @@
 import QtQuick 6.4
 import QtQuick.Controls 6.4
-
+import Common 1.0
+import SettingsCommon 1.0
 
 SerialSettingsUi {
 
+    // Inherit from BaseSettings via property
+    property var baseHelper: BaseSettings {}
 
+    function getSettings() {
+        const port = comComboBox.currentText
+        const baud = baseHelper.parseInteger(baudInput.text, 0)
+        const size = baseHelper.getComboboxValue(dataSizeComboBox, true)
+        const parity = baseHelper.getComboboxValue(parityComboBox, true)
+        const stopBits = baseHelper.getComboboxValue(stopBitsCombo, true)
 
-    /*******************************************************************
-     * FUNCTION
-     ******************************************************************/
-    function setSettings(settings)
-    {
-       if(!settings)
-           return
-       setCombobox(comComboBox, settings["port"], "text");
-       setCombobox(dataSizeComboBox, settings["size"], "value");
-       setCombobox(parityComboBox, settings["parity"], "value");
-       setCombobox(stopBitsCombo, settings["stop_bits"] !== undefined ? settings["stop_bits"] : settings["stop"], "value");
+        // Validate port
+        if(!port || port === "") {
+            Logger.log_error("SerialSettings: No COM port selected")
+            return baseHelper.validationResult(false, "Please select a COM port")
+        }
 
-       baudInput.text = settings["baud"] !== undefined ? settings["baud"] : "";
-       return
+        // Validate baudrate
+        if(baud <= 0 || baud > 921600) {
+            Logger.log_error("SerialSettings: Invalid baudrate: " + baud)
+            return baseHelper.validationResult(false, "Baudrate must be between 1 and 921600")
+        }
+
+        // Check common baudrates
+        var commonBaudrates = [300, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600]
+        if(commonBaudrates.indexOf(baud) === -1) {
+            Logger.log_warning("SerialSettings: Unusual baudrate: " + baud)
+        }
+
+        Logger.log_info("SerialSettings: Valid settings - Port: " + port + ", Baud: " + baud)
+        return baseHelper.validationResult(true, "", {
+            "port": port,
+            "baud": baud,
+            "size": size,
+            "parity": parity,
+            "stop_bits": stopBits
+        })
     }
 
-    /*******************************************************************
-     * FUNCTION
-     ******************************************************************/
-    function setCombobox(combobox, value, role = "text")
-    {
-         if(value === undefined || value === null)
+    function setSettings(settings) {
+        if(!Validators.isValid(settings))
             return
-         var idx = combobox.find(value, Qt.MatchExactly, role);
-         if(idx >= 0)
-            combobox.currentIndex = idx;
+
+        baseHelper.setCombobox(comComboBox, baseHelper.getProperty(settings, "port", ""), "text")
+        baudInput.text = baseHelper.getProperty(settings, "baud", "9600")
+        baseHelper.setCombobox(dataSizeComboBox, baseHelper.getProperty(settings, "size", 8), "value")
+        baseHelper.setCombobox(parityComboBox, baseHelper.getProperty(settings, "parity", 0), "value")
+        baseHelper.setCombobox(stopBitsCombo, baseHelper.getProperty(settings, "stop_bits",
+                                                baseHelper.getProperty(settings, "stop", 1)), "value")
     }
 
-    /*******************************************************************
-     * FUNCTION
-     ******************************************************************/
-    function getSettings()
-    {
-        const baud = parseInt(baudInput.text)
-        return {
-                "port": comComboBox.currentText,
-                "baud": isNaN(baud) ? 0 : baud,
-                "size": dataSizeComboBox.currentValue !== undefined ? dataSizeComboBox.currentValue : dataSizeComboBox.currentText,
-                "parity": parityComboBox.currentValue !== undefined ? parityComboBox.currentValue : parityComboBox.currentText,
-                "stop_bits": stopBitsCombo.currentValue !== undefined ? stopBitsCombo.currentValue : stopBitsCombo.currentText
-               }
+    function isValid() {
+        var settings = getSettings()
+        return settings.valid === true
     }
 }

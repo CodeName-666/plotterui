@@ -80,11 +80,15 @@ ChartWindowUi{
         parent: Overlay.overlay
         anchors.centerIn: parent
 
-        availableInterfaces: getAvailableInterfaces()
+        availableConnections: getAvailableConnections()
         usedDataIds: getUsedDataIds()
 
-        onChartLineAdded: function(uniqueId, displayName, lineColor, interfaceType, dataId, interfaceSettings) {
+        onChartLineAdded: function(uniqueId, displayName, lineColor, connectionId, dataId, interfaceSettings) {
             Logger.log_info("ChartWindow: Chart line added via dialog: " + uniqueId)
+
+            // Get connection details to retrieve interface type
+            var connDetails = Backend.get_connection_details(connectionId)
+            var interfaceType = connDetails ? connDetails.type : "Unknown"
 
             // Add to model
             var graph = createGraph(displayName, lineColor)
@@ -252,6 +256,7 @@ ChartWindowUi{
             {
                 events.newGraph.connect(newGraph)
                 events.append_graph_point.connect(appendGraphPoint)
+                events.append_graph_points_batch.connect(appendGraphPointsBatch)
                 events.scrollRight.connect(chart.scrollRight)
             }
             controller.set_plot_area(chart.plotArea)
@@ -312,7 +317,57 @@ ChartWindowUi{
         // Check if line is visible before appending
         var line = chartLineModel.getLine(uniqueId)
         if(line && line.visible) {
-            _graphs[uniqueId].append(x, y)
+            var series = _graphs[uniqueId]
+
+            // Performance: Limit maximum points per series
+            var maxPoints = 10000
+            if(series.count >= maxPoints) {
+                // Remove oldest 100 points when limit reached
+                series.removePoints(0, 100)
+            }
+
+            series.append(x, y)
+        }
+    }
+
+    /*******************************************************************
+     * FUNCTION - Append multiple points at once (BATCH UPDATE)
+     *
+     * This is much faster than calling appendGraphPoint multiple times
+     * as it reduces QML/JavaScript overhead significantly.
+     *
+     * @param uniqueId - Unique identifier of the graph line
+     * @param points - Array of [x, y] tuples
+     ******************************************************************/
+    function appendGraphPointsBatch(uniqueId, points)
+    {
+        if(!_graphs[uniqueId])
+        {
+            Logger.log_warning("appendGraphPointsBatch: graph not found for " + uniqueId)
+            return
+        }
+        if(!points || points.length === 0)
+            return
+
+        // Check if line is visible before appending
+        var line = chartLineModel.getLine(uniqueId)
+        if(line && line.visible) {
+            var series = _graphs[uniqueId]
+            var maxPoints = 10000
+
+            // Check if we need to remove old points
+            var totalAfterAdd = series.count + points.length
+            if(totalAfterAdd > maxPoints) {
+                var toRemove = totalAfterAdd - maxPoints
+                series.removePoints(0, toRemove)
+            }
+
+            // Batch append - much faster!
+            for(var i = 0; i < points.length; i++) {
+                var x = points[i][0]
+                var y = points[i][1]
+                series.append(x, y)
+            }
         }
     }
 
@@ -403,18 +458,25 @@ ChartWindowUi{
     }
 
     /*******************************************************************
-     * FUNCTION - Get available interfaces from backend config
+     * FUNCTION - Get available connections from backend
      ******************************************************************/
-    function getAvailableInterfaces() {
-        var controller = appController !== undefined && appController !== null ? appController : App.get_app()
-        if(controller !== undefined && controller !== null) {
-            var uiConfig = controller.get_ui_config()
-            if(uiConfig && uiConfig.interfaces) {
-                return uiConfig.interfaces
-            }
+    function getAvailableConnections() {
+        // Get available connections from backend
+        var connections = Backend.get_connections()
+        var availableConnections = []
+
+        for (var i = 0; i < connections.length; i++) {
+            var conn = connections[i]
+            availableConnections.push({
+                "id": conn.id,
+                "name": conn.name,
+                "type": conn.type,
+                "status": conn.status
+            })
         }
-        // Fallback to default interfaces
-        return ["Serial", "Telnet", "MQTT", "Test"]
+
+        Logger.log_debug("ChartWindow: Found " + availableConnections.length + " available connections")
+        return availableConnections
     }
 
     /*******************************************************************

@@ -10,9 +10,15 @@ Drawer {
     id: navDrawer
     property var window
     property var settingsPopup
-    property alias startButton: controlsCard.startButton
-    property alias stopButton: controlsCard.stopButton
-    property alias sourceCombo: controlsCard.sourceCombo
+
+    // Legacy properties for backward compatibility (deprecated - will be removed)
+    property alias startButton: dummyButton
+    property alias stopButton: dummyButton
+    property alias sourceCombo: dummyCombo
+
+    // Dummy components for legacy compatibility
+    Button { id: dummyButton; visible: false }
+    ComboBox { id: dummyCombo; visible: false }
 
     // Get appController from App.qml via window reference
     function getAppController() {
@@ -29,16 +35,37 @@ Drawer {
     interactive: true
     modal: true
 
+    // State for connection section collapse
+    property bool connectionsExpanded: true
+
     Component.onCompleted: {
         Logger.log_debug("NavDrawer completed")
+        // Load initial connections
+        updateConnectionsList()
     }
 
     onOpened: {
         Logger.log_debug("NavDrawer opened")
+        updateConnectionsList()
     }
 
     onClosed: {
         Logger.log_debug("NavDrawer closed")
+    }
+
+    // Connections to Backend signals
+    Connections {
+        target: Backend
+
+        function onConnections_changed(connections) {
+            Logger.log_debug("NavDrawer: Received connections_changed signal")
+            updateConnectionsList()
+        }
+
+        function onConnection_status_changed(connectionId, status, details) {
+            Logger.log_debug("NavDrawer: Connection " + connectionId + " status changed to " + status)
+            updateConnectionsList()
+        }
     }
 
     ListModel {
@@ -47,40 +74,199 @@ Drawer {
         ListElement { section: "APPLICATION"; title: "Quit"; iconName: "exit" }
     }
 
+    ListModel {
+        id: connectionsListModel
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 8
         anchors.margins: 12
 
-        ControlsCard {
-            id: controlsCard
+        // Connections Section (Collapsible)
+        Rectangle {
+            id: connectionsSection
             Layout.fillWidth: true
-            appController: navDrawer.getAppController()
-            onInterfaceChanged: function(iface) {
-                Logger.log_debug("NavDrawer: Interface changed to: " + iface)
-                var controller = navDrawer.getAppController()
-                if(controller)
-                {
-                    controller.current_interface = iface
-                    Logger.log_info("NavDrawer: Set current_interface to: " + iface)
+            Layout.preferredHeight: connectionsExpanded ?
+                (connectionsSectionContent.implicitHeight + 16) :
+                (connectionsSectionHeader.height + 16)
+            radius: 6
+            color: "#f4f4f4"
+            border.color: "#d0d0d0"
+            border.width: 1
+
+            Behavior on Layout.preferredHeight {
+                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+            }
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 8
+                spacing: 8
+
+                // Header with Expand/Collapse button and Add button
+                Rectangle {
+                    id: connectionsSectionHeader
+                    Layout.fillWidth: true
+                    height: 36
+                    color: "transparent"
+
+                    RowLayout {
+                        anchors.fill: parent
+                        spacing: 8
+
+                        Button {
+                            id: expandCollapseButton
+                            text: connectionsExpanded ? "▼" : "▶"
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 28
+                            font.pixelSize: 10
+
+                            onClicked: {
+                                connectionsExpanded = !connectionsExpanded
+                                Logger.log_debug("NavDrawer: Connections section " +
+                                    (connectionsExpanded ? "expanded" : "collapsed"))
+                            }
+
+                            background: Rectangle {
+                                radius: 4
+                                color: expandCollapseButton.pressed ? "#e0e0e0" :
+                                       expandCollapseButton.hovered ? "#eeeeee" : "transparent"
+                                border.color: "#d0d0d0"
+                                border.width: 1
+                            }
+                        }
+
+                        Label {
+                            text: qsTr("Connections") + " (" + connectionsListModel.count + ")"
+                            font.bold: true
+                            font.pixelSize: 14
+                            color: "#444"
+                            Layout.fillWidth: true
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Button {
+                            id: addConnectionButton
+                            text: "+"
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 28
+                            font.pixelSize: 16
+                            font.bold: true
+
+                            onClicked: {
+                                addConnectionDialog.open()
+                            }
+
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Add Connection")
+                            ToolTip.delay: 500
+
+                            background: Rectangle {
+                                radius: 4
+                                color: {
+                                    if (addConnectionButton.pressed) return "#1565c0"
+                                    if (addConnectionButton.hovered) return "#1976d2"
+                                    return "#2196f3"
+                                }
+                                border.color: "#1565c0"
+                                border.width: 1
+                            }
+
+                            contentItem: Text {
+                                text: addConnectionButton.text
+                                font: addConnectionButton.font
+                                color: "white"
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
                 }
-                else
-                {
-                    Logger.log_warning("NavDrawer: Cannot set interface - appController is null")
+
+                // Connections List (only visible when expanded)
+                ColumnLayout {
+                    id: connectionsSectionContent
+                    Layout.fillWidth: true
+                    visible: connectionsExpanded
+                    opacity: connectionsExpanded ? 1.0 : 0.0
+                    spacing: 6
+
+                    Behavior on opacity {
+                        NumberAnimation { duration: 200 }
+                    }
+
+                    ScrollView {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Math.min(connectionsListView.contentHeight, 300)
+                        clip: true
+
+                        ListView {
+                            id: connectionsListView
+                            model: connectionsListModel
+                            spacing: 6
+                            interactive: contentHeight > height
+
+                            delegate: ConnectionCard {
+                                width: ListView.view.width
+                                connectionId: model.id || ""
+                                interfaceType: model.type || ""
+                                displayName: model.name || ""
+                                status: model.status || "disconnected"
+                                connectionSettings: model.settings || ({})
+
+                                onStartClicked: function(connId) {
+                                    Logger.log_info("NavDrawer: Starting connection: " + connId)
+                                    Backend.start_connection(connId)
+                                }
+
+                                onStopClicked: function(connId) {
+                                    Logger.log_info("NavDrawer: Stopping connection: " + connId)
+                                    Backend.stop_connection(connId)
+                                }
+
+                                onSettingsClicked: function(connId, ifaceType) {
+                                    Logger.log_info("NavDrawer: Opening settings for connection: " + connId)
+                                    openSettingsForConnection(connId, ifaceType)
+                                }
+
+                                onDeleteClicked: function(connId) {
+                                    Logger.log_info("NavDrawer: Deleting connection: " + connId)
+                                    Backend.delete_connection(connId)
+                                }
+                            }
+                        }
+                    }
+
+                    // Empty State
+                    Label {
+                        text: qsTr("No connections yet.\nClick '+' to add a new connection.")
+                        font.pixelSize: 11
+                        color: "#999"
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        Layout.topMargin: 12
+                        Layout.bottomMargin: 12
+                        visible: connectionsListModel.count === 0
+                    }
                 }
             }
         }
 
+        // Application Menu
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 6
             color: "transparent"
             border.color: "#e0e0e0"
+
             ColumnLayout {
                 anchors.fill: parent
                 anchors.margins: 8
                 spacing: 2
+
                 ListView {
                     id: navList
                     Layout.fillWidth: true
@@ -88,6 +274,7 @@ Drawer {
                     spacing: 2
                     model: navModel ? navModel : []
                     clip: true
+
                     section.property: "section"
                     section.delegate: Label {
                         width: ListView.view.width
@@ -100,6 +287,7 @@ Drawer {
                         bottomPadding: 4
                         horizontalAlignment: Text.AlignLeft
                     }
+
                     delegate: Rectangle {
                         id: menuItem
                         width: ListView.view.width
@@ -162,23 +350,56 @@ Drawer {
             }
         }
 
+        // Global Settings Button
         Button {
             id: navSettingsButton
-            text: qsTr("Settings")
+            text: qsTr("⚙ Settings")
             Layout.fillWidth: true
+            Layout.preferredHeight: 40
+
             onClicked: {
                 Logger.log_info("NavDrawer: Settings button clicked")
-                if(settingsPopup)
-                {
+                if(settingsPopup) {
+                    navDrawer.close()  // Close drawer when opening settings
                     settingsPopup.open()
-                }
-                else
-                {
+                } else {
                     Logger.log_error("NavDrawer: settingsPopup is null")
                 }
             }
+
+            background: Rectangle {
+                radius: 6
+                color: {
+                    if (navSettingsButton.pressed) return "#1565c0"
+                    if (navSettingsButton.hovered) return "#1976d2"
+                    return "#2196f3"
+                }
+                border.color: "#1565c0"
+                border.width: 1
+            }
+
+            contentItem: Text {
+                text: navSettingsButton.text
+                font: navSettingsButton.font
+                color: "white"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
         }
     }
+
+    // Add Connection Dialog
+    AddConnectionDialog {
+        id: addConnectionDialog
+
+        onConnectionCreated: function(connectionId) {
+            Logger.log_info("NavDrawer: New connection created: " + connectionId)
+            updateConnectionsList()
+        }
+    }
+
+    // Connection Settings Dialog (dynamically created)
+    property var connectionSettingsDialog: null
 
     // About Dialog
     Dialog {
@@ -243,6 +464,70 @@ Drawer {
                 color: "#888888"
                 Layout.alignment: Qt.AlignHCenter
             }
+        }
+    }
+
+    // Helper Functions
+    function updateConnectionsList() {
+        Logger.log_debug("NavDrawer: Updating connections list")
+
+        var connections = Backend.get_connections()
+        Logger.log_debug("NavDrawer: Got " + connections.length + " connections from backend")
+
+        connectionsListModel.clear()
+
+        for (var i = 0; i < connections.length; i++) {
+            var conn = connections[i]
+            connectionsListModel.append({
+                id: conn.id,
+                type: conn.type,
+                name: conn.name,
+                status: conn.status,
+                settings: conn.settings
+            })
+        }
+
+        Logger.log_debug("NavDrawer: Connections list updated with " + connectionsListModel.count + " items")
+    }
+
+    function openSettingsForConnection(connectionId, interfaceType) {
+        Logger.log_debug("NavDrawer: Opening settings for connection " + connectionId + " (" + interfaceType + ")")
+
+        // Get connection details
+        var details = Backend.get_connection_details(connectionId)
+        if (!details || !details.name) {
+            Logger.log_error("NavDrawer: Could not get connection details for " + connectionId)
+            return
+        }
+
+        // Create dialog if not exists, or destroy and recreate for fresh state
+        if (connectionSettingsDialog !== null) {
+            connectionSettingsDialog.destroy()
+            connectionSettingsDialog = null
+        }
+
+        // Create dialog dynamically
+        var component = Qt.createComponent("components/ConnectionSettingsDialog.qml")
+
+        // Component.Ready = 1, Component.Error = 3
+        if (component.status === 1) {
+            connectionSettingsDialog = component.createObject(navDrawer, {
+                "connectionId": connectionId,
+                "interfaceType": interfaceType,
+                "connectionName": details.name
+            })
+
+            if (connectionSettingsDialog !== null) {
+                Logger.log_debug("NavDrawer: ConnectionSettingsDialog created successfully")
+                navDrawer.close()
+                connectionSettingsDialog.open()
+            } else {
+                Logger.log_error("NavDrawer: Failed to create ConnectionSettingsDialog instance")
+            }
+        } else if (component.status === 3) {
+            Logger.log_error("NavDrawer: Error loading ConnectionSettingsDialog: " + component.errorString())
+        } else {
+            Logger.log_warning("NavDrawer: Component not ready yet, status: " + component.status)
         }
     }
 }

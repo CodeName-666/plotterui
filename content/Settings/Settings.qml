@@ -21,10 +21,31 @@ SettingsUi {
     property var settingsData: ({})
     property var originalSettings: ({})
 
+    // Multi-connection support
+    property string currentConnectionId: ""  // If set, applies settings to specific connection
+    property bool isConnectionSpecific: currentConnectionId !== ""
+
     Component { id: serialSettingsComponent; SerialSettings { } }
     Component { id: telnetSettingsComponent; TelnetSettings { } }
     Component { id: mqttSettingsComponent; MQTTSettings { } }
     Component { id: testSettingsComponent; TestSettings { } }
+
+    // Update title based on mode
+    onIsConnectionSpecificChanged: updateTitle()
+    onCurrentConnectionIdChanged: updateTitle()
+
+    function updateTitle() {
+        if (isConnectionSpecific && currentConnectionId !== "") {
+            var connDetails = Backend.get_connection_details(currentConnectionId)
+            if (connDetails && connDetails.name) {
+                titleText.text = qsTr("Settings: ") + connDetails.name
+            } else {
+                titleText.text = qsTr("Connection Settings")
+            }
+        } else {
+            titleText.text = qsTr("Default Templates")
+        }
+    }
 
     FileDialog {
         id: savePresetDialog
@@ -47,18 +68,30 @@ SettingsUi {
         loadSettingsFromBackend()
     }
 
+    onVisibleChanged: {
+        if (visible) {
+            Logger.log_debug("Settings: Dialog opened, reloading settings")
+            loadSettingsFromBackend()
+            updateTitle()
+        }
+    }
+
     savePresetButton.onClicked: savePresetDialog.open()
     loadPresetButton.onClicked: loadPresetDialog.open()
 
     okButton.onClicked: {
         if(validateAllSettings()) {
             saveAllSettings()
+            // Reset connection-specific mode
+            currentConnectionId = ""
             settings_menu.visible = false
         }
     }
 
     cancelButton.onClicked: {
         restoreOriginalSettings()
+        // Reset connection-specific mode
+        currentConnectionId = ""
         settings_menu.visible = false
     }
 
@@ -161,6 +194,13 @@ SettingsUi {
     function loadSettingsFromBackend() {
         Logger.log_info("Settings: Loading settings from backend")
 
+        // Check if we're loading settings for a specific connection
+        if (isConnectionSpecific && currentConnectionId !== "") {
+            loadConnectionSettings()
+            return
+        }
+
+        // Otherwise, load default templates
         for(var i = 0; i < interfaceNames.length; i++) {
             var name = interfaceNames[i]
             var config = Backend.get_interface_config(name)
@@ -169,14 +209,43 @@ SettingsUi {
                 settingsData[name] = config
                 originalSettings[name] = JSON.parse(JSON.stringify(config))
                 setInterfaceSettings(name, config)
-                Logger.log_debug("Settings: Loaded " + name + " settings from backend")
+                Logger.log_debug("Settings: Loaded default template for " + name)
             } else {
-                Logger.log_warning("Settings: No backend config for " + name)
+                Logger.log_warning("Settings: No default template for " + name)
             }
         }
     }
 
+    function loadConnectionSettings() {
+        Logger.log_info("Settings: Loading settings for connection " + currentConnectionId)
+
+        var connDetails = Backend.get_connection_details(currentConnectionId)
+        if (!connDetails || !connDetails.type) {
+            Logger.log_error("Settings: Could not get connection details for " + currentConnectionId)
+            return
+        }
+
+        var interfaceType = connDetails.type
+        var connectionSettings = connDetails.settings
+
+        if (connectionSettings) {
+            settingsData[interfaceType] = connectionSettings
+            originalSettings[interfaceType] = JSON.parse(JSON.stringify(connectionSettings))
+            setInterfaceSettings(interfaceType, connectionSettings)
+            Logger.log_debug("Settings: Loaded settings for connection " + currentConnectionId)
+        } else {
+            Logger.log_warning("Settings: No settings found for connection " + currentConnectionId)
+        }
+    }
+
     function saveAllSettings() {
+        // Check if we're in connection-specific mode
+        if(isConnectionSpecific && currentConnectionId !== "") {
+            Logger.log_info("Settings: Saving settings for specific connection: " + currentConnectionId)
+            saveConnectionSettings()
+            return
+        }
+
         Logger.log_info("Settings: Saving all settings to backend")
 
         var allValid = true
@@ -202,6 +271,35 @@ SettingsUi {
         if(allValid) {
             Backend.save_settings_to_config()
             Logger.log_info("Settings: All settings saved successfully")
+        }
+    }
+
+    function saveConnectionSettings() {
+        Logger.log_info("Settings: Saving connection-specific settings for " + currentConnectionId)
+
+        // Get connection details to determine interface type
+        var connDetails = Backend.get_connection_details(currentConnectionId)
+        if(!connDetails || !connDetails.type) {
+            Logger.log_error("Settings: Could not get connection details for " + currentConnectionId)
+            return
+        }
+
+        var interfaceType = connDetails.type
+        var settings = getInterfaceSettings(interfaceType)
+
+        if(!settings || settings.valid === false) {
+            Logger.log_error("Settings: Invalid settings for connection " + currentConnectionId)
+            return
+        }
+
+        // Update connection settings via backend
+        if(typeof Backend.update_connection_settings === "function") {
+            var success = Backend.update_connection_settings(currentConnectionId, settings)
+            if(success) {
+                Logger.log_info("Settings: Successfully updated connection " + currentConnectionId)
+            } else {
+                Logger.log_error("Settings: Failed to update connection " + currentConnectionId)
+            }
         }
     }
 
@@ -266,5 +364,36 @@ SettingsUi {
         Logger.log_info("Settings: setup called")
         loadSettingsFromBackend()
         return true
+    }
+
+    // Multi-connection helper functions
+    function selectTabByName(interfaceName) {
+        Logger.log_debug("Settings: Selecting tab for interface: " + interfaceName)
+
+        var tabIndex = interfaceNames.indexOf(interfaceName)
+        if(tabIndex >= 0 && tabIndex < interfaceNames.length) {
+            tabBar.currentIndex = tabIndex
+            Logger.log_info("Settings: Selected tab index " + tabIndex + " for " + interfaceName)
+
+            // If in connection-specific mode, load connection settings
+            if(isConnectionSpecific && currentConnectionId !== "") {
+                loadConnectionSettings()
+            }
+        } else {
+            Logger.log_warning("Settings: Unknown interface name: " + interfaceName)
+        }
+    }
+
+    function openForConnection(connectionId, interfaceType) {
+        Logger.log_info("Settings: Opening for connection " + connectionId + " (" + interfaceType + ")")
+
+        // Set connection-specific mode
+        currentConnectionId = connectionId
+
+        // Select appropriate tab
+        selectTabByName(interfaceType)
+
+        // Reload settings for this connection
+        loadSettingsFromBackend()
     }
 }

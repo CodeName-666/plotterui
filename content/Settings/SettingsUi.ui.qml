@@ -20,6 +20,7 @@ Rectangle {
     property alias telnetLoader: telnetLoader
     property alias mqttLoader: mqttLoader
     property alias testLoader: testLoader
+    property alias titleText: titleText
 
     ColumnLayout {
         anchors.fill: parent
@@ -32,6 +33,7 @@ Rectangle {
             spacing: SettingsTheme.spacing.medium
 
             Text {
+                id: titleText
                 text: qsTr("Connection Settings")
                 font.bold: true
                 font.pixelSize: SettingsTheme.fontSize.title

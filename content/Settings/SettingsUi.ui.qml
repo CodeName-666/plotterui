@@ -5,22 +5,16 @@ import SettingsCommon 1.0
 
 Rectangle {
     id: settings_menu
-    implicitWidth: 720
-    implicitHeight: 580
+    implicitWidth: 500
+    implicitHeight: 300
     radius: SettingsTheme.radius.extraLarge
     color: SettingsTheme.settingsBackground
     border.color: SettingsTheme.borderColor
     border.width: 1
 
-    property alias okButton: okButton
-    property alias cancelButton: cancelButton
-    property alias savePresetButton: savePresetButton
-    property alias loadPresetButton: loadPresetButton
-    property alias tabBar: tabBar
-    property alias serialLoader: serialLoader
-    property alias telnetLoader: telnetLoader
-    property alias mqttLoader: mqttLoader
-    property alias testLoader: testLoader
+    property alias closeButton: closeButton
+    property alias saveConfigButton: saveConfigButton
+    property alias loadConfigButton: loadConfigButton
     property alias titleText: titleText
 
     ColumnLayout {
@@ -32,128 +26,135 @@ Rectangle {
         spacing: SettingsTheme.spacing.large
 
         // Header
-        RowLayout {
+        Text {
+            id: titleText
+            text: qsTr("Configuration Settings")
+            font.bold: true
+            font.pixelSize: SettingsTheme.fontSize.title
+            color: SettingsTheme.textPrimary
             Layout.fillWidth: true
-            Layout.preferredHeight: 48
-            spacing: SettingsTheme.spacing.medium
-
-            Text {
-                id: titleText
-                text: qsTr("Connection Settings")
-                font.bold: true
-                font.pixelSize: SettingsTheme.fontSize.title
-                color: SettingsTheme.textPrimary
-                Layout.fillWidth: true
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            Button {
-                id: loadPresetButton
-                text: qsTr("Load Preset")
-                icon.name: "document-open"
-                Layout.preferredHeight: SettingsTheme.heights.smallInput
-                Layout.preferredWidth: 120
-            }
-
-            Button {
-                id: savePresetButton
-                text: qsTr("Save Preset")
-                icon.name: "document-save"
-                Layout.preferredHeight: SettingsTheme.heights.smallInput
-                Layout.preferredWidth: 120
-            }
+            horizontalAlignment: Text.AlignHCenter
         }
 
-        // Tab Bar
-        TabBar {
-            id: tabBar
-            Layout.fillWidth: true
-            Layout.preferredHeight: 44
-            spacing: 4
-
-            TabButton {
-                text: qsTr("Serial")
-                height: 40
-                font.pixelSize: SettingsTheme.fontSize.medium
-            }
-            TabButton {
-                text: qsTr("Telnet")
-                height: 40
-                font.pixelSize: SettingsTheme.fontSize.medium
-            }
-            TabButton {
-                text: qsTr("MQTT")
-                height: 40
-                font.pixelSize: SettingsTheme.fontSize.medium
-            }
-            TabButton {
-                text: qsTr("Test")
-                height: 40
-                font.pixelSize: SettingsTheme.fontSize.medium
-            }
-        }
-
-        // Content Area with StackLayout
+        // Info text
         Rectangle {
-            id: contentCard
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            radius: SettingsTheme.radius.large
+            Layout.preferredHeight: 80
+            radius: SettingsTheme.radius.medium
             color: SettingsTheme.cardBackground
             border.color: SettingsTheme.borderColorLight
             border.width: 1
 
-            StackLayout {
+            ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 0
-                currentIndex: tabBar.currentIndex
+                anchors.margins: 16
+                spacing: 8
 
-                // Serial Settings
-                Loader {
-                    id: serialLoader
-                    asynchronous: false
+                Text {
+                    text: qsTr("Configuration Management")
+                    font.pixelSize: 14
+                    font.bold: true
+                    color: SettingsTheme.textPrimary
+                    Layout.fillWidth: true
                 }
 
-                // Telnet Settings
-                Loader {
-                    id: telnetLoader
-                    asynchronous: false
-                }
-
-                // MQTT Settings
-                Loader {
-                    id: mqttLoader
-                    asynchronous: false
-                }
-
-                // Test Settings
-                Loader {
-                    id: testLoader
-                    asynchronous: false
+                Text {
+                    text: qsTr("Load or save your complete configuration including all connections and their settings.")
+                    font.pixelSize: 12
+                    color: SettingsTheme.textSecondary
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
                 }
             }
         }
 
+        // Spacer
+        Item {
+            Layout.fillHeight: true
+        }
+
         // Action Buttons
-        RowLayout {
+        ColumnLayout {
             Layout.fillWidth: true
             spacing: SettingsTheme.spacing.medium
 
-            Item { Layout.fillWidth: true }
-
             Button {
-                id: cancelButton
-                text: qsTr("Cancel")
-                Layout.preferredWidth: 110
+                id: loadConfigButton
+                text: qsTr("📂 Load Configuration")
+                icon.name: "document-open"
+                Layout.fillWidth: true
                 Layout.preferredHeight: SettingsTheme.heights.button
+
+                background: Rectangle {
+                    color: loadConfigButton.pressed ? "#1565c0" : (loadConfigButton.hovered ? "#1976d2" : "#2196f3")
+                    radius: 4
+                    border.color: "#1565c0"
+                    border.width: 1
+                }
+
+                contentItem: Text {
+                    text: loadConfigButton.text
+                    font.pixelSize: 13
+                    font.bold: true
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
             }
 
             Button {
-                id: okButton
-                text: qsTr("Apply")
-                highlighted: true
-                Layout.preferredWidth: 110
+                id: saveConfigButton
+                text: qsTr("💾 Save Configuration")
+                icon.name: "document-save"
+                Layout.fillWidth: true
                 Layout.preferredHeight: SettingsTheme.heights.button
+
+                background: Rectangle {
+                    color: saveConfigButton.pressed ? "#1565c0" : (saveConfigButton.hovered ? "#1976d2" : "#2196f3")
+                    radius: 4
+                    border.color: "#1565c0"
+                    border.width: 1
+                }
+
+                contentItem: Text {
+                    text: saveConfigButton.text
+                    font.pixelSize: 13
+                    font.bold: true
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+
+            // Separator
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: SettingsTheme.borderColor
+                Layout.topMargin: 8
+                Layout.bottomMargin: 8
+            }
+
+            Button {
+                id: closeButton
+                text: qsTr("Close")
+                Layout.fillWidth: true
+                Layout.preferredHeight: SettingsTheme.heights.button
+
+                background: Rectangle {
+                    color: closeButton.pressed ? "#555555" : (closeButton.hovered ? "#666666" : "#4d4d4d")
+                    radius: 4
+                    border.color: "#606060"
+                    border.width: 1
+                }
+
+                contentItem: Text {
+                    text: closeButton.text
+                    font.pixelSize: 13
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
             }
         }
     }

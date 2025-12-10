@@ -9,6 +9,23 @@ ChartLinesListUi {
     // Signals
     signal lineVisibilityToggled(string uniqueId, bool visible)
     signal lineSelected(string uniqueId)
+    signal collapseToggled()
+
+    // Debug: Monitor isCollapsed changes
+    onIsCollapsedChanged: {
+        console.log("ChartLinesList: isCollapsed changed to: " + isCollapsed)
+    }
+
+    // Connect collapse buttons (both centered button when collapsed and header button when expanded)
+    collapseButton.onClicked: {
+        console.log("ChartLinesList: Collapse button clicked (expand)")
+        collapseToggled()
+    }
+
+    headerCollapseButton.onClicked: {
+        console.log("ChartLinesList: Header collapse button clicked (collapse)")
+        collapseToggled()
+    }
 
     // Connect visibility button clicks
     listView.delegate: Item {
@@ -106,7 +123,7 @@ ChartLinesListUi {
                     }
 
                     onClicked: {
-                        Logger.log_debug("ChartLinesList: Toggling visibility for " + model.uniqueId)
+                        console.log("ChartLinesList: Toggling visibility for " + model.uniqueId)
                         root.lineVisibilityToggled(model.uniqueId, !model.visible)
                     }
                 }
@@ -120,7 +137,7 @@ ChartLinesListUi {
                 z: -1
 
                 onClicked: {
-                    Logger.log_debug("ChartLinesList: Line selected: " + model.uniqueId)
+                    console.log("ChartLinesList: Line selected: " + model.uniqueId)
                     root.lineSelected(model.uniqueId)
                 }
             }

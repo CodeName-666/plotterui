@@ -8,6 +8,7 @@ Item {
     property alias listView: listView
     property alias headerLabel: headerLabel
     property alias collapseButton: collapseButton
+    property alias headerCollapseButton: headerCollapseButton
     property bool isCollapsed: false
 
     Rectangle {
@@ -17,10 +18,43 @@ Item {
         border.width: 1
         radius: 4
 
+        // Collapsed state - just the button centered
+        Button {
+            id: collapseButton
+            visible: root.isCollapsed
+            anchors.centerIn: parent
+            width: 40
+            height: 40
+            text: "◀"
+            font.pixelSize: 18
+            font.bold: true
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Expand")
+            ToolTip.delay: 400
+
+            background: Rectangle {
+                color: parent.hovered ? "#4d4d4d" : "#3d3d3d"
+                radius: 6
+                border.color: "#606060"
+                border.width: 1
+            }
+
+            contentItem: Text {
+                text: parent.text
+                font: parent.font
+                color: "#ffffff"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+
+        // Expanded state - full layout
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 8
             spacing: 8
+            visible: !root.isCollapsed
 
             // Header with collapse button
             RowLayout {
@@ -37,15 +71,15 @@ Item {
                 }
 
                 Button {
-                    id: collapseButton
-                    text: root.isCollapsed ? "◀" : "▶"
+                    id: headerCollapseButton
+                    text: "▶"
                     font.pixelSize: 14
                     font.bold: true
-                    Layout.preferredWidth: 32
-                    Layout.preferredHeight: 32
+                    width: 32
+                    height: 32
 
                     ToolTip.visible: hovered
-                    ToolTip.text: root.isCollapsed ? qsTr("Expand") : qsTr("Collapse")
+                    ToolTip.text: qsTr("Collapse")
                     ToolTip.delay: 400
 
                     background: Rectangle {

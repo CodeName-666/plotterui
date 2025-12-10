@@ -70,13 +70,13 @@ Item {
         }
     }
 
-    // Compact zoom controls - top-right corner, semi-transparent on hover
+    // Compact zoom controls - positioned left of chart lines panel to avoid overlap
     ChartControls {
         id: chartControls
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.topMargin: 16
-        anchors.rightMargin: 16
+        anchors.rightMargin: chartLinesListCollapsed ? 76 : 306
         z: 100
     }
 
@@ -187,7 +187,7 @@ Item {
         anchors.topMargin: 10
         anchors.bottomMargin: 10
         anchors.rightMargin: 10
-        z: 90
+        z: 120
 
         isCollapsed: chartLinesListCollapsed
 
@@ -197,18 +197,14 @@ Item {
                 easing.type: Easing.InOutQuad
             }
         }
-
-        collapseButton.onClicked: {
-            chartLinesListCollapsed = !chartLinesListCollapsed
-        }
     }
 
     // Floating Action Button - bottom-right corner (adjusts position based on panel state)
     FloatingActionButton {
         id: fabButton
-        anchors.right: chartLinesList.left
+        anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.rightMargin: chartLinesListCollapsed ? 10 : 20
+        anchors.rightMargin: chartLinesListCollapsed ? (chartLinesListCollapsedWidth + 20) : (chartLinesListWidth + 30)
         anchors.bottomMargin: 20
         z: 110
 

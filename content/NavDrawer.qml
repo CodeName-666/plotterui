@@ -396,6 +396,8 @@ Drawer {
     // Add Connection Dialog
     AddConnectionDialog {
         id: addConnectionDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
 
         onConnectionCreated: function(connectionId) {
             Logger.log_info("NavDrawer: New connection created: " + connectionId)
@@ -409,8 +411,10 @@ Drawer {
     // About Dialog
     Dialog {
         id: aboutDialog
-        title: qsTr("About Plotter")
+        parent: Overlay.overlay
         anchors.centerIn: parent
+
+        title: qsTr("About Plotter")
         modal: true
         standardButtons: Dialog.Ok
 
@@ -516,7 +520,7 @@ Drawer {
 
         // Component.Ready = 1, Component.Error = 3
         if (component.status === 1) {
-            connectionSettingsDialog = component.createObject(navDrawer, {
+            connectionSettingsDialog = component.createObject(Overlay.overlay, {
                 "connectionId": connectionId,
                 "interfaceType": interfaceType,
                 "connectionName": details.name

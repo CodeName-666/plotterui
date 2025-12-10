@@ -7,6 +7,7 @@ import Common 1.0
 import "../Models"
 import "AddChartLineDialog"
 import "EditChartLineDialog"
+import "ConnectionManager"
 
 
 
@@ -18,6 +19,12 @@ ChartWindowUi{
     property real initialXMax: 10
     property real initialYMin: 0
     property real initialYMax: 10
+
+    // Debug: Monitor chartLinesListCollapsed changes
+    onChartLinesListCollapsedChanged: {
+        Logger.log_debug("ChartWindow: chartLinesListCollapsed changed to: " + chartLinesListCollapsed)
+        Logger.log_debug("ChartWindow: chartLinesList.isCollapsed = " + chartLinesList.isCollapsed)
+    }
 
     /*******************************************************************
      * EVENT - Chart Controls
@@ -58,6 +65,13 @@ ChartWindowUi{
                 editChartLineDialog.loadChartLine(uniqueId, line.displayName, line.color, line.interfaceType, line.dataId)
                 editChartLineDialog.open()
             }
+        }
+        function onCollapseToggled() {
+            Logger.log_debug("ChartWindow: Collapse button clicked")
+            Logger.log_debug("ChartWindow: Current state = " + chartLinesListCollapsed)
+            chartLinesListCollapsed = !chartLinesListCollapsed
+            Logger.log_debug("ChartWindow: New state = " + chartLinesListCollapsed)
+            Logger.log_debug("ChartWindow: isCollapsed in UI = " + chartLinesList.isCollapsed)
         }
     }
 
@@ -160,6 +174,54 @@ ChartWindowUi{
         onChartLineDeleted: function(uniqueId) {
             Logger.log_info("ChartWindow: Chart line deleted: " + uniqueId)
             removeChartLine(uniqueId)
+        }
+    }
+
+    /*******************************************************************
+     * COMPONENT - Connection Manager Dialog
+     ******************************************************************/
+    ConnectionManagerDialog {
+        id: connectionManagerDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+    }
+
+    /*******************************************************************
+     * COMPONENT - Connection Manager Button
+     ******************************************************************/
+    Button {
+        id: connectionManagerBtn
+        text: qsTr("Connections")
+        width: 120
+        height: 36
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.topMargin: 16
+        anchors.leftMargin: 16
+        z: 110
+        font.pixelSize: 13
+
+        background: Rectangle {
+            color: parent.pressed ? "#0056b3" : (parent.hovered ? "#007AFF" : "#0066cc")
+            radius: 6
+            border.color: "#ffffff30"
+            border.width: 1
+        }
+
+        contentItem: Text {
+            text: parent.text
+            color: "#ffffff"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            font: parent.font
+        }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Manage data connections")
+        ToolTip.delay: 500
+
+        onClicked: {
+            connectionManagerDialog.open()
         }
     }
 

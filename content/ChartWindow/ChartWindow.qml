@@ -226,6 +226,45 @@ ChartWindowUi{
     }
 
     /*******************************************************************
+     * COMPONENT - Test Floating Windows Button
+     ******************************************************************/
+    Button {
+        id: floatingTestBtn
+        text: qsTr("Test Float")
+        width: 120
+        height: 36
+        anchors.top: parent.top
+        anchors.left: connectionManagerBtn.right
+        anchors.topMargin: 16
+        anchors.leftMargin: 8
+        z: 110
+        font.pixelSize: 13
+
+        background: Rectangle {
+            color: parent.pressed ? "#b35600" : (parent.hovered ? "#ff7a00" : "#cc6600")
+            radius: 6
+            border.color: "#ffffff30"
+            border.width: 1
+        }
+
+        contentItem: Text {
+            text: parent.text
+            color: "#ffffff"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            font: parent.font
+        }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Create test floating window (Ctrl+N for new)")
+        ToolTip.delay: 500
+
+        onClicked: {
+            testFloatingWindow()
+        }
+    }
+
+    /*******************************************************************
      * EVENT - Mouse Interactions
      ******************************************************************/
     chartMouseArea.onMouseYChanged: scrollVertical()
@@ -607,5 +646,88 @@ ChartWindowUi{
      ******************************************************************/
     function setup(settings) {
 
+    }
+
+    /*******************************************************************
+     * FUNCTION - Test Floating Window System
+     ******************************************************************/
+    function testFloatingWindow() {
+        Logger.log_info("ChartWindow: Testing floating window system")
+
+        // Get App instance to call createFloatingWindow
+        var app = null
+        var p = parent
+        while (p !== null) {
+            if (p.objectName === "appRoot" || p.createFloatingWindow !== undefined) {
+                app = p
+                break
+            }
+            p = p.parent
+        }
+
+        if (app === null || app.createFloatingWindow === undefined) {
+            Logger.log_error("ChartWindow: Cannot find App.createFloatingWindow function")
+            return
+        }
+
+        // Create test floating window with sample data
+        var timestamp = Date.now()
+        var chartId = "test_float_" + timestamp
+
+        var window = app.createFloatingWindow(
+            chartId,
+            "xy_line",
+            "Test Chart " + timestamp,
+            150,
+            150,
+            700,
+            500
+        )
+
+        if (window === null) {
+            Logger.log_error("ChartWindow: Failed to create floating window")
+            return
+        }
+
+        Logger.log_info("ChartWindow: Floating window created, adding test data...")
+
+        // Wait for renderer to be ready
+        Qt.callLater(function() {
+            if (window.chartRenderer) {
+                // Create test lines
+                window.chartRenderer.createLine("sine_wave", "Sine Wave", "#ff6b6b")
+                window.chartRenderer.createLine("cosine_wave", "Cosine Wave", "#4ecdc4")
+                window.chartRenderer.createLine("tan_wave", "Tan Wave (limited)", "#ffe66d")
+
+                // Generate test data
+                var sineData = []
+                var cosineData = []
+                var tanData = []
+
+                for (var x = 0; x < 100; x++) {
+                    var xVal = x * 0.1
+                    sineData.push([xVal, Math.sin(xVal) * 10])
+                    cosineData.push([xVal, Math.cos(xVal) * 10])
+
+                    // Limit tan to avoid infinity
+                    var tanVal = Math.tan(xVal)
+                    if (Math.abs(tanVal) < 20) {
+                        tanData.push([xVal, tanVal * 2])
+                    }
+                }
+
+                // Add data in batches (fast!)
+                window.chartRenderer.appendPointsBatch("sine_wave", sineData)
+                window.chartRenderer.appendPointsBatch("cosine_wave", cosineData)
+                window.chartRenderer.appendPointsBatch("tan_wave", tanData)
+
+                // Fit to data
+                window.chartRenderer.fitToData()
+
+                Logger.log_info("ChartWindow: Test data added successfully")
+            } else {
+                Logger.log_error("ChartWindow: Chart renderer not available")
+            }
+        })
     }
 }

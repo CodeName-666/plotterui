@@ -2,10 +2,12 @@ import QtQuick 6.4
 import Common 1.0
 import Backend 1.0
 import PlotterUi 1.0
+import "FloatingWindows"
 
 
 AppUi {
     id: appRoot
+    objectName: "appRoot"
 
     property var appController: null
     property var simulatorBackend: null
@@ -206,5 +208,104 @@ AppUi {
     function getAppController()
     {
         return appController
+    }
+
+    /*******************************************************************
+     * FLOATING WINDOWS CONTAINER
+     ******************************************************************/
+    Item {
+        id: floatingWindowsContainer
+        anchors.fill: parent
+        z: 100  // Above chart window but below dialogs
+
+        // Container for dynamically created floating windows
+        property var activeWindows: ({})
+    }
+
+    /*******************************************************************
+     * FUNCTION - Create floating chart window
+     ******************************************************************/
+    function createFloatingWindow(chartId, chartType, title, x, y, width, height) {
+        Logger.log_info("App: Creating floating window - ID: " + chartId + ", Type: " + chartType)
+
+        // Create window via backend
+        if (WindowManager && WindowManager.createWindow) {
+            var success = WindowManager.createWindow(chartId)
+            if (!success) {
+                Logger.log_error("App: Failed to create window in backend: " + chartId)
+                return null
+            }
+        }
+
+        // Create QML component
+        var component = Qt.createComponent("qrc:/qt/qml/content/FloatingWindows/FloatingChartWindow.qml")
+
+        if (component.status === Component.Error) {
+            Logger.log_error("App: Error creating floating window component: " + component.errorString())
+            return null
+        }
+
+        var window = component.createObject(floatingWindowsContainer, {
+            "chartId": chartId,
+            "chartType": chartType,
+            "chartTitle": title,
+            "x": x || 100,
+            "y": y || 100,
+            "width": width || 800,
+            "height": height || 600,
+            "parentWidth": floatingWindowsContainer.width,
+            "parentHeight": floatingWindowsContainer.height
+        })
+
+        if (window === null) {
+            Logger.log_error("App: Failed to create floating window object")
+            return null
+        }
+
+        floatingWindowsContainer.activeWindows[chartId] = window
+        Logger.log_info("App: Floating window created successfully: " + chartId)
+
+        return window
+    }
+
+    /*******************************************************************
+     * FUNCTION - Remove floating chart window
+     ******************************************************************/
+    function removeFloatingWindow(chartId) {
+        Logger.log_info("App: Removing floating window: " + chartId)
+
+        var window = floatingWindowsContainer.activeWindows[chartId]
+        if (window) {
+            window.destroy()
+            delete floatingWindowsContainer.activeWindows[chartId]
+        }
+
+        if (WindowManager && WindowManager.removeWindow) {
+            WindowManager.removeWindow(chartId)
+        }
+    }
+
+    /*******************************************************************
+     * KEYBOARD SHORTCUTS - Floating Windows
+     ******************************************************************/
+    Shortcut {
+        sequence: "Ctrl+N"
+        onActivated: {
+            // Create a new floating XY chart window
+            var timestamp = Date.now()
+            var chartId = "float_xy_" + timestamp
+            createFloatingWindow(chartId, "xy_line", "XY Chart " + timestamp, 100, 100, 800, 600)
+        }
+    }
+
+    Shortcut {
+        sequence: "F11"
+        onActivated: {
+            // Test: Create sample floating window
+            Logger.log_info("App: F11 pressed - Creating test floating window")
+            var timestamp = Date.now()
+            var chartId = "test_" + timestamp
+            createFloatingWindow(chartId, "xy_line", "Test Chart", 150, 150, 700, 500)
+        }
     }
 }

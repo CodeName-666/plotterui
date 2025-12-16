@@ -8,6 +8,8 @@ import Common 1.0
 import DataModels.SerialDataModels 1.0
 import "Footer"
 import "ChartWindow"
+import "ChartWindow/ChartLinesList"
+import "ChartWindow/FloatingActionButton"
 import "Settings"
 import "Toolbar"
 import "."
@@ -35,9 +37,102 @@ ApplicationWindow {
         onMenuRequested: navDrawer.open()
     }
 
+    // State for chart lines list
+    property bool chartLinesListCollapsed: false
+    property int chartLinesListWidth: 280
+    property int chartLinesListCollapsedWidth: 50
+
     Item {
         id: mainArea
         anchors.fill: parent
+
+        // Background area (empty workspace for floating windows)
+        Rectangle {
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: chartLinesList.left
+                bottom: footer.top
+                rightMargin: 10
+            }
+            color: Constants.backgroundColor
+
+            // Optional: Add a welcome message or placeholder
+            Text {
+                anchors.centerIn: parent
+                text: "Open the menu to create charts or manage connections"
+                font.pixelSize: 16
+                color: "#808080"
+                opacity: 0.5
+            }
+        }
+
+        // Chart Lines List - right side panel (collapsible, grouped by chart)
+        ChartLinesListGrouped {
+            id: chartLinesList
+            width: chartLinesListCollapsed ? chartLinesListCollapsedWidth : chartLinesListWidth
+            anchors.top: parent.top
+            anchors.bottom: footer.top
+            anchors.right: parent.right
+            anchors.topMargin: 10
+            anchors.bottomMargin: 10
+            anchors.rightMargin: 10
+            z: 120
+
+            isCollapsed: chartLinesListCollapsed
+            chartLineModel: chartWindow.chartLineModel
+
+            onCollapseToggled: {
+                chartLinesListCollapsed = !chartLinesListCollapsed
+            }
+
+            onLineVisibilityToggled: function(uniqueId, visible) {
+                if (chartWindow && chartWindow.chartLineModel) {
+                    chartWindow.chartLineModel.toggleVisibility(uniqueId, visible)
+                }
+            }
+
+            onLineSelected: function(uniqueId) {
+                // Forward to chartWindow's edit dialog
+                if (chartWindow) {
+                    var line = chartWindow.chartLineModel.getLine(uniqueId)
+                    if (line && chartWindow.editChartLineDialog) {
+                        chartWindow.editChartLineDialog.loadChartLine(uniqueId, line.displayName, line.color, line.interfaceType, line.dataId)
+                        chartWindow.editChartLineDialog.open()
+                    }
+                }
+            }
+
+            Behavior on width {
+                NumberAnimation {
+                    duration: 250
+                    easing.type: Easing.InOutQuad
+                }
+            }
+        }
+
+        // Floating Action Button - bottom-right corner (adjusts position based on panel state)
+        FloatingActionButton {
+            id: fabButton
+            anchors.right: parent.right
+            anchors.bottom: footer.top
+            anchors.rightMargin: chartLinesListCollapsed ? (chartLinesListCollapsedWidth + 20) : (chartLinesListWidth + 30)
+            anchors.bottomMargin: 20
+            z: 110
+
+            onClicked: {
+                if (chartWindow && chartWindow.addChartLineDialog) {
+                    chartWindow.addChartLineDialog.open()
+                }
+            }
+
+            Behavior on anchors.rightMargin {
+                NumberAnimation {
+                    duration: 250
+                    easing.type: Easing.InOutQuad
+                }
+            }
+        }
 
         Footer {
             id: footer
@@ -46,15 +141,12 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
         }
 
+        // ChartWindow - kept for test functions and data model but hidden
         ChartWindow {
             id: chartWindow
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-                bottom: footer.top
-                margins: 6
-            }
+            visible: false
+            width: 0
+            height: 0
             objectName: "chartWindow"
         }
     }

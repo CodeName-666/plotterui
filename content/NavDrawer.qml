@@ -38,6 +38,7 @@ Drawer {
 
     // State for connection section collapse
     property bool connectionsExpanded: true
+    property bool testSectionExpanded: true
 
     // Connection Manager Dialog (unified, shared component)
     ConnectionManagerDialog {
@@ -78,6 +79,8 @@ Drawer {
 
     ListModel {
         id: navModel
+        ListElement { section: "TEST"; title: "Test 2D"; iconName: "test2d" }
+        ListElement { section: "TEST"; title: "Test 3D"; iconName: "test3d" }
         ListElement { section: "APPLICATION"; title: "About"; iconName: "info" }
         ListElement { section: "APPLICATION"; title: "Quit"; iconName: "exit" }
     }
@@ -155,6 +158,42 @@ Drawer {
                         color: "#444"
                         Layout.fillWidth: true
                         verticalAlignment: Text.AlignVCenter
+                    }
+
+                    Button {
+                        id: manageConnectionsButton
+                        text: "⚙"
+                        Layout.preferredWidth: 36
+                        Layout.preferredHeight: 32
+                        font.pixelSize: 16
+                        font.bold: true
+
+                        onClicked: {
+                            connectionManagerDialog.open()
+                        }
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Manage Connections")
+                        ToolTip.delay: 500
+
+                        background: Rectangle {
+                            radius: 4
+                            color: {
+                                if (manageConnectionsButton.pressed) return "#1565c0"
+                                if (manageConnectionsButton.hovered) return "#1976d2"
+                                return "#2196f3"
+                            }
+                            border.color: "#1565c0"
+                            border.width: 1
+                        }
+
+                        contentItem: Text {
+                            text: manageConnectionsButton.text
+                            font: manageConnectionsButton.font
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                     }
 
                     Button {
@@ -264,44 +303,206 @@ Drawer {
             }
         }
 
-        // Application Menu
+        // TEST Section (Collapsible)
         Rectangle {
+            id: testSection
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.preferredHeight: testSectionExpanded ?
+                (testSectionContent.implicitHeight + testSectionHeader.height + 24) :
+                (testSectionHeader.height + 16)
+            Layout.minimumHeight: testSectionHeader.height + 16
             radius: 8
             color: "#f8f8f8"
             border.color: "#d0d0d0"
             border.width: 1
 
+            Behavior on Layout.preferredHeight {
+                NumberAnimation { duration: 250; easing.type: Easing.InOutQuad }
+            }
+
             ColumnLayout {
                 anchors.fill: parent
-                anchors.topMargin: 12
+                anchors.topMargin: 8
                 anchors.leftMargin: 12
                 anchors.rightMargin: 12
-                anchors.bottomMargin: 12
-                spacing: 4
+                anchors.bottomMargin: 8
+                spacing: 12
 
-                Label {
-                    text: qsTr("APPLICATION")
-                    color: "#7a7a7a"
-                    font.pixelSize: 11
-                    font.bold: true
+                // Header with Expand/Collapse button
+                RowLayout {
+                    id: testSectionHeader
                     Layout.fillWidth: true
-                    Layout.bottomMargin: 4
+                    Layout.preferredHeight: 40
+                    spacing: 10
+
+                    Button {
+                        id: testExpandCollapseButton
+                        text: testSectionExpanded ? "▼" : "▶"
+                        Layout.preferredWidth: 36
+                        Layout.preferredHeight: 32
+                        font.pixelSize: 11
+
+                        onClicked: {
+                            testSectionExpanded = !testSectionExpanded
+                            Logger.log_debug("NavDrawer: Test section " +
+                                (testSectionExpanded ? "expanded" : "collapsed"))
+                        }
+
+                        background: Rectangle {
+                            radius: 4
+                            color: testExpandCollapseButton.pressed ? "#e0e0e0" :
+                                   testExpandCollapseButton.hovered ? "#eeeeee" : "transparent"
+                            border.color: "#d0d0d0"
+                            border.width: 1
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("TEST")
+                        font.bold: true
+                        font.pixelSize: 14
+                        color: "#444"
+                        Layout.fillWidth: true
+                        verticalAlignment: Text.AlignVCenter
+                    }
                 }
 
-                ListView {
-                    id: navList
+                // Test Items (only visible when expanded)
+                ColumnLayout {
+                    id: testSectionContent
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    spacing: 4
-                    model: navModel ? navModel : []
-                    clip: true
+                    visible: testSectionExpanded
+                    opacity: testSectionExpanded ? 1.0 : 0.0
+                    spacing: 6
 
-                    delegate: Rectangle {
-                        id: menuItem
-                        width: ListView.view.width
-                        height: 44
+                    Behavior on opacity {
+                        NumberAnimation { duration: 200 }
+                    }
+
+                    ListView {
+                        id: testList
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
+                        spacing: 4
+                        model: navModel ? navModel : []
+                        clip: true
+                        interactive: false
+
+                        delegate: Rectangle {
+                            id: testMenuItem
+                            width: ListView.view.width
+                            height: section === "TEST" ? 44 : 0
+                            visible: section === "TEST"
+                            color: {
+                                if (ListView.isCurrentItem) return "#2196f3"
+                                if (testMenuItemMouseArea.containsMouse) return "#e3f2fd"
+                                return "transparent"
+                            }
+                            border.color: ListView.isCurrentItem ? "#1976d2" : "transparent"
+                            border.width: ListView.isCurrentItem ? 1 : 0
+                            radius: 6
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 12
+                                anchors.topMargin: 8
+                                anchors.bottomMargin: 8
+                                spacing: 12
+
+                                Label {
+                                    text: "\u25A0"
+                                    visible: iconName !== ""
+                                    color: ListView.isCurrentItem ? "white" : "#555"
+                                    font.pixelSize: 14
+                                }
+                                Label {
+                                    text: title
+                                    color: ListView.isCurrentItem ? "white" : "#222"
+                                    font.pixelSize: 14
+                                    font.weight: Font.Medium
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignLeft
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
+
+                            MouseArea {
+                                id: testMenuItemMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: {
+                                    Logger.log_debug("NavDrawer: Test menu item clicked: " + title)
+                                    testList.currentIndex = index
+
+                                    // Handle test actions
+                                    if (title === "Test 2D") {
+                                        testFloatingWindow2D()
+                                    } else if (title === "Test 3D") {
+                                        testFloatingWindow3D()
+                                    }
+
+                                    navDrawer.close()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Spacer to push APPLICATION section to bottom
+        Item {
+            Layout.fillHeight: true
+        }
+
+        // APPLICATION Section (About & Quit at bottom)
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 8
+
+            // APPLICATION Section Container
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: applicationSectionContent.implicitHeight + 24
+                radius: 8
+                color: "#f8f8f8"
+                border.color: "#d0d0d0"
+                border.width: 1
+
+                ColumnLayout {
+                    id: applicationSectionContent
+                    anchors.fill: parent
+                    anchors.topMargin: 12
+                    anchors.leftMargin: 12
+                    anchors.rightMargin: 12
+                    anchors.bottomMargin: 12
+                    spacing: 8
+
+                    // APPLICATION Section Header
+                    Label {
+                        text: qsTr("APPLICATION")
+                        color: "#7a7a7a"
+                        font.pixelSize: 11
+                        font.bold: true
+                        Layout.fillWidth: true
+                        Layout.bottomMargin: 4
+                    }
+
+                    ListView {
+                        id: applicationList
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
+                        spacing: 4
+                        model: navModel ? navModel : []
+                        clip: true
+                        interactive: false
+
+                        delegate: Rectangle {
+                            id: menuItem
+                            width: ListView.view.width
+                            height: section === "APPLICATION" ? 44 : 0
+                            visible: section === "APPLICATION"
                         color: {
                             if (ListView.isCurrentItem) return "#2196f3"
                             if (menuItemMouseArea.containsMouse) return "#e3f2fd"
@@ -342,7 +543,7 @@ Drawer {
                             hoverEnabled: true
                             onClicked: {
                                 Logger.log_debug("NavDrawer: Menu item clicked: " + title)
-                                navList.currentIndex = index
+                                applicationList.currentIndex = index
 
                                 // Handle menu actions
                                 if (title === "About") {
@@ -359,6 +560,7 @@ Drawer {
                     }
                 }
             }
+        }
         }
 
         // Global Settings Button
@@ -508,5 +710,27 @@ Drawer {
         Logger.log_debug("NavDrawer: Opening settings via unified ConnectionManagerDialog for connection " + connectionId)
         navDrawer.close()
         connectionManagerDialog.openAndEditConnection(connectionId)
+    }
+
+    function testFloatingWindow2D() {
+        Logger.log_info("NavDrawer: Triggering Test 2D floating window")
+
+        // Try to find ChartWindow to call its test function
+        if (window && window.chartWindow && window.chartWindow.testFloatingWindow) {
+            window.chartWindow.testFloatingWindow()
+        } else {
+            Logger.log_error("NavDrawer: Cannot find chartWindow.testFloatingWindow function")
+        }
+    }
+
+    function testFloatingWindow3D() {
+        Logger.log_info("NavDrawer: Triggering Test 3D floating window")
+
+        // Try to find ChartWindow to call its test function
+        if (window && window.chartWindow && window.chartWindow.test3DFloatingWindow) {
+            window.chartWindow.test3DFloatingWindow()
+        } else {
+            Logger.log_error("NavDrawer: Cannot find chartWindow.test3DFloatingWindow function")
+        }
     }
 }

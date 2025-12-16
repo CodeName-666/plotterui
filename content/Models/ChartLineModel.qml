@@ -19,8 +19,10 @@ ListModel {
      * @param dataId - Data ID (0-255) from the protocol
      * @param interfaceSettings - Interface-specific settings object
      * @param seriesRef - Reference to Qt Charts series object
+     * @param chartId - ID of the chart this line belongs to (e.g., "main", "test_float_123")
+     * @param chartTitle - Title of the chart this line belongs to (e.g., "Main Chart", "Test Chart")
      */
-    function addLine(uniqueId, displayName, color, interfaceType, dataId, interfaceSettings, seriesRef) {
+    function addLine(uniqueId, displayName, color, interfaceType, dataId, interfaceSettings, seriesRef, chartId, chartTitle) {
         // Check if line already exists
         if (getLineIndex(uniqueId) !== -1) {
             Logger.log_warning("ChartLineModel: Line " + uniqueId + " already exists")
@@ -35,10 +37,12 @@ ListModel {
             "dataId": dataId,
             "interfaceSettings": interfaceSettings || {},
             "visible": true,
-            "seriesRef": seriesRef || null
+            "seriesRef": seriesRef || null,
+            "chartId": chartId || "main",
+            "chartTitle": chartTitle || "Main Chart"
         })
 
-        Logger.log_info("ChartLineModel: Added line " + uniqueId + " (" + displayName + ")")
+        Logger.log_info("ChartLineModel: Added line " + uniqueId + " (" + displayName + ") to chart " + (chartId || "main"))
         return true
     }
 
@@ -205,5 +209,38 @@ ListModel {
             }
         }
         return lines
+    }
+
+    /**
+     * Get lines by chart ID
+     *
+     * @param chartId - Chart ID to filter by
+     * @returns Array of line objects belonging to the specified chart
+     */
+    function getLinesByChart(chartId) {
+        var lines = []
+        for (var i = 0; i < count; i++) {
+            var line = get(i)
+            if (line.chartId === chartId) {
+                lines.push(line)
+            }
+        }
+        return lines
+    }
+
+    /**
+     * Remove all lines belonging to a specific chart
+     *
+     * @param chartId - Chart ID to remove lines from
+     */
+    function removeLinesByChart(chartId) {
+        Logger.log_info("ChartLineModel: Removing all lines from chart " + chartId)
+        var i = count - 1
+        while (i >= 0) {
+            if (get(i).chartId === chartId) {
+                remove(i)
+            }
+            i--
+        }
     }
 }

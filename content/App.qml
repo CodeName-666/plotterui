@@ -84,11 +84,27 @@ AppUi {
         {
             var events = appController.events()
             if(Validators.isValid(events)) {
-                events.com_port_update.connect(settings.updateComPorts)
-                events.ui_setup.connect(settings.setup)
+                // Connect com_port_update if both signal and handler exist
+                if(Validators.isValid(events.com_port_update) &&
+                   Validators.isValid(settings) &&
+                   Validators.isValidFunction(settings.updateComPorts)) {
+                    events.com_port_update.connect(settings.updateComPorts)
+                    Logger.log_debug("App: Connected com_port_update signal")
+                }
+
+                // Connect ui_setup if both signal and handler exist
+                if(Validators.isValid(events.ui_setup) &&
+                   Validators.isValid(settings) &&
+                   Validators.isValidFunction(settings.setup)) {
+                    events.ui_setup.connect(settings.setup)
+                    Logger.log_debug("App: Connected ui_setup signal")
+                }
+
+                // Connect status_message if it exists
                 if(Validators.isValid(events.status_message))
                     events.status_message.connect(showStatusMessage)
-                Logger.log_debug("App: Connected backend event signals")
+
+                Logger.log_debug("App: Backend event signals connection completed")
             }
         }
 
@@ -258,10 +274,22 @@ AppUi {
             "x": x || 100,
             "y": y || 100,
             "width": width || 800,
-            "height": height || 600,
-            "parentWidth": floatingWindowsContainer.width,
-            "parentHeight": floatingWindowsContainer.height
+            "height": height || 600
         })
+
+        // Pass central chart line model to the window's chart renderer after creation
+        if (window && window.chartRenderer) {
+            window.chartRenderer.chartLineModel = chartWindow.chartLineModel
+            Logger.log_debug("App: Passed central chartLineModel to floating window " + chartId)
+        } else {
+            // Chart renderer not ready yet - set it when loaded
+            Qt.callLater(function() {
+                if (window && window.chartRenderer) {
+                    window.chartRenderer.chartLineModel = chartWindow.chartLineModel
+                    Logger.log_debug("App: Passed central chartLineModel to floating window " + chartId + " (delayed)")
+                }
+            })
+        }
 
         if (window === null) {
             Logger.log_error("App: Failed to create floating window object")
@@ -279,6 +307,12 @@ AppUi {
      ******************************************************************/
     function removeFloatingWindow(chartId) {
         Logger.log_info("App: Removing floating window: " + chartId)
+
+        // Remove all chart lines belonging to this window from the central model
+        if (chartWindow && chartWindow.chartLineModel) {
+            chartWindow.chartLineModel.removeLinesByChart(chartId)
+            Logger.log_debug("App: Removed all lines for chart " + chartId + " from central model")
+        }
 
         var window = floatingWindowsContainer.activeWindows[chartId]
         if (window) {

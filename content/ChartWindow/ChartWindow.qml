@@ -127,7 +127,7 @@ ChartWindowUi{
 
             // Add to model
             var graph = createGraph(displayName, lineColor)
-            chartLineModel.addLine(uniqueId, displayName, lineColor, interfaceType, dataId, interfaceSettings, graph)
+            chartLineModel.addLine(uniqueId, displayName, lineColor, interfaceType, dataId, interfaceSettings, graph, "main", "Main Chart")
 
             // Register with backend
             var controller = appController !== undefined && appController !== null ? appController : App.get_app()
@@ -190,119 +190,6 @@ ChartWindowUi{
         anchors.centerIn: parent
     }
 
-    /*******************************************************************
-     * COMPONENT - Connection Manager Button
-     ******************************************************************/
-    Button {
-        id: connectionManagerBtn
-        text: qsTr("Connections")
-        width: 120
-        height: 36
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.topMargin: 16
-        anchors.leftMargin: 16
-        z: 110
-        font.pixelSize: 13
-
-        background: Rectangle {
-            color: parent.pressed ? "#0056b3" : (parent.hovered ? "#007AFF" : "#0066cc")
-            radius: 6
-            border.color: "#ffffff30"
-            border.width: 1
-        }
-
-        contentItem: Text {
-            text: parent.text
-            color: "#ffffff"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font: parent.font
-        }
-
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Manage data connections")
-        ToolTip.delay: 500
-
-        onClicked: {
-            connectionManagerDialog.open()
-        }
-    }
-
-    /*******************************************************************
-     * COMPONENT - Test Floating Windows Button
-     ******************************************************************/
-    Button {
-        id: floatingTestBtn
-        text: qsTr("Test 2D")
-        width: 100
-        height: 36
-        anchors.top: parent.top
-        anchors.left: connectionManagerBtn.right
-        anchors.topMargin: 16
-        anchors.leftMargin: 8
-        z: 110
-        font.pixelSize: 13
-
-        background: Rectangle {
-            color: parent.pressed ? "#b35600" : (parent.hovered ? "#ff7a00" : "#cc6600")
-            radius: 6
-            border.color: "#ffffff30"
-            border.width: 1
-        }
-
-        contentItem: Text {
-            text: parent.text
-            color: "#ffffff"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font: parent.font
-        }
-
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Create test 2D floating window (F11)")
-        ToolTip.delay: 500
-
-        onClicked: {
-            testFloatingWindow()
-        }
-    }
-
-    Button {
-        id: floating3DTestBtn
-        text: qsTr("Test 3D")
-        width: 100
-        height: 36
-        anchors.top: parent.top
-        anchors.left: floatingTestBtn.right
-        anchors.topMargin: 16
-        anchors.leftMargin: 4
-        z: 110
-        font.pixelSize: 13
-
-        background: Rectangle {
-            color: parent.pressed ? "#004d99" : (parent.hovered ? "#0073e6" : "#0066cc")
-            radius: 6
-            border.color: "#ffffff30"
-            border.width: 1
-        }
-
-        contentItem: Text {
-            text: parent.text
-            color: "#ffffff"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font: parent.font
-        }
-
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Create test 3D floating window (F12)")
-        ToolTip.delay: 500
-
-        onClicked: {
-            test3DFloatingWindow()
-        }
-    }
 
     /*******************************************************************
      * EVENT - Mouse Interactions
@@ -444,7 +331,7 @@ ChartWindowUi{
         _graphs[uniqueId] = graph
 
         // Add to new model
-        chartLineModel.addLine(uniqueId, displayName, color, interfaceType, dataId, {}, graph)
+        chartLineModel.addLine(uniqueId, displayName, color, interfaceType, dataId, {}, graph, "main", "Main Chart")
 
         // Register with backend controller
         var controller = appController !== undefined && appController !== null ? appController : App.get_app()

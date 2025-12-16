@@ -28,7 +28,7 @@ Rectangle {
     property bool isDocked: false
     property string dockPosition: ""  // "left", "right", "top", "bottom"
 
-    // Expose chart renderer for external access
+    // Expose chart view (which wraps the renderer and provides chart line management)
     property alias chartRenderer: chartLoader.item
 
     // Window state
@@ -91,8 +91,13 @@ Rectangle {
                     floatingWindow.windowStartPos = Qt.point(floatingWindow.x, floatingWindow.y)
                     floatingWindow.isDragging = true
 
-                    // Bring to front
-                    windowManager.bringToFront(floatingWindow.chartId)
+                    // Bring to front (if windowManager is available)
+                    if (typeof windowManager !== 'undefined' && windowManager !== null) {
+                        windowManager.bringToFront(floatingWindow.chartId)
+                    } else {
+                        // Fallback: increase z-order manually
+                        floatingWindow.z = 1000 + Date.now() % 1000
+                    }
                 }
 
                 onPositionChanged: (mouse) => {
@@ -109,14 +114,16 @@ Rectangle {
                     // Check for docking zones
                     checkDockingZones()
 
-                    // Save window position
-                    windowManager.updateWindowPosition(
-                        floatingWindow.chartId,
-                        floatingWindow.x,
-                        floatingWindow.y,
-                        floatingWindow.width,
-                        floatingWindow.height
-                    )
+                    // Save window position (if windowManager is available)
+                    if (typeof windowManager !== 'undefined' && windowManager !== null) {
+                        windowManager.updateWindowPosition(
+                            floatingWindow.chartId,
+                            floatingWindow.x,
+                            floatingWindow.y,
+                            floatingWindow.width,
+                            floatingWindow.height
+                        )
+                    }
                 }
 
                 onDoubleClicked: {
@@ -232,9 +239,19 @@ Rectangle {
 
                 source: getChartRendererQml(floatingWindow.chartType)
 
+                onLoaded: {
+                    // Pass properties to the loaded chart view
+                    if (item) {
+                        item.chartId = floatingWindow.chartId
+                        item.chartTitle = floatingWindow.chartTitle
+                    }
+                }
+
                 onStatusChanged: {
                     if (status === Loader.Error) {
                         console.error("FloatingChartWindow: Failed to load chart renderer:", source)
+                    } else if (status === Loader.Ready) {
+                        console.log("FloatingChartWindow: Chart renderer loaded successfully")
                     }
                 }
             }
@@ -281,14 +298,16 @@ Rectangle {
             }
 
             onReleased: {
-                // Save new size
-                windowManager.updateWindowPosition(
-                    floatingWindow.chartId,
-                    floatingWindow.x,
-                    floatingWindow.y,
-                    floatingWindow.width,
-                    floatingWindow.height
-                )
+                // Save new size (if windowManager is available)
+                if (typeof windowManager !== 'undefined' && windowManager !== null) {
+                    windowManager.updateWindowPosition(
+                        floatingWindow.chartId,
+                        floatingWindow.x,
+                        floatingWindow.y,
+                        floatingWindow.width,
+                        floatingWindow.height
+                    )
+                }
             }
         }
     }
@@ -322,10 +341,10 @@ Rectangle {
         switch(type) {
             case "xy_line":
             case "xy_scatter":
-                return "qrc:/qt/qml/content/ChartTypes/XYChartRenderer.qml"
+                return "../ChartTypes/XYChartView.qml"
             case "xyz_surface":
             case "xyz_scatter":
-                return "qrc:/qt/qml/content/ChartTypes/XYZChartRenderer.qml"
+                return "../ChartTypes/XYZChartRenderer.qml"
             default:
                 return ""
         }
@@ -366,7 +385,18 @@ Rectangle {
     }
 
     function closeWindow() {
-        windowManager.removeWindow(floatingWindow.chartId)
+        // Remove all lines belonging to this chart from the central model
+        if (chartRenderer && chartRenderer.chartLineModel) {
+            chartRenderer.chartLineModel.removeLinesByChart(floatingWindow.chartId)
+            console.log("FloatingChartWindow: Removed all lines for chart " + floatingWindow.chartId)
+        }
+
+        // Remove from windowManager (if available)
+        if (typeof windowManager !== 'undefined' && windowManager !== null) {
+            windowManager.removeWindow(floatingWindow.chartId)
+        }
+
+        // Destroy the window
         floatingWindow.destroy()
     }
 
@@ -431,7 +461,10 @@ Rectangle {
                 break
         }
 
-        windowManager.dockWindow(floatingWindow.chartId, edge, parentWidth, parentHeight)
+        // Notify windowManager (if available)
+        if (typeof windowManager !== 'undefined' && windowManager !== null) {
+            windowManager.dockWindow(floatingWindow.chartId, edge, parentWidth, parentHeight)
+        }
     }
 
     function undock() {
@@ -439,6 +472,10 @@ Rectangle {
         floatingWindow.dockPosition = ""
         floatingWindow.width = 800
         floatingWindow.height = 600
-        windowManager.undockWindow(floatingWindow.chartId)
+
+        // Notify windowManager (if available)
+        if (typeof windowManager !== 'undefined' && windowManager !== null) {
+            windowManager.undockWindow(floatingWindow.chartId)
+        }
     }
 }

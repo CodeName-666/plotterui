@@ -34,10 +34,10 @@ ChartLinesListUi {
 
         Rectangle {
             anchors.fill: parent
-            color: mouseArea.containsMouse ? "#3d3d3d" : "#333333"
-            radius: 3
-            border.color: model.visible ? "#4d4d4d" : "#2d2d2d"
-            border.width: 1
+            color: mouseArea.containsMouse ? "#e3f2fd" : "transparent"
+            radius: 6
+            border.color: model.visible ? "#1976d2" : "transparent"
+            border.width: model.visible ? 1 : 0
 
             RowLayout {
                 anchors.fill: parent
@@ -61,11 +61,30 @@ ChartLinesListUi {
                 Label {
                     id: nameLabel
                     text: model.displayName
-                    color: model.visible ? "#ffffff" : "#888888"
+                    color: model.visible ? "#222" : "#999"
                     font.pixelSize: 12
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
+                }
+
+                // Chart name badge (shows which chart this line belongs to)
+                Rectangle {
+                    width: chartLabel.width + 12
+                    height: 20
+                    radius: 3
+                    color: "#d0e8ff"
+                    Layout.alignment: Qt.AlignVCenter
+                    visible: model.chartTitle !== undefined && model.chartTitle !== "Main Chart"
+
+                    Label {
+                        id: chartLabel
+                        anchors.centerIn: parent
+                        text: model.chartTitle || ""
+                        color: "#0066cc"
+                        font.pixelSize: 9
+                        font.bold: true
+                    }
                 }
 
                 // Data ID badge
@@ -73,14 +92,14 @@ ChartLinesListUi {
                     width: idLabel.width + 12
                     height: 20
                     radius: 3
-                    color: "#555555"
+                    color: "#e0e0e0"
                     Layout.alignment: Qt.AlignVCenter
 
                     Label {
                         id: idLabel
                         anchors.centerIn: parent
                         text: "ID:" + model.dataId
-                        color: "#cccccc"
+                        color: "#555"
                         font.pixelSize: 10
                     }
                 }
@@ -90,14 +109,14 @@ ChartLinesListUi {
                     width: typeLabel.width + 12
                     height: 20
                     radius: 3
-                    color: "#4d4d4d"
+                    color: "#e0e0e0"
                     Layout.alignment: Qt.AlignVCenter
 
                     Label {
                         id: typeLabel
                         anchors.centerIn: parent
                         text: model.interfaceType
-                        color: "#aaaaaa"
+                        color: "#555"
                         font.pixelSize: 10
                     }
                 }
@@ -110,7 +129,7 @@ ChartLinesListUi {
                     Layout.alignment: Qt.AlignVCenter
 
                     background: Rectangle {
-                        color: visibilityButton.hovered ? "#4d4d4d" : "transparent"
+                        color: visibilityButton.hovered ? "#e0e0e0" : "transparent"
                         radius: 3
                     }
 
@@ -119,7 +138,7 @@ ChartLinesListUi {
                         font.pixelSize: 16
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-                        color: model.visible ? "#ffffff" : "#666666"
+                        color: model.visible ? "#2196f3" : "#999"
                     }
 
                     onClicked: {

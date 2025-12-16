@@ -463,17 +463,22 @@ Item {
         Logger.log_info("XYChartRenderer initialized for chart: " + root.chartId)
 
         // Connect to backend if available
-        var controller = App.get_app()
-        if(controller !== undefined && controller !== null) {
-            controller.set_plot_area(chart.plotArea)
-            controller.set_axis(xAxis, yAxis)
+        // Note: App singleton is only available in main window context, not in floating windows
+        if(typeof App !== 'undefined') {
+            var controller = App.get_app()
+            if(controller !== undefined && controller !== null) {
+                controller.set_plot_area(chart.plotArea)
+                controller.set_axis(xAxis, yAxis)
 
-            // Connect to backend events if available
-            var events = controller.events()
-            if(events !== undefined && events !== null) {
-                events.append_graph_point.connect(handleGraphPoint)
-                events.append_graph_points_batch.connect(handleGraphPointsBatch)
+                // Connect to backend events if available
+                var events = controller.events()
+                if(events !== undefined && events !== null) {
+                    events.append_graph_point.connect(handleGraphPoint)
+                    events.append_graph_points_batch.connect(handleGraphPointsBatch)
+                }
             }
+        } else {
+            Logger.log_debug("XYChartRenderer: App singleton not available (floating window context)")
         }
     }
 

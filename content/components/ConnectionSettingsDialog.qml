@@ -4,6 +4,12 @@ import QtQuick.Layouts 1.15
 import Backend 1.0
 import Common 1.0
 
+/**
+ * @deprecated This component is deprecated and will be removed in a future release.
+ * Use ConnectionManagerDialog (from ChartWindow/ConnectionManager) instead.
+ * ConnectionManagerDialog provides a unified connection management interface
+ * with support for creating, editing, and managing multiple connections.
+ */
 Dialog {
     id: connectionSettingsDialog
 

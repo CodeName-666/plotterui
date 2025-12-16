@@ -5,6 +5,7 @@ import DataModels.SerialDataModels 1.0
 import Common 1.0
 import Backend 1.0
 import "components"
+import "ChartWindow/ConnectionManager"
 
 Drawer {
     id: navDrawer
@@ -37,6 +38,13 @@ Drawer {
 
     // State for connection section collapse
     property bool connectionsExpanded: true
+
+    // Connection Manager Dialog (unified, shared component)
+    ConnectionManagerDialog {
+        id: connectionManagerDialog
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+    }
 
     Component.onCompleted: {
         Logger.log_debug("NavDrawer completed")
@@ -405,9 +413,6 @@ Drawer {
         }
     }
 
-    // Connection Settings Dialog (dynamically created)
-    property var connectionSettingsDialog: null
-
     // About Dialog
     Dialog {
         id: aboutDialog
@@ -500,43 +505,8 @@ Drawer {
     }
 
     function openSettingsForConnection(connectionId, interfaceType) {
-        Logger.log_debug("NavDrawer: Opening settings for connection " + connectionId + " (" + interfaceType + ")")
-
-        // Get connection details
-        var details = Backend.get_connection_details(connectionId)
-        if (!details || !details.name) {
-            Logger.log_error("NavDrawer: Could not get connection details for " + connectionId)
-            return
-        }
-
-        // Create dialog if not exists, or destroy and recreate for fresh state
-        if (connectionSettingsDialog !== null) {
-            connectionSettingsDialog.destroy()
-            connectionSettingsDialog = null
-        }
-
-        // Create dialog dynamically
-        var component = Qt.createComponent("components/ConnectionSettingsDialog.qml")
-
-        // Component.Ready = 1, Component.Error = 3
-        if (component.status === 1) {
-            connectionSettingsDialog = component.createObject(Overlay.overlay, {
-                "connectionId": connectionId,
-                "interfaceType": interfaceType,
-                "connectionName": details.name
-            })
-
-            if (connectionSettingsDialog !== null) {
-                Logger.log_debug("NavDrawer: ConnectionSettingsDialog created successfully")
-                navDrawer.close()
-                connectionSettingsDialog.open()
-            } else {
-                Logger.log_error("NavDrawer: Failed to create ConnectionSettingsDialog instance")
-            }
-        } else if (component.status === 3) {
-            Logger.log_error("NavDrawer: Error loading ConnectionSettingsDialog: " + component.errorString())
-        } else {
-            Logger.log_warning("NavDrawer: Component not ready yet, status: " + component.status)
-        }
+        Logger.log_debug("NavDrawer: Opening settings via unified ConnectionManagerDialog for connection " + connectionId)
+        navDrawer.close()
+        connectionManagerDialog.openAndEditConnection(connectionId)
     }
 }

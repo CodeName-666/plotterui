@@ -271,6 +271,31 @@ Dialog {
         }
     }
 
+    /**
+     * Open the dialog and directly show edit settings for a specific connection
+     * @param connectionId - The ID of the connection to edit
+     */
+    function openAndEditConnection(connectionId) {
+        // Open the main dialog first
+        root.open()
+
+        // Wait a frame for dialog to be visible, then open edit dialog
+        Qt.callLater(function() {
+            var details = Backend.get_connection_details(connectionId)
+            if(details && details.id) {
+                editConnectionDialog.loadConnection(
+                    details.id,
+                    details.name,
+                    details.type,
+                    details.settings
+                )
+                editConnectionDialog.open()
+            } else {
+                Logger.log_error("ConnectionManagerDialog: Could not load connection details for " + connectionId)
+            }
+        })
+    }
+
     onAboutToShow: {
         refreshConnections()
     }

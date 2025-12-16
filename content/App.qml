@@ -31,6 +31,12 @@ AppUi {
         appController = App.create()
         Logger.log_debug("App: appController created, initial current_interface: " + appController.current_interface)
 
+        // Set appRoot reference in chartWindow for test functions
+        if (chartWindow) {
+            chartWindow.appRoot = appRoot
+            Logger.log_debug("App: Set chartWindow.appRoot reference")
+        }
+
         if(typeof Backend !== 'undefined')
         {
             Logger.log_info("App: Using Backend interface");
@@ -237,8 +243,8 @@ AppUi {
             }
         }
 
-        // Create QML component
-        var component = Qt.createComponent("qrc:/qt/qml/content/FloatingWindows/FloatingChartWindow.qml")
+        // Create QML component (use relative path from content/)
+        var component = Qt.createComponent("FloatingWindows/FloatingChartWindow.qml")
 
         if (component.status === Component.Error) {
             Logger.log_error("App: Error creating floating window component: " + component.errorString())
@@ -301,11 +307,56 @@ AppUi {
     Shortcut {
         sequence: "F11"
         onActivated: {
-            // Test: Create sample floating window
-            Logger.log_info("App: F11 pressed - Creating test floating window")
-            var timestamp = Date.now()
-            var chartId = "test_" + timestamp
-            createFloatingWindow(chartId, "xy_line", "Test Chart", 150, 150, 700, 500)
+            // Test: Create sample 2D floating window with test data
+            Logger.log_info("App: F11 pressed - Creating test 2D floating window")
+
+            // Find ChartWindow and call its test function
+            var chartWindow = findChartWindow()
+            if (chartWindow && chartWindow.testFloatingWindow) {
+                chartWindow.testFloatingWindow()
+            } else {
+                // Fallback: create simple window
+                var timestamp = Date.now()
+                var chartId = "test_2d_" + timestamp
+                createFloatingWindow(chartId, "xy_line", "Test 2D Chart", 150, 150, 700, 500)
+            }
         }
+    }
+
+    Shortcut {
+        sequence: "F12"
+        onActivated: {
+            // Test: Create sample 3D floating window with test data
+            Logger.log_info("App: F12 pressed - Creating test 3D floating window")
+
+            // Find ChartWindow and call its test function
+            var chartWindow = findChartWindow()
+            if (chartWindow && chartWindow.test3DFloatingWindow) {
+                chartWindow.test3DFloatingWindow()
+            } else {
+                // Fallback: create simple 3D window
+                var timestamp = Date.now()
+                var chartId = "test_3d_" + timestamp
+                createFloatingWindow(chartId, "xyz_scatter", "Test 3D Chart", 200, 100, 800, 600)
+            }
+        }
+    }
+
+    /**
+     * Helper function to find ChartWindow instance in the component hierarchy
+     */
+    function findChartWindow() {
+        // Try to access chartWindow property directly if it exists
+        if (appRoot.chartWindow !== undefined) {
+            return appRoot.chartWindow
+        }
+
+        // Fallback: use findChild to search by objectName
+        var chartWin = appRoot.findChild("chartWindow")
+        if (chartWin) {
+            return chartWin
+        }
+
+        return null
     }
 }

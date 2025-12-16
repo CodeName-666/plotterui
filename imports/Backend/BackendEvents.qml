@@ -18,6 +18,22 @@ QtObject {
      */
     signal append_graph_point(var name, var point);
     /**
+     * @brief Append multiple points to an existing graph (batch update)
+     */
+    signal append_graph_points_batch(var uniqueId, var points);
+    /**
+     * @brief Append a 3D point to an existing graph (for XYZ charts)
+     * @param uniqueId - Unique identifier
+     * @param point - Point object with x, y, z properties
+     */
+    signal append_graph_point_3d(var uniqueId, var point);
+    /**
+     * @brief Append multiple 3D points to an existing graph (batch update for XYZ charts)
+     * @param uniqueId - Unique identifier
+     * @param points - Array of [x, y, z] arrays
+     */
+    signal append_graph_points_batch_3d(var uniqueId, var points);
+    /**
      * @brief Scroll Right Event
      */
     signal scrollRight(var pixel);

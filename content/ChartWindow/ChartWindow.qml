@@ -12,7 +12,11 @@ import "ConnectionManager"
 
 
 ChartWindowUi{
+    id: chartWindow
+    objectName: "chartWindow"
+
     property var appController: App.get_app()
+    property var appRoot: null  // Will be set by App.qml on Component.onCompleted
     property var _graphs: ({})  // Legacy: keeping for backward compatibility during transition
     property var chartLineModel: ChartLineModel {}  // New model-based line management
     property real initialXMin: 0
@@ -230,8 +234,8 @@ ChartWindowUi{
      ******************************************************************/
     Button {
         id: floatingTestBtn
-        text: qsTr("Test Float")
-        width: 120
+        text: qsTr("Test 2D")
+        width: 100
         height: 36
         anchors.top: parent.top
         anchors.left: connectionManagerBtn.right
@@ -256,11 +260,47 @@ ChartWindowUi{
         }
 
         ToolTip.visible: hovered
-        ToolTip.text: qsTr("Create test floating window (Ctrl+N for new)")
+        ToolTip.text: qsTr("Create test 2D floating window (F11)")
         ToolTip.delay: 500
 
         onClicked: {
             testFloatingWindow()
+        }
+    }
+
+    Button {
+        id: floating3DTestBtn
+        text: qsTr("Test 3D")
+        width: 100
+        height: 36
+        anchors.top: parent.top
+        anchors.left: floatingTestBtn.right
+        anchors.topMargin: 16
+        anchors.leftMargin: 4
+        z: 110
+        font.pixelSize: 13
+
+        background: Rectangle {
+            color: parent.pressed ? "#004d99" : (parent.hovered ? "#0073e6" : "#0066cc")
+            radius: 6
+            border.color: "#ffffff30"
+            border.width: 1
+        }
+
+        contentItem: Text {
+            text: parent.text
+            color: "#ffffff"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            font: parent.font
+        }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Create test 3D floating window (F12)")
+        ToolTip.delay: 500
+
+        onClicked: {
+            test3DFloatingWindow()
         }
     }
 
@@ -655,20 +695,27 @@ ChartWindowUi{
         Logger.log_info("ChartWindow: Testing floating window system")
 
         // Get App instance to call createFloatingWindow
-        var app = null
-        var p = parent
-        while (p !== null) {
-            if (p.objectName === "appRoot" || p.createFloatingWindow !== undefined) {
-                app = p
-                break
+        var app = chartWindow.appRoot
+
+        // Fallback: Try parent search if appRoot not set
+        if (app === null) {
+            var p = parent
+            while (p !== null) {
+                if (p.createFloatingWindow !== undefined) {
+                    app = p
+                    break
+                }
+                p = p.parent
             }
-            p = p.parent
         }
 
         if (app === null || app.createFloatingWindow === undefined) {
             Logger.log_error("ChartWindow: Cannot find App.createFloatingWindow function")
+            Logger.log_error("ChartWindow: Please ensure chartWindow.appRoot is set by App.qml")
             return
         }
+
+        Logger.log_debug("ChartWindow: Found app instance, creating test window")
 
         // Create test floating window with sample data
         var timestamp = Date.now()
@@ -727,6 +774,114 @@ ChartWindowUi{
                 Logger.log_info("ChartWindow: Test data added successfully")
             } else {
                 Logger.log_error("ChartWindow: Chart renderer not available")
+            }
+        })
+    }
+
+    /**
+     * Test function for 3D floating windows
+     * Creates a 3D scatter plot with sample data (helix, sphere, random points)
+     */
+    function test3DFloatingWindow() {
+        Logger.log_info("ChartWindow: Testing 3D floating window system")
+
+        // Get App instance to call createFloatingWindow
+        var app = chartWindow.appRoot
+
+        // Fallback: Try parent search if appRoot not set
+        if (app === null) {
+            var p = parent
+            while (p !== null) {
+                if (p.createFloatingWindow !== undefined) {
+                    app = p
+                    break
+                }
+                p = p.parent
+            }
+        }
+
+        if (app === null || app.createFloatingWindow === undefined) {
+            Logger.log_error("ChartWindow: Cannot find App.createFloatingWindow function")
+            Logger.log_error("ChartWindow: Please ensure chartWindow.appRoot is set by App.qml")
+            return
+        }
+
+        Logger.log_debug("ChartWindow: Found app instance, creating 3D test window")
+
+        // Create test 3D floating window
+        var timestamp = Date.now()
+        var chartId = "test_3d_" + timestamp
+
+        var window = app.createFloatingWindow(
+            chartId,
+            "xyz_scatter",
+            "3D Test Chart " + timestamp,
+            200,
+            100,
+            800,
+            600
+        )
+
+        if (window === null) {
+            Logger.log_error("ChartWindow: Failed to create 3D floating window")
+            return
+        }
+
+        Logger.log_info("ChartWindow: 3D floating window created, adding test data...")
+
+        // Wait for renderer to be ready
+        Qt.callLater(function() {
+            if (window.chartRenderer) {
+                // Create scatter plots
+                window.chartRenderer.createScatterPlot("helix", "Helix", "#ff6b6b")
+                window.chartRenderer.createScatterPlot("sphere", "Sphere", "#4ecdc4")
+                window.chartRenderer.createScatterPlot("random", "Random Points", "#ffe66d")
+
+                // Generate helix data
+                var helixData = []
+                for (var t = 0; t < 100; t++) {
+                    var angle = t * 0.2
+                    helixData.push([
+                        Math.cos(angle) * 5,
+                        t * 0.2 - 10,
+                        Math.sin(angle) * 5
+                    ])
+                }
+
+                // Generate sphere data (Fibonacci sphere)
+                var sphereData = []
+                var numPoints = 200
+                var goldenRatio = (1 + Math.sqrt(5)) / 2
+                for (var i = 0; i < numPoints; i++) {
+                    var theta = 2 * Math.PI * i / goldenRatio
+                    var phi = Math.acos(1 - 2 * (i + 0.5) / numPoints)
+                    var radius = 8
+                    sphereData.push([
+                        radius * Math.cos(theta) * Math.sin(phi),
+                        radius * Math.sin(theta) * Math.sin(phi),
+                        radius * Math.cos(phi)
+                    ])
+                }
+
+                // Generate random scattered points
+                var randomData = []
+                for (var j = 0; j < 100; j++) {
+                    randomData.push([
+                        (Math.random() - 0.5) * 20,
+                        (Math.random() - 0.5) * 20,
+                        (Math.random() - 0.5) * 20
+                    ])
+                }
+
+                // Add data in batches (fast!)
+                window.chartRenderer.appendPointsBatch3D("helix", helixData)
+                window.chartRenderer.appendPointsBatch3D("sphere", sphereData)
+                window.chartRenderer.appendPointsBatch3D("random", randomData)
+
+                Logger.log_info("ChartWindow: 3D test data added successfully (" +
+                    (helixData.length + sphereData.length + randomData.length) + " points)")
+            } else {
+                Logger.log_error("ChartWindow: 3D chart renderer not available")
             }
         })
     }

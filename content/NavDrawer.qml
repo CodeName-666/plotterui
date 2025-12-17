@@ -80,6 +80,7 @@ Drawer {
     ListModel {
         id: navModel
         ListElement { section: "TEST"; title: "Test 2D"; iconName: "test2d" }
+        ListElement { section: "TEST"; title: "Test XY"; iconName: "testxy" }
         ListElement { section: "TEST"; title: "Test 3D"; iconName: "test3d" }
         ListElement { section: "APPLICATION"; title: "About"; iconName: "info" }
         ListElement { section: "APPLICATION"; title: "Quit"; iconName: "exit" }
@@ -438,6 +439,8 @@ Drawer {
                                     // Handle test actions
                                     if (title === "Test 2D") {
                                         testFloatingWindow2D()
+                                    } else if (title === "Test XY") {
+                                        testFloatingWindowXY()
                                     } else if (title === "Test 3D") {
                                         testFloatingWindow3D()
                                     }
@@ -731,6 +734,17 @@ Drawer {
             window.chartWindow.test3DFloatingWindow()
         } else {
             Logger.log_error("NavDrawer: Cannot find chartWindow.test3DFloatingWindow function")
+        }
+    }
+
+    function testFloatingWindowXY() {
+        Logger.log_info("NavDrawer: Triggering Test XY floating window")
+
+        // Try to find ChartWindow to call its test function
+        if (window && window.chartWindow && window.chartWindow.testFloatingWindowXY) {
+            window.chartWindow.testFloatingWindowXY()
+        } else {
+            Logger.log_error("NavDrawer: Cannot find chartWindow.testFloatingWindowXY function")
         }
     }
 }

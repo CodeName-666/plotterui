@@ -248,6 +248,9 @@ Rectangle {
                     if (item) {
                         item.chartId = floatingWindow.chartId
                         item.chartTitle = floatingWindow.chartTitle
+                        if (item.chartType !== undefined) {
+                            item.chartType = floatingWindow.chartType
+                        }
                     }
                 }
 

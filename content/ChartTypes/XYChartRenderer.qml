@@ -28,6 +28,7 @@ Item {
     property real initialXMax: 10
     property real initialYMin: 0
     property real initialYMax: 10
+    property bool useScatterSeries: false
     // QtCharts OpenGL acceleration can render blank on some setups (e.g. software rendering).
     // Keep disabled by default for reliability; enable explicitly if needed.
     property bool useOpenGL: false
@@ -326,19 +327,32 @@ Item {
      * @return LineSeries object
      */
     function createLine(uniqueId, displayName, color) {
-        var line = chart.createSeries(ChartView.SeriesTypeLine, displayName, xAxis, yAxis)
+        var seriesType = root.useScatterSeries ? ChartView.SeriesTypeScatter : ChartView.SeriesTypeLine
+        var series = chart.createSeries(seriesType, displayName, xAxis, yAxis)
 
         if (color !== undefined) {
-            line.color = color
+            series.color = color
         }
 
-        line.width = 2
-        line.useOpenGL = root.useOpenGL
+        if (root.useScatterSeries) {
+            if (series.markerSize !== undefined) {
+                series.markerSize = 8
+            }
+            if (series.borderColor !== undefined && color !== undefined) {
+                series.borderColor = color
+            }
+        } else {
+            series.width = 2
+        }
 
-        _graphs[uniqueId] = line
+        if (series.useOpenGL !== undefined) {
+            series.useOpenGL = root.useOpenGL
+        }
 
-        Logger.log_info("XYChartRenderer: Created line '" + displayName + "' with ID " + uniqueId)
-        return line
+        _graphs[uniqueId] = series
+
+        Logger.log_info("XYChartRenderer: Created series '" + displayName + "' with ID " + uniqueId)
+        return series
     }
 
     /**

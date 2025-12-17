@@ -18,6 +18,7 @@ Item {
     // Public properties (passed from FloatingChartWindow)
     property string chartId: ""
     property string chartTitle: "XY Chart"
+    property string chartType: "xy_line"
 
     // Chart configuration
     property real initialXMin: 0
@@ -42,6 +43,7 @@ Item {
         initialXMax: root.initialXMax
         initialYMin: root.initialYMin
         initialYMax: root.initialYMax
+        useScatterSeries: root.chartType === "xy_scatter"
 
         // Pass the chart line model reference (if provided)
         _chartLineModel: root.chartLineModel

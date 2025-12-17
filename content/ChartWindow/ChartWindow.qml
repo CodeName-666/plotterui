@@ -700,6 +700,96 @@ ChartWindowUi{
     }
 
     /**
+     * Test function for XY plots (explicit X/Y from connection).
+     * Creates a 2D scatter plot and feeds it with {"id":0,"x":...,"y":...} samples.
+     */
+    function testFloatingWindowXY() {
+        Logger.log_info("ChartWindow: Starting Test XY flow (backend Test interface -> XY scatter)")
+
+        // Get App instance to call createFloatingWindow
+        var app = chartWindow.appRoot
+        if (app === null) {
+            var p = parent
+            while (p !== null) {
+                if (p.createFloatingWindow !== undefined) {
+                    app = p
+                    break
+                }
+                p = p.parent
+            }
+        }
+
+        if (app === null || app.createFloatingWindow === undefined) {
+            Logger.log_error("ChartWindow: Cannot find App.createFloatingWindow function")
+            Logger.log_error("ChartWindow: Please ensure chartWindow.appRoot is set by App.qml")
+            return
+        }
+
+        var timestamp = Date.now()
+        var chartId = "test_xy_" + timestamp
+
+        // 1) Create backend communication interface (Test)
+        var testSettings = {
+            "type": "XYCircle",
+            "id": 0,
+            "radius": 10.0,
+            "frequency": 0.2,
+            "sample_ms": 30
+        }
+
+        var connectionId = Backend.create_connection("Test", "Test XY " + timestamp, testSettings)
+        if (!connectionId || connectionId === "") {
+            Logger.log_error("ChartWindow: Failed to create Test connection for XY")
+            return
+        }
+
+        var window = app.createFloatingWindow(
+            chartId,
+            "xy_scatter",
+            "Test XY Chart " + timestamp,
+            180,
+            180,
+            700,
+            500
+        )
+
+        if (window === null) {
+            Logger.log_error("ChartWindow: Failed to create floating window for XY")
+            return
+        }
+
+        window.connectionId = connectionId
+        window.autoDeleteConnectionOnClose = true
+
+        function tryInitSignals(attemptsLeft) {
+            if (!window || !window.chartRenderer) {
+                if (attemptsLeft > 0) return Qt.callLater(function() { tryInitSignals(attemptsLeft - 1) })
+                Logger.log_error("ChartWindow: Chart renderer not available for XY (timeout)")
+                return
+            }
+
+            // Ensure central model is present before creating lines
+            if (!window.chartRenderer.chartLineModel) {
+                window.chartRenderer.chartLineModel = chartLineModel
+            }
+
+            // Make coordinate system visible immediately
+            if (window.chartRenderer.initialXMin !== undefined) window.chartRenderer.initialXMin = -12
+            if (window.chartRenderer.initialXMax !== undefined) window.chartRenderer.initialXMax = 12
+            if (window.chartRenderer.initialYMin !== undefined) window.chartRenderer.initialYMin = -12
+            if (window.chartRenderer.initialYMax !== undefined) window.chartRenderer.initialYMax = 12
+
+            var uniqueId = connectionId + "_0"
+            window.chartRenderer.createLine(uniqueId, "XY Circle", "#ff6b6b", "Test", 0)
+
+            Backend.start_connection(connectionId)
+            Logger.log_info("ChartWindow: Test XY connection started: " + connectionId)
+        }
+
+        tryInitSignals(20)
+    }
+
+    /**
      * Test function for 3D floating windows
      * Creates a 3D scatter plot with sample data (helix, sphere, random points)
      */

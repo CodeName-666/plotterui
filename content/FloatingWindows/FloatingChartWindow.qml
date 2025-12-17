@@ -17,6 +17,7 @@ import QtQuick.Controls 6.4
 import QtQuick.Layouts 6.4
 import Qt5Compat.GraphicalEffects
 import Common 1.0
+import Backend 1.0
 
 Rectangle {
     id: floatingWindow
@@ -25,6 +26,9 @@ Rectangle {
     property string chartId: ""
     property string chartTitle: "Chart"
     property string chartType: "xy_line"  // ChartType enum value
+    // Optional: backend connection associated with this window (used for Test charts)
+    property string connectionId: ""
+    property bool autoDeleteConnectionOnClose: false
     property bool isDocked: false
     property string dockPosition: ""  // "left", "right", "top", "bottom"
 
@@ -389,6 +393,17 @@ Rectangle {
         if (chartRenderer && chartRenderer.chartLineModel) {
             chartRenderer.chartLineModel.removeLinesByChart(floatingWindow.chartId)
             console.log("FloatingChartWindow: Removed all lines for chart " + floatingWindow.chartId)
+        }
+
+        // Stop & delete backend connection if this window created it
+        if (autoDeleteConnectionOnClose && connectionId && connectionId !== "") {
+            try {
+                Backend.stop_connection(connectionId)
+                Backend.delete_connection(connectionId)
+                console.log("FloatingChartWindow: Stopped/deleted connection " + connectionId)
+            } catch (e) {
+                console.log("FloatingChartWindow: Failed to stop/delete connection " + connectionId + ": " + e)
+            }
         }
 
         // Remove from windowManager (if available)

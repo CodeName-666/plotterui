@@ -319,9 +319,16 @@ ChartWindowUi{
      * @param interfaceType - Interface type (Serial, MQTT, etc.)
      ******************************************************************/
     function newGraph(uniqueId, displayName, color, interfaceType) {
-        // Extract dataId from uniqueId (format: "interface_dataId")
+        // If this uniqueId is already assigned to another chart, don't create it on the main chart.
+        if (chartLineModel.getLine(uniqueId) !== null) {
+            Logger.log_debug("ChartWindow.newGraph: Skipping already-registered line: " + uniqueId)
+            return
+        }
+
+        // Extract dataId from uniqueId (format: "<connectionId>_<dataId>" - connectionId may contain underscores)
         var parts = uniqueId.split("_")
-        var dataId = parts.length > 1 ? parseInt(parts[1]) : 0
+        var dataId = parts.length > 0 ? parseInt(parts[parts.length - 1]) : 0
+        if (isNaN(dataId)) dataId = 0
 
         // Create the chart series
         var graph = createGraph(displayName, color);
@@ -351,6 +358,11 @@ ChartWindowUi{
     {
         if(!_graphs[uniqueId])
         {
+            var line = chartLineModel.getLine(uniqueId)
+            if (line && line.chartId !== "main") {
+                // This point belongs to another chart (e.g. floating window) which owns the series.
+                return
+            }
             Logger.log_warning("appendGraphPoint: graph not found for " + uniqueId)
             return
         }
@@ -388,6 +400,11 @@ ChartWindowUi{
     {
         if(!_graphs[uniqueId])
         {
+            var line = chartLineModel.getLine(uniqueId)
+            if (line && line.chartId !== "main") {
+                // This batch belongs to another chart (e.g. floating window) which owns the series.
+                return
+            }
             Logger.log_warning("appendGraphPointsBatch: graph not found for " + uniqueId)
             return
         }
@@ -579,7 +596,7 @@ ChartWindowUi{
      * FUNCTION - Test Floating Window System
      ******************************************************************/
     function testFloatingWindow() {
-        Logger.log_info("ChartWindow: Testing floating window system")
+        Logger.log_info("ChartWindow: Starting Test 2D flow (backend Test interface -> chart -> signals)")
 
         // Get App instance to call createFloatingWindow
         var app = chartWindow.appRoot
@@ -604,14 +621,26 @@ ChartWindowUi{
 
         Logger.log_debug("ChartWindow: Found app instance, creating test window")
 
-        // Create test floating window with sample data
         var timestamp = Date.now()
-        var chartId = "test_float_" + timestamp
+        var chartId = "test_2d_" + timestamp
+
+        // 1) Create backend communication interface first (Test)
+        var testSettings = {
+            "type": "Multi",
+            "use_timestamp": true,
+            "sample_ms": 50
+        }
+
+        var connectionId = Backend.create_connection("Test", "Test 2D " + timestamp, testSettings)
+        if (!connectionId || connectionId === "") {
+            Logger.log_error("ChartWindow: Failed to create Test connection")
+            return
+        }
 
         var window = app.createFloatingWindow(
             chartId,
             "xy_line",
-            "Test Chart " + timestamp,
+            "Test 2D Chart " + timestamp,
             150,
             150,
             700,
@@ -623,46 +652,47 @@ ChartWindowUi{
             return
         }
 
-        Logger.log_info("ChartWindow: Floating window created, adding test data...")
+        // Store connection on window so it can be cleaned up on close
+        window.connectionId = connectionId
+        window.autoDeleteConnectionOnClose = true
 
-        // Wait for renderer to be ready
-        Qt.callLater(function() {
-            if (window.chartRenderer) {
-                // Create test lines
-                window.chartRenderer.createLine("sine_wave", "Sine Wave", "#ff6b6b")
-                window.chartRenderer.createLine("cosine_wave", "Cosine Wave", "#4ecdc4")
-                window.chartRenderer.createLine("tan_wave", "Tan Wave (limited)", "#ffe66d")
+        Logger.log_info("ChartWindow: Floating window created, binding 3 Test signals...")
 
-                // Generate test data
-                var sineData = []
-                var cosineData = []
-                var tanData = []
-
-                for (var x = 0; x < 100; x++) {
-                    var xVal = x * 0.1
-                    sineData.push([xVal, Math.sin(xVal) * 10])
-                    cosineData.push([xVal, Math.cos(xVal) * 10])
-
-                    // Limit tan to avoid infinity
-                    var tanVal = Math.tan(xVal)
-                    if (Math.abs(tanVal) < 20) {
-                        tanData.push([xVal, tanVal * 2])
-                    }
-                }
-
-                // Add data in batches (fast!)
-                window.chartRenderer.appendPointsBatch("sine_wave", sineData)
-                window.chartRenderer.appendPointsBatch("cosine_wave", cosineData)
-                window.chartRenderer.appendPointsBatch("tan_wave", tanData)
-
-                // Fit to data
-                window.chartRenderer.fitToData()
-
-                Logger.log_info("ChartWindow: Test data added successfully")
-            } else {
-                Logger.log_error("ChartWindow: Chart renderer not available")
+        function tryInitSignals(attemptsLeft) {
+            if (!window || !window.chartRenderer) {
+                if (attemptsLeft > 0) return Qt.callLater(function() { tryInitSignals(attemptsLeft - 1) })
+                Logger.log_error("ChartWindow: Chart renderer not available (timeout)")
+                return
             }
-        })
+
+            // Ensure central model is present before creating lines
+            if (!window.chartRenderer.chartLineModel) {
+                window.chartRenderer.chartLineModel = chartLineModel
+            }
+
+            var templates = Backend.get_test_signal_templates ? Backend.get_test_signal_templates() : []
+            if (!templates || templates.length === 0) {
+                // Fallback if backend doesn't provide templates
+                templates = [
+                    {"dataId": 0, "displayName": "Sine Wave", "color": "#ff6b6b"},
+                    {"dataId": 1, "displayName": "Cosine Wave", "color": "#4ecdc4"},
+                    {"dataId": 2, "displayName": "Sine Wave (2x)", "color": "#ffe66d"}
+                ]
+            }
+
+            for (var i = 0; i < templates.length; i++) {
+                var tpl = templates[i]
+                var dataId = tpl.dataId
+                var uniqueId = connectionId + "_" + dataId
+                window.chartRenderer.createLine(uniqueId, tpl.displayName, tpl.color, "Test", dataId)
+            }
+
+            // 3) Start the connection after chart + signals exist
+            Backend.start_connection(connectionId)
+            Logger.log_info("ChartWindow: Test connection started: " + connectionId)
+        }
+
+        tryInitSignals(20)
     }
 
     /**

@@ -366,7 +366,6 @@ Item {
     function appendPoint(uniqueId, x, y) {
         var series = _graphs[uniqueId]
         if(!series) {
-            Logger.log_warning("XYChartRenderer: Line not found: " + uniqueId)
             return
         }
 
@@ -387,7 +386,6 @@ Item {
     function appendPointsBatch(uniqueId, points) {
         var series = _graphs[uniqueId]
         if(!series) {
-            Logger.log_warning("XYChartRenderer: Line not found: " + uniqueId)
             return
         }
 

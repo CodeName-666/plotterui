@@ -159,7 +159,8 @@ Item {
                         delegate: Rectangle {
                             id: chartDelegate
                             Layout.fillWidth: true
-                            Layout.preferredHeight: chartGroupColumn.height + 20
+                            // Use implicitHeight to avoid a binding loop with anchors.fill
+                            Layout.preferredHeight: chartGroupColumn.implicitHeight + 20
                             color: "#ffffff"
                             border.color: "#b0b0b0"
                             border.width: 1
@@ -253,10 +254,10 @@ Item {
                                 // Lines for this chart
                                 Repeater {
                                     model: chartLinesModel
-                                    visible: !isChartCollapsed(chartDelegate.model.chartId)
 
                                     delegate: Item {
                                         id: lineItem
+                                        visible: !isChartCollapsed(chartDelegate.currentChartId)
                                         Layout.fillWidth: true
                                         Layout.preferredHeight: 40
 

@@ -29,6 +29,8 @@ ApplicationWindow {
     property alias settingsPopup: settingsPopup
     property alias settings: settings
     property alias chartWindow: chartWindow
+    property alias chartWorkspace: chartWorkspace
+    property alias floatingWindowsContainer: floatingWindowsContainer
     property alias connectButton: navDrawer.startButton
     property alias toolbar: topToolbar
 
@@ -46,109 +48,131 @@ ApplicationWindow {
         id: mainArea
         anchors.fill: parent
 
-        // Workspace area for charts/floating windows (excludes right-side manager panel)
+        // Split area: chart workspace (left) + manager sidebar (right)
         Item {
-            id: chartWorkspace
+            id: splitArea
             anchors {
                 top: parent.top
                 left: parent.left
-                right: chartLinesList.left
+                right: parent.right
                 bottom: footer.top
-                rightMargin: 10
             }
-            clip: true
 
-            Rectangle {
+            RowLayout {
+                id: splitLayout
                 anchors.fill: parent
-                color: Constants.backgroundColor
+                spacing: 10
 
-                // Optional: Add a welcome message or placeholder
-                Text {
-                    anchors.centerIn: parent
-                    text: "Open the menu to create charts or manage connections"
-                    font.pixelSize: 16
-                    color: "#808080"
-                    opacity: 0.5
-                }
-            }
-        }
+                // Workspace area for charts/floating windows (excludes right-side manager panel)
+                Item {
+                    id: chartWorkspace
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    z: 0
 
-        // Chart Lines List - right side panel (collapsible, management tabs)
-        ChartLinesList {
-            id: chartLinesList
-            width: chartLinesListCollapsed ? chartLinesListCollapsedWidth : chartLinesListWidth
-            anchors.top: parent.top
-            anchors.bottom: footer.top
-            anchors.right: parent.right
-            anchors.topMargin: 10
-            anchors.bottomMargin: 10
-            anchors.rightMargin: 10
-            z: 120
+                    Rectangle {
+                        anchors.fill: parent
+                        color: Constants.backgroundColor
 
-            isCollapsed: chartLinesListCollapsed
-            chartLineModel: chartWindow.chartLineModel
-            availableCharts: chartWindow.availableCharts
+                        // Optional: Add a welcome message or placeholder
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Open the menu to create charts or manage connections"
+                            font.pixelSize: 16
+                            color: "#808080"
+                            opacity: 0.5
+                        }
+                    }
 
-            onCollapseToggled: {
-                chartLinesListCollapsed = !chartLinesListCollapsed
-            }
+                    // Container for dynamically created floating windows
+                    Item {
+                        id: floatingWindowsContainer
+                        anchors.fill: parent
+                        z: 10
+                        clip: true
 
-            onLineVisibilityToggled: function(lineKey, visible) {
-                if (chartWindow && chartWindow.chartLineModel) {
-                    chartWindow.chartLineModel.toggleVisibility(lineKey, visible)
-                }
-            }
-
-            onLineSelected: function(lineKey) {
-                if (chartWindow) {
-                    var line = chartWindow.chartLineModel.getLineByKey(lineKey)
-                    if (line && chartWindow.editChartLineDialog) {
-                        chartWindow.editChartLineDialog.loadChartLine(lineKey, line.uniqueId, line.displayName, line.color, line.interfaceType, line.dataId, line.chartTitle)
-                        chartWindow.editChartLineDialog.open()
+                        property var activeWindows: ({})
                     }
                 }
-            }
 
-            onAddSignalRequested: {
-                if (chartWindow && chartWindow.addChartLineDialog) {
-                    chartWindow.addChartLineDialog.open()
-                }
-            }
+                // Chart Lines List - right side panel (collapsible, management tabs)
+                ChartLinesList {
+                    id: chartLinesList
+                    Layout.preferredWidth: chartLinesListCollapsed ? chartLinesListCollapsedWidth : chartLinesListWidth
+                    Layout.fillHeight: true
+                    Layout.topMargin: 10
+                    Layout.bottomMargin: 10
+                    Layout.rightMargin: 10
+                    // Always stay visible above any chart content (including shadows/layers)
+                    z: 10000
 
-            onRemoveSignalRequested: function(uniqueId) {
-                if (chartWindow && chartWindow.removeSignal) {
-                    chartWindow.removeSignal(uniqueId)
-                }
-            }
+                    isCollapsed: chartLinesListCollapsed
+                    chartLineModel: chartWindow.chartLineModel
+                    availableCharts: chartWindow.availableCharts
 
-            onSetSignalChartsRequested: function(uniqueId, chartIds) {
-                if (chartWindow && chartWindow.setSignalCharts) {
-                    chartWindow.setSignalCharts(uniqueId, chartIds)
-                }
-            }
+                    onCollapseToggled: {
+                        chartLinesListCollapsed = !chartLinesListCollapsed
+                    }
 
-            onCreateChartRequested: function(chartType, chartTitle) {
-                if (chartWindow && chartWindow.createManagedChart) {
-                    chartWindow.createManagedChart(chartType, chartTitle)
-                }
-            }
+                    onLineVisibilityToggled: function(lineKey, visible) {
+                        if (chartWindow && chartWindow.chartLineModel) {
+                            chartWindow.chartLineModel.toggleVisibility(lineKey, visible)
+                        }
+                    }
 
-            onRemoveChartRequested: function(chartId) {
-                if (chartWindow && chartWindow.removeManagedChart) {
-                    chartWindow.removeManagedChart(chartId)
-                }
-            }
+                    onLineSelected: function(lineKey) {
+                        if (chartWindow) {
+                            var line = chartWindow.chartLineModel.getLineByKey(lineKey)
+                            if (line && chartWindow.editChartLineDialog) {
+                                chartWindow.editChartLineDialog.loadChartLine(lineKey, line.uniqueId, line.displayName, line.color, line.interfaceType, line.dataId, line.chartTitle)
+                                chartWindow.editChartLineDialog.open()
+                            }
+                        }
+                    }
 
-            onRenameChartRequested: function(chartId, chartTitle) {
-                if (chartWindow && chartWindow.renameManagedChart) {
-                    chartWindow.renameManagedChart(chartId, chartTitle)
-                }
-            }
+                    onAddSignalRequested: {
+                        if (chartWindow && chartWindow.addChartLineDialog) {
+                            chartWindow.addChartLineDialog.open()
+                        }
+                    }
 
-            Behavior on width {
-                NumberAnimation {
-                    duration: 250
-                    easing.type: Easing.InOutQuad
+                    onRemoveSignalRequested: function(uniqueId) {
+                        if (chartWindow && chartWindow.removeSignal) {
+                            chartWindow.removeSignal(uniqueId)
+                        }
+                    }
+
+                    onSetSignalChartsRequested: function(uniqueId, chartIds) {
+                        if (chartWindow && chartWindow.setSignalCharts) {
+                            chartWindow.setSignalCharts(uniqueId, chartIds)
+                        }
+                    }
+
+                    onCreateChartRequested: function(chartType, chartTitle) {
+                        if (chartWindow && chartWindow.createManagedChart) {
+                            chartWindow.createManagedChart(chartType, chartTitle)
+                        }
+                    }
+
+                    onRemoveChartRequested: function(chartId) {
+                        if (chartWindow && chartWindow.removeManagedChart) {
+                            chartWindow.removeManagedChart(chartId)
+                        }
+                    }
+
+                    onRenameChartRequested: function(chartId, chartTitle) {
+                        if (chartWindow && chartWindow.renameManagedChart) {
+                            chartWindow.renameManagedChart(chartId, chartTitle)
+                        }
+                    }
+
+                    Behavior on width {
+                        NumberAnimation {
+                            duration: 250
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
                 }
             }
         }

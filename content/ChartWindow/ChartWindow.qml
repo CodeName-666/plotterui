@@ -647,7 +647,6 @@ ChartWindowUi{
 
     function refreshAvailableCharts() {
         var charts = []
-        charts.push({"chartId":"main", "chartTitle":"Main Chart", "chartType":"xy_line"})
 
         if (chartWindow.appRoot && chartWindow.appRoot.floatingWindowsContainer) {
             var wins = chartWindow.appRoot.floatingWindowsContainer.activeWindows

@@ -233,19 +233,6 @@ AppUi {
     }
 
     /*******************************************************************
-     * FLOATING WINDOWS CONTAINER
-     ******************************************************************/
-    Item {
-        id: floatingWindowsContainer
-        parent: chartWorkspace
-        anchors.fill: parent
-        z: 100  // Above workspace background
-
-        // Container for dynamically created floating windows
-        property var activeWindows: ({})
-    }
-
-    /*******************************************************************
      * FUNCTION - Create floating chart window
      ******************************************************************/
     function createFloatingWindow(chartId, chartType, title, x, y, width, height) {
@@ -279,7 +266,9 @@ AppUi {
             "width": (width !== undefined && width !== null) ? width : 800,
             "height": (height !== undefined && height !== null) ? height : 600,
             // First chart window starts maximized to the chart workspace (excludes right manager panel)
-            "isMaximized": isFirstWindow
+            "isMaximized": isFirstWindow,
+            // Allow the window to delegate close/cleanup back to the app
+            "appRoot": appRoot
         })
 
         // Pass central chart line model to the window's chart renderer after creation
@@ -304,6 +293,11 @@ AppUi {
         floatingWindowsContainer.activeWindows[chartId] = window
         Logger.log_info("App: Floating window created successfully: " + chartId)
 
+        // Ensure sidebar updates even if WindowManager doesn't emit signals
+        if (chartWindow && chartWindow.refreshAvailableCharts) {
+            chartWindow.refreshAvailableCharts()
+        }
+
         return window
     }
 
@@ -321,12 +315,28 @@ AppUi {
 
         var window = floatingWindowsContainer.activeWindows[chartId]
         if (window) {
+            // Stop & delete backend connection if this window created it (e.g. Test charts)
+            if (window.autoDeleteConnectionOnClose && window.connectionId && window.connectionId !== "") {
+                try {
+                    Backend.stop_connection(window.connectionId)
+                    Backend.delete_connection(window.connectionId)
+                    Logger.log_info("App: Stopped/deleted connection " + window.connectionId)
+                } catch (e) {
+                    Logger.log_warning("App: Failed to stop/delete connection " + window.connectionId + ": " + e)
+                }
+            }
+
             window.destroy()
             delete floatingWindowsContainer.activeWindows[chartId]
         }
 
         if (WindowManager && WindowManager.removeWindow) {
             WindowManager.removeWindow(chartId)
+        }
+
+        // Keep Manage Charts list in sync
+        if (chartWindow && chartWindow.refreshAvailableCharts) {
+            chartWindow.refreshAvailableCharts()
         }
     }
 

@@ -59,10 +59,13 @@ Item {
                     charts: []
                 }
             }
-            map[key].charts.push({
-                chartId: line.chartId,
-                chartTitle: line.chartTitle
-            })
+            // Do not expose the internal "main" chart in the UI (signals are still tracked)
+            if ((line.chartId || "main") !== "main") {
+                map[key].charts.push({
+                    chartId: line.chartId,
+                    chartTitle: line.chartTitle
+                })
+            }
         }
 
         var keys = Object.keys(map).sort()

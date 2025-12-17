@@ -26,6 +26,8 @@ Rectangle {
     property string chartId: ""
     property string chartTitle: "Chart"
     property string chartType: "xy_line"  // ChartType enum value
+    // Reference back to the App root (for centralized remove/cleanup)
+    property var appRoot: null
     // Optional: backend connection associated with this window (used for Test charts)
     property string connectionId: ""
     property bool autoDeleteConnectionOnClose: false
@@ -637,29 +639,32 @@ Rectangle {
     }
 
     function closeWindow() {
-        // Remove all lines belonging to this chart from the central model
-        if (chartRenderer && chartRenderer.chartLineModel) {
-            chartRenderer.chartLineModel.removeLinesByChart(floatingWindow.chartId)
-            console.log("FloatingChartWindow: Removed all lines for chart " + floatingWindow.chartId)
+        // Delegate to App for consistent cleanup (activeWindows, backend connection, sidebar refresh)
+        if (appRoot && typeof appRoot.removeFloatingWindow === "function") {
+            appRoot.removeFloatingWindow(floatingWindow.chartId)
+            return
         }
 
-        // Stop & delete backend connection if this window created it
+        // Fallback (should not normally happen)
+        if (chartRenderer && chartRenderer.chartLineModel) {
+            chartRenderer.chartLineModel.removeLinesByChart(floatingWindow.chartId)
+        }
+
         if (autoDeleteConnectionOnClose && connectionId && connectionId !== "") {
             try {
                 Backend.stop_connection(connectionId)
                 Backend.delete_connection(connectionId)
-                console.log("FloatingChartWindow: Stopped/deleted connection " + connectionId)
-            } catch (e) {
-                console.log("FloatingChartWindow: Failed to stop/delete connection " + connectionId + ": " + e)
-            }
+            } catch (e) {}
         }
 
-        // Remove from windowManager (if available)
-        if (typeof windowManager !== 'undefined' && windowManager !== null) {
-            windowManager.removeWindow(floatingWindow.chartId)
+        if (parent && parent.activeWindows && parent.activeWindows[floatingWindow.chartId]) {
+            delete parent.activeWindows[floatingWindow.chartId]
         }
 
-        // Destroy the window
+        if (typeof WindowManager !== "undefined" && WindowManager && WindowManager.removeWindow) {
+            WindowManager.removeWindow(floatingWindow.chartId)
+        }
+
         floatingWindow.destroy()
     }
 
@@ -754,6 +759,16 @@ Rectangle {
         // Notify windowManager (if available)
         if (typeof windowManager !== 'undefined' && windowManager !== null) {
             windowManager.undockWindow(floatingWindow.chartId)
+        }
+    }
+
+    Component.onDestruction: {
+        // Safety: if window got destroyed without going through App.removeFloatingWindow
+        if (parent && parent.activeWindows && parent.activeWindows[floatingWindow.chartId]) {
+            delete parent.activeWindows[floatingWindow.chartId]
+            if (appRoot && appRoot.chartWindow && appRoot.chartWindow.refreshAvailableCharts) {
+                appRoot.chartWindow.refreshAvailableCharts()
+            }
         }
     }
 }

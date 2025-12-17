@@ -477,6 +477,7 @@ Item {
         for (var i = 0; i < root.chartLineModel.count; i++) {
             var line = root.chartLineModel.get(i)
             var chartId = line.chartId || "main"
+            if (chartId === "main") continue
 
             if (!charts[chartId]) {
                 charts[chartId] = {
@@ -494,10 +495,8 @@ Item {
             chartArray.push(charts[id])
         }
 
-        // Sort: "main" first, then alphabetically
+        // Sort alphabetically by title
         chartArray.sort(function(a, b) {
-            if (a.chartId === "main") return -1
-            if (b.chartId === "main") return 1
             return a.chartTitle.localeCompare(b.chartTitle)
         })
 

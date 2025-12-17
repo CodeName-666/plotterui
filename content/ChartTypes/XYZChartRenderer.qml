@@ -42,6 +42,7 @@ Item {
     property real zMax: 10
 
     property bool _backendConnected: false
+    property var _backendEvents: null
 
     // Internal state
     property var _scatterPlots: ({})  // Dictionary of scatter plots by uniqueId
@@ -736,6 +737,7 @@ Item {
 
     Component.onDestruction: {
         Logger.log_info("XYZChartRenderer destroyed for chart: " + root.chartId)
+        _disconnectBackendEvents()
 
         // Cleanup all scatter plots
         for (var plotId in _scatterPlots) {
@@ -779,8 +781,31 @@ Item {
             events.append_graph_points_batch_3d.connect(handleGraphPointsBatch3D)
         }
 
+        root._backendEvents = events
         root._backendConnected = true
         Logger.log_info("XYZChartRenderer: Connected to backend 3D graph events for chart: " + root.chartId)
+    }
+
+    function _disconnectBackendEvents() {
+        if (!root._backendEvents) {
+            root._backendConnected = false
+            return
+        }
+
+        try {
+            if (root._backendEvents.append_graph_point_3d) {
+                root._backendEvents.append_graph_point_3d.disconnect(handleGraphPoint3D)
+            }
+        } catch (e) {}
+
+        try {
+            if (root._backendEvents.append_graph_points_batch_3d) {
+                root._backendEvents.append_graph_points_batch_3d.disconnect(handleGraphPointsBatch3D)
+            }
+        } catch (e) {}
+
+        root._backendConnected = false
+        root._backendEvents = null
     }
 
     /*******************************************************************
@@ -791,7 +816,7 @@ Item {
      * Handle single 3D point from backend
      */
     function handleGraphPoint3D(uniqueId, point) {
-        if (!point) return
+        if (!root || !point) return
 
         var x = point.x !== undefined ? point.x : 0
         var y = point.y !== undefined ? point.y : 0
@@ -804,6 +829,7 @@ Item {
      * Handle batch 3D points from backend
      */
     function handleGraphPointsBatch3D(uniqueId, points) {
+        if (!root) return
         root.appendPointsBatch3D(uniqueId, points)
     }
 }

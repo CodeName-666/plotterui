@@ -39,27 +39,131 @@ Rectangle {
     property bool isMinimized: false
     property bool isMaximized: false
     property int zOrder: 0
+    property rect restoreGeometry: Qt.rect(100, 100, 800, 600)
 
     // Drag state
     property bool isDragging: false
+    property bool isResizing: false
     property point dragStartPos: Qt.point(0, 0)
     property point windowStartPos: Qt.point(0, 0)
 
+    // Visual feedback during dragging
+    property color dragBorderColor: "#0078d4"
+    property real dragShadowIntensity: 1.0
+
+    // Docking preview
+    property bool showDockingPreview: false
+    property string previewDockPosition: ""
+
+    // Performance
+    property int dragUpdateThrottle: 8  // ~120fps for smooth dragging
+    property var lastDragUpdate: Date.now()
+
     // Visual properties
     color: "#1e1e1e"
-    border.color: isDragging ? "#0078d4" : "#3c3c3c"
+    border.color: isDragging ? dragBorderColor : "#3c3c3c"
     border.width: 2
     radius: 8
+    // opacity and scale removed from root to prevent jitter during dragging
 
     // Default size
     width: 800
     height: 600
 
+    states: [
+        State {
+            name: "maximized"
+            when: floatingWindow.isMaximized
+            AnchorChanges {
+                target: floatingWindow
+                anchors.left: floatingWindow.parent.left
+                anchors.right: floatingWindow.parent.right
+                anchors.top: floatingWindow.parent.top
+                anchors.bottom: floatingWindow.parent.bottom
+            }
+        },
+        State {
+            name: "dockedLeft"
+            when: floatingWindow.isDocked && floatingWindow.dockPosition === "left"
+            AnchorChanges {
+                target: floatingWindow
+                anchors.left: floatingWindow.parent.left
+                anchors.top: floatingWindow.parent.top
+                anchors.bottom: floatingWindow.parent.bottom
+            }
+            PropertyChanges {
+                target: floatingWindow
+                width: floatingWindow.parent.width / 2
+            }
+        },
+        State {
+            name: "dockedRight"
+            when: floatingWindow.isDocked && floatingWindow.dockPosition === "right"
+            AnchorChanges {
+                target: floatingWindow
+                anchors.right: floatingWindow.parent.right
+                anchors.top: floatingWindow.parent.top
+                anchors.bottom: floatingWindow.parent.bottom
+            }
+            PropertyChanges {
+                target: floatingWindow
+                width: floatingWindow.parent.width / 2
+            }
+        },
+        State {
+            name: "dockedTop"
+            when: floatingWindow.isDocked && floatingWindow.dockPosition === "top"
+            AnchorChanges {
+                target: floatingWindow
+                anchors.left: floatingWindow.parent.left
+                anchors.right: floatingWindow.parent.right
+                anchors.top: floatingWindow.parent.top
+            }
+            PropertyChanges {
+                target: floatingWindow
+                height: floatingWindow.parent.height / 2
+            }
+        },
+        State {
+            name: "dockedBottom"
+            when: floatingWindow.isDocked && floatingWindow.dockPosition === "bottom"
+            AnchorChanges {
+                target: floatingWindow
+                anchors.left: floatingWindow.parent.left
+                anchors.right: floatingWindow.parent.right
+                anchors.bottom: floatingWindow.parent.bottom
+            }
+            PropertyChanges {
+                target: floatingWindow
+                height: floatingWindow.parent.height / 2
+            }
+        }
+    ]
+
     // Z-order
     z: zOrder
 
-    // Window shadow (optional)
-    layer.enabled: true
+    // Smooth animations for visual feedback
+    Behavior on dragBorderColor {
+        ColorAnimation { duration: 150 }
+    }
+
+    Behavior on dragShadowIntensity {
+        NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
+    }
+
+    Behavior on width {
+        enabled: !floatingWindow.isDragging && !floatingWindow.isResizing
+        NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+    }
+
+    Behavior on height {
+        enabled: !floatingWindow.isDragging && !floatingWindow.isResizing
+        NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+    }
+
+    // Window shadow (optional) - disabled during drag/resize for performance
+    layer.enabled: !floatingWindow.isDragging && !floatingWindow.isResizing
     layer.effect: DropShadow {
         horizontalOffset: 0
         verticalOffset: 4
@@ -85,15 +189,25 @@ Rectangle {
             MouseArea {
                 id: dragArea
                 anchors.fill: parent
-                cursorShape: Qt.SizeAllCursor
+                cursorShape: (floatingWindow.isDocked || floatingWindow.isMaximized) ? Qt.ArrowCursor : Qt.SizeAllCursor
 
                 property point clickPos: Qt.point(0, 0)
+                // Use parent coordinates for deltas. Local mouse coords change while the window moves,
+                // which causes jitter/undefined movement when computing deltas from mouse.x/mouse.y.
+                property point pressPosInParent: Qt.point(0, 0)
 
                 onPressed: (mouse) => {
+                    if (floatingWindow.isDocked || floatingWindow.isMaximized) {
+                        return
+                    }
                     clickPos = Qt.point(mouse.x, mouse.y)
                     floatingWindow.dragStartPos = clickPos
                     floatingWindow.windowStartPos = Qt.point(floatingWindow.x, floatingWindow.y)
+                    pressPosInParent = dragArea.mapToItem(floatingWindow.parent, mouse.x, mouse.y)
                     floatingWindow.isDragging = true
+
+                    // Visual feedback: enhanced shadow only (no scale/opacity to prevent jitter)
+                    floatingWindow.dragShadowIntensity = 1.3
 
                     // Bring to front (if windowManager is available)
                     if (typeof windowManager !== 'undefined' && windowManager !== null) {
@@ -106,14 +220,40 @@ Rectangle {
 
                 onPositionChanged: (mouse) => {
                     if (floatingWindow.isDragging && !floatingWindow.isDocked) {
-                        var delta = Qt.point(mouse.x - clickPos.x, mouse.y - clickPos.y)
-                        floatingWindow.x = floatingWindow.windowStartPos.x + delta.x
-                        floatingWindow.y = floatingWindow.windowStartPos.y + delta.y
+                        // Throttle für Performance
+                        var now = Date.now()
+                        if (now - floatingWindow.lastDragUpdate < floatingWindow.dragUpdateThrottle) {
+                            return
+                        }
+                        floatingWindow.lastDragUpdate = now
+
+                        var currentPosInParent = dragArea.mapToItem(floatingWindow.parent, mouse.x, mouse.y)
+                        var delta = Qt.point(currentPosInParent.x - pressPosInParent.x,
+                                             currentPosInParent.y - pressPosInParent.y)
+                        var nextX = floatingWindow.windowStartPos.x + delta.x
+                        var nextY = floatingWindow.windowStartPos.y + delta.y
+
+                        if (floatingWindow.parent) {
+                            var maxX = Math.max(0, floatingWindow.parent.width - floatingWindow.width)
+                            var maxY = Math.max(0, floatingWindow.parent.height - floatingWindow.height)
+                            nextX = Math.max(0, Math.min(maxX, nextX))
+                            nextY = Math.max(0, Math.min(maxY, nextY))
+                        }
+
+                        floatingWindow.x = nextX
+                        floatingWindow.y = nextY
+
+                        // Preview für Docking-Zones
+                        checkDockingZonesPreview()
                     }
                 }
 
                 onReleased: {
                     floatingWindow.isDragging = false
+
+                    // Reset visual feedback
+                    floatingWindow.dragShadowIntensity = 1.0
+                    floatingWindow.showDockingPreview = false
 
                     // Check for docking zones
                     checkDockingZones()
@@ -291,20 +431,33 @@ Rectangle {
             cursorShape: Qt.SizeFDiagCursor
 
             property point clickPos: Qt.point(0, 0)
+            property point pressPosInParent: Qt.point(0, 0)
             property size startSize: Qt.size(0, 0)
 
             onPressed: (mouse) => {
                 clickPos = Qt.point(mouse.x, mouse.y)
                 startSize = Qt.size(floatingWindow.width, floatingWindow.height)
+                pressPosInParent = resizeHandle.mapToItem(floatingWindow.parent, mouse.x, mouse.y)
+                floatingWindow.isResizing = true
             }
 
             onPositionChanged: (mouse) => {
-                var delta = Qt.point(mouse.x - clickPos.x, mouse.y - clickPos.y)
-                floatingWindow.width = Math.max(400, startSize.width + delta.x)
-                floatingWindow.height = Math.max(300, startSize.height + delta.y)
+                var currentPosInParent = resizeHandle.mapToItem(floatingWindow.parent, mouse.x, mouse.y)
+                var delta = Qt.point(currentPosInParent.x - pressPosInParent.x,
+                                     currentPosInParent.y - pressPosInParent.y)
+                var maxW = floatingWindow.parent ? floatingWindow.parent.width : 1000000
+                var maxH = floatingWindow.parent ? floatingWindow.parent.height : 1000000
+                var minW = Math.min(400, maxW)
+                var minH = Math.min(300, maxH)
+
+                floatingWindow.width = Math.max(minW, Math.min(maxW, startSize.width + delta.x))
+                floatingWindow.height = Math.max(minH, Math.min(maxH, startSize.height + delta.y))
+                clampToParent()
             }
 
             onReleased: {
+                floatingWindow.isResizing = false
+
                 // Save new size (if windowManager is available)
                 if (typeof windowManager !== 'undefined' && windowManager !== null) {
                     windowManager.updateWindowPosition(
@@ -319,7 +472,106 @@ Rectangle {
         }
     }
 
+    // Docking Zone Preview Overlay
+    Rectangle {
+        id: dockPreviewOverlay
+        color: "#400078d4"
+        border.color: "#0078d4"
+        border.width: 3
+        radius: 4
+        visible: floatingWindow.showDockingPreview
+        z: -1  // Behind window
+
+        x: {
+            if (!parent) return 0
+            if (floatingWindow.previewDockPosition === "left") return 0
+            if (floatingWindow.previewDockPosition === "right") return parent.width / 2
+            return 0
+        }
+
+        y: {
+            if (!parent) return 0
+            if (floatingWindow.previewDockPosition === "top") return 0
+            if (floatingWindow.previewDockPosition === "bottom") return parent.height / 2
+            return 0
+        }
+
+        width: {
+            if (!parent) return 0
+            if (floatingWindow.previewDockPosition === "left" || floatingWindow.previewDockPosition === "right")
+                return parent.width / 2
+            return parent.width
+        }
+
+        height: {
+            if (!parent) return 0
+            if (floatingWindow.previewDockPosition === "top" || floatingWindow.previewDockPosition === "bottom")
+                return parent.height / 2
+            return parent.height
+        }
+
+        Behavior on x {
+            enabled: !floatingWindow.isDragging
+            NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
+        }
+        Behavior on y {
+            enabled: !floatingWindow.isDragging
+            NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
+        }
+        Behavior on width {
+            enabled: !floatingWindow.isDragging
+            NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
+        }
+        Behavior on height {
+            enabled: !floatingWindow.isDragging
+            NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
+        }
+
+        Text {
+            anchors.centerIn: parent
+            text: {
+                switch(floatingWindow.previewDockPosition) {
+                    case "left": return "◀"
+                    case "right": return "▶"
+                    case "top": return "▲"
+                    case "bottom": return "▼"
+                    default: return "⊞"
+                }
+            }
+            font.pixelSize: 48
+            color: "#0078d4"
+            opacity: 0.6
+        }
+    }
+
     // Functions
+    function clampToParent() {
+        if (!parent) return
+        if (floatingWindow.isDocked || floatingWindow.isMaximized) return
+
+        if (floatingWindow.width > parent.width) {
+            floatingWindow.width = parent.width
+        }
+        if (floatingWindow.height > parent.height) {
+            floatingWindow.height = parent.height
+        }
+
+        var maxX = Math.max(0, parent.width - floatingWindow.width)
+        var maxY = Math.max(0, parent.height - floatingWindow.height)
+        floatingWindow.x = Math.max(0, Math.min(maxX, floatingWindow.x))
+        floatingWindow.y = Math.max(0, Math.min(maxY, floatingWindow.y))
+    }
+
+    Connections {
+        target: floatingWindow.parent
+        function onWidthChanged() { clampToParent() }
+        function onHeightChanged() { clampToParent() }
+    }
+
+    Component.onCompleted: {
+        clampToParent()
+    }
+
     function getChartTypeIcon(type) {
         switch(type) {
             case "xy_line": return "📈"
@@ -371,23 +623,16 @@ Rectangle {
             undock()
         }
 
-        floatingWindow.isMaximized = !floatingWindow.isMaximized
-
-        if (floatingWindow.isMaximized) {
-            // Save current geometry
-            floatingWindow.windowStartPos = Qt.point(floatingWindow.x, floatingWindow.y)
-
-            // Maximize to parent bounds
-            floatingWindow.x = 0
-            floatingWindow.y = 0
-            floatingWindow.width = parent.width
-            floatingWindow.height = parent.height
+        if (!floatingWindow.isMaximized) {
+            floatingWindow.restoreGeometry = Qt.rect(floatingWindow.x, floatingWindow.y, floatingWindow.width, floatingWindow.height)
+            floatingWindow.isMaximized = true
         } else {
-            // Restore
-            floatingWindow.x = floatingWindow.windowStartPos.x
-            floatingWindow.y = floatingWindow.windowStartPos.y
-            floatingWindow.width = 800
-            floatingWindow.height = 600
+            floatingWindow.isMaximized = false
+            floatingWindow.x = floatingWindow.restoreGeometry.x
+            floatingWindow.y = floatingWindow.restoreGeometry.y
+            floatingWindow.width = floatingWindow.restoreGeometry.width
+            floatingWindow.height = floatingWindow.restoreGeometry.height
+            clampToParent()
         }
     }
 
@@ -418,6 +663,41 @@ Rectangle {
         floatingWindow.destroy()
     }
 
+    function checkDockingZonesPreview() {
+        if (!parent) return
+
+        var dockThreshold = 80
+        var parentWidth = parent.width
+        var parentHeight = parent.height
+
+        var leftDist = floatingWindow.x
+        var rightDist = parentWidth - (floatingWindow.x + floatingWindow.width)
+        var topDist = floatingWindow.y
+        var bottomDist = parentHeight - (floatingWindow.y + floatingWindow.height)
+
+        var minDist = Math.min(leftDist, rightDist, topDist, bottomDist)
+
+        if (minDist > dockThreshold) {
+            floatingWindow.showDockingPreview = false
+            floatingWindow.previewDockPosition = ""
+            floatingWindow.dragBorderColor = "#0078d4"
+            return
+        }
+
+        floatingWindow.showDockingPreview = true
+        floatingWindow.dragBorderColor = "#00d455"  // Grün für gültige Zone
+
+        if (minDist === leftDist) {
+            floatingWindow.previewDockPosition = "left"
+        } else if (minDist === rightDist) {
+            floatingWindow.previewDockPosition = "right"
+        } else if (minDist === topDist) {
+            floatingWindow.previewDockPosition = "top"
+        } else if (minDist === bottomDist) {
+            floatingWindow.previewDockPosition = "bottom"
+        }
+    }
+
     function checkDockingZones() {
         if (!parent) return
 
@@ -446,41 +726,18 @@ Rectangle {
     function dockToEdge(edge) {
         if (!parent) return
 
+        if (!floatingWindow.isDocked) {
+            floatingWindow.restoreGeometry = Qt.rect(floatingWindow.x, floatingWindow.y, floatingWindow.width, floatingWindow.height)
+        }
+
         floatingWindow.isDocked = true
         floatingWindow.dockPosition = edge
-
-        var parentWidth = parent.width
-        var parentHeight = parent.height
-
-        switch(edge) {
-            case "left":
-                floatingWindow.x = 0
-                floatingWindow.y = 0
-                floatingWindow.width = parentWidth / 2
-                floatingWindow.height = parentHeight
-                break
-            case "right":
-                floatingWindow.x = parentWidth / 2
-                floatingWindow.y = 0
-                floatingWindow.width = parentWidth / 2
-                floatingWindow.height = parentHeight
-                break
-            case "top":
-                floatingWindow.x = 0
-                floatingWindow.y = 0
-                floatingWindow.width = parentWidth
-                floatingWindow.height = parentHeight / 2
-                break
-            case "bottom":
-                floatingWindow.x = 0
-                floatingWindow.y = parentHeight / 2
-                floatingWindow.width = parentWidth
-                floatingWindow.height = parentHeight / 2
-                break
-        }
+        floatingWindow.isMaximized = false
 
         // Notify windowManager (if available)
         if (typeof windowManager !== 'undefined' && windowManager !== null) {
+            var parentWidth = parent.width
+            var parentHeight = parent.height
             windowManager.dockWindow(floatingWindow.chartId, edge, parentWidth, parentHeight)
         }
     }
@@ -488,8 +745,11 @@ Rectangle {
     function undock() {
         floatingWindow.isDocked = false
         floatingWindow.dockPosition = ""
-        floatingWindow.width = 800
-        floatingWindow.height = 600
+        floatingWindow.x = floatingWindow.restoreGeometry.x
+        floatingWindow.y = floatingWindow.restoreGeometry.y
+        floatingWindow.width = floatingWindow.restoreGeometry.width
+        floatingWindow.height = floatingWindow.restoreGeometry.height
+        clampToParent()
 
         // Notify windowManager (if available)
         if (typeof windowManager !== 'undefined' && windowManager !== null) {

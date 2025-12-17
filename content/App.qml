@@ -237,8 +237,9 @@ AppUi {
      ******************************************************************/
     Item {
         id: floatingWindowsContainer
+        parent: chartWorkspace
         anchors.fill: parent
-        z: 100  // Above chart window but below dialogs
+        z: 100  // Above workspace background
 
         // Container for dynamically created floating windows
         property var activeWindows: ({})
@@ -249,6 +250,8 @@ AppUi {
      ******************************************************************/
     function createFloatingWindow(chartId, chartType, title, x, y, width, height) {
         Logger.log_info("App: Creating floating window - ID: " + chartId + ", Type: " + chartType)
+
+        var isFirstWindow = Object.keys(floatingWindowsContainer.activeWindows).length === 0
 
         // Create window via backend
         if (WindowManager && WindowManager.createWindow) {
@@ -271,10 +274,12 @@ AppUi {
             "chartId": chartId,
             "chartType": chartType,
             "chartTitle": title,
-            "x": x || 100,
-            "y": y || 100,
-            "width": width || 800,
-            "height": height || 600
+            "x": (x !== undefined && x !== null) ? x : 100,
+            "y": (y !== undefined && y !== null) ? y : 100,
+            "width": (width !== undefined && width !== null) ? width : 800,
+            "height": (height !== undefined && height !== null) ? height : 600,
+            // First chart window starts maximized to the chart workspace (excludes right manager panel)
+            "isMaximized": isFirstWindow
         })
 
         // Pass central chart line model to the window's chart renderer after creation

@@ -37,6 +37,7 @@ Item {
     property var _graphs: ({})  // Dictionary of line series by uniqueId
     property var _chartLineModel: null  // Will be set by backend
     property bool _backendConnected: false
+    property var _backendEvents: null
 
     // Chart view component
     ChartView {
@@ -484,6 +485,7 @@ Item {
 
     Component.onDestruction: {
         Logger.log_info("XYChartRenderer destroyed for chart: " + root.chartId)
+        _disconnectBackendEvents()
     }
 
     function _tryConnectBackendEvents(attemptsLeft) {
@@ -522,8 +524,31 @@ Item {
             events.append_graph_points_batch.connect(handleGraphPointsBatch)
         }
 
+        root._backendEvents = events
         root._backendConnected = true
         Logger.log_info("XYChartRenderer: Connected to backend graph events for chart: " + root.chartId)
+    }
+
+    function _disconnectBackendEvents() {
+        if (!root._backendEvents) {
+            root._backendConnected = false
+            return
+        }
+
+        try {
+            if (root._backendEvents.append_graph_point) {
+                root._backendEvents.append_graph_point.disconnect(handleGraphPoint)
+            }
+        } catch (e) {}
+
+        try {
+            if (root._backendEvents.append_graph_points_batch) {
+                root._backendEvents.append_graph_points_batch.disconnect(handleGraphPointsBatch)
+            }
+        } catch (e) {}
+
+        root._backendConnected = false
+        root._backendEvents = null
     }
 
     /*******************************************************************
@@ -534,7 +559,7 @@ Item {
      * Handle single point from backend
      */
     function handleGraphPoint(uniqueId, point) {
-        if(!point) return
+        if (!root || !point) return
 
         var x = point.x !== undefined ? point.x : (point["x"] !== undefined ? point["x"] : 0)
         var y = point.y !== undefined ? point.y : (point["y"] !== undefined ? point["y"] : 0)
@@ -546,6 +571,7 @@ Item {
      * Handle batch points from backend
      */
     function handleGraphPointsBatch(uniqueId, points) {
+        if (!root) return
         root.appendPointsBatch(uniqueId, points)
     }
 }

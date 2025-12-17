@@ -22,6 +22,7 @@ Item {
     property alias scrollView: scrollView
     property var chartLineModel: null
     property bool isCollapsed: false
+    property bool embedded: false
 
     // Internal: Track which chart groups are collapsed
     property var collapsedCharts: ({})
@@ -39,7 +40,7 @@ Item {
         // Collapsed state - just the button centered
         Button {
             id: collapseButton
-            visible: root.isCollapsed
+            visible: root.isCollapsed && !root.embedded
             anchors.centerIn: parent
             width: 40
             height: 40
@@ -76,14 +77,15 @@ Item {
         // Expanded state - full layout
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 8
+            anchors.margins: root.embedded ? 0 : 8
             spacing: 8
-            visible: !root.isCollapsed
+            visible: root.embedded ? true : !root.isCollapsed
 
             // Header with collapse button
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
+                visible: !root.embedded
 
                 Label {
                     id: headerLabel
@@ -134,6 +136,7 @@ Item {
                 Layout.fillWidth: true
                 height: 1
                 color: "#d0d0d0"
+                visible: !root.embedded
             }
 
             // Scrollable area with grouped chart boxes
@@ -358,11 +361,11 @@ Item {
                                                         color: lineItem.lineVisible ? "#2196f3" : "#999"
                                                     }
 
-                                                    onClicked: {
-                                                        Logger.log_debug("ChartLinesListGrouped: Toggling visibility for " + lineItem.uniqueId)
-                                                        root.lineVisibilityToggled(lineItem.uniqueId, !lineItem.lineVisible)
+                                                        onClicked: {
+                                                            Logger.log_debug("ChartLinesListGrouped: Toggling visibility for " + lineItem.uniqueId)
+                                                            root.lineVisibilityToggled(lineItem.uniqueId, !lineItem.lineVisible)
+                                                        }
                                                     }
-                                                }
                                             }
 
                                             MouseArea {
@@ -451,6 +454,7 @@ Item {
             var line = root.chartLineModel.get(i)
             if ((line.chartId || "main") === chartId) {
                 linesModel.append({
+                    lineKey: line.lineKey,
                     uniqueId: line.uniqueId,
                     displayName: line.displayName,
                     color: line.color,
@@ -548,7 +552,7 @@ Item {
         function onCountChanged() {
             updateChartsList()
         }
-        function onDataChanged() {
+        function onModelChanged() {
             updateChartsList()
         }
     }

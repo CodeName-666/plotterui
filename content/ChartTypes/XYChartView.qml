@@ -93,7 +93,7 @@ Item {
     function removeLine(uniqueId) {
         root._internalRenderer.removeLine(uniqueId)
         if (root.chartLineModel) {
-            root.chartLineModel.removeLine(uniqueId)
+            root.chartLineModel.removeLineForChart(uniqueId, root.chartId)
         }
         Logger.log_info("XYChartView: Removed line " + uniqueId)
     }
@@ -105,7 +105,7 @@ Item {
      */
     function getLine(uniqueId) {
         if (root.chartLineModel) {
-            return root.chartLineModel.getLine(uniqueId)
+            return root.chartLineModel.getLineForChart(uniqueId, root.chartId)
         }
         return null
     }

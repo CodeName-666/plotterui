@@ -13,15 +13,17 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     // Signals
-    signal chartLineUpdated(string uniqueId, string displayName, color lineColor)
-    signal chartLineDeleted(string uniqueId)
+    signal chartLineUpdated(string lineKey, string displayName, color lineColor)
+    signal chartLineDeleted(string lineKey)
 
     // Properties
+    property string lineKey: ""
     property string uniqueId: ""
     property string originalDisplayName: ""
     property color originalColor: "#ff4444"
     property string interfaceType: ""
     property int dataId: 0
+    property string chartTitle: ""
 
     width: 500
     height: 550
@@ -51,7 +53,7 @@ Dialog {
             }
 
             Label {
-                text: qsTr("ID: %1 | Interface: %2").arg(root.uniqueId).arg(root.interfaceType)
+                text: qsTr("Signal: %1 | Chart: %2 | Interface: %3").arg(root.uniqueId).arg(root.chartTitle || "").arg(root.interfaceType)
                 font.pixelSize: 11
                 color: "#888888"
             }
@@ -370,7 +372,7 @@ Dialog {
 
                     onClicked: {
                         deleteConfirmDialog.close()
-                        root.chartLineDeleted(root.uniqueId)
+                        root.chartLineDeleted(root.lineKey)
                         root.close()
                     }
                 }
@@ -384,7 +386,7 @@ Dialog {
         var lineColor = colorPicker.selectedColor
 
         Logger.log_info("EditChartLineDialog: Saving changes for " + root.uniqueId)
-        root.chartLineUpdated(root.uniqueId, displayName, lineColor)
+        root.chartLineUpdated(root.lineKey, displayName, lineColor)
     }
 
     // Helper functions
@@ -393,12 +395,14 @@ Dialog {
     }
 
     // Load data when dialog opens
-    function loadChartLine(uniqueId, displayName, color, interfaceType, dataId) {
+    function loadChartLine(lineKey, uniqueId, displayName, color, interfaceType, dataId, chartTitle) {
+        root.lineKey = lineKey
         root.uniqueId = uniqueId
         root.originalDisplayName = displayName
         root.originalColor = color
         root.interfaceType = interfaceType
         root.dataId = dataId
+        root.chartTitle = chartTitle || ""
 
         displayNameInput.text = displayName
         colorPicker.selectedColor = color

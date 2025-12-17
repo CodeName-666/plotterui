@@ -46,8 +46,9 @@ ApplicationWindow {
         id: mainArea
         anchors.fill: parent
 
-        // Background area (empty workspace for floating windows)
-        Rectangle {
+        // Workspace area for charts/floating windows (excludes right-side manager panel)
+        Item {
+            id: chartWorkspace
             anchors {
                 top: parent.top
                 left: parent.left
@@ -55,20 +56,25 @@ ApplicationWindow {
                 bottom: footer.top
                 rightMargin: 10
             }
-            color: Constants.backgroundColor
+            clip: true
 
-            // Optional: Add a welcome message or placeholder
-            Text {
-                anchors.centerIn: parent
-                text: "Open the menu to create charts or manage connections"
-                font.pixelSize: 16
-                color: "#808080"
-                opacity: 0.5
+            Rectangle {
+                anchors.fill: parent
+                color: Constants.backgroundColor
+
+                // Optional: Add a welcome message or placeholder
+                Text {
+                    anchors.centerIn: parent
+                    text: "Open the menu to create charts or manage connections"
+                    font.pixelSize: 16
+                    color: "#808080"
+                    opacity: 0.5
+                }
             }
         }
 
-        // Chart Lines List - right side panel (collapsible, grouped by chart)
-        ChartLinesListGrouped {
+        // Chart Lines List - right side panel (collapsible, management tabs)
+        ChartLinesList {
             id: chartLinesList
             width: chartLinesListCollapsed ? chartLinesListCollapsedWidth : chartLinesListWidth
             anchors.top: parent.top
@@ -81,25 +87,61 @@ ApplicationWindow {
 
             isCollapsed: chartLinesListCollapsed
             chartLineModel: chartWindow.chartLineModel
+            availableCharts: chartWindow.availableCharts
 
             onCollapseToggled: {
                 chartLinesListCollapsed = !chartLinesListCollapsed
             }
 
-            onLineVisibilityToggled: function(uniqueId, visible) {
+            onLineVisibilityToggled: function(lineKey, visible) {
                 if (chartWindow && chartWindow.chartLineModel) {
-                    chartWindow.chartLineModel.toggleVisibility(uniqueId, visible)
+                    chartWindow.chartLineModel.toggleVisibility(lineKey, visible)
                 }
             }
 
-            onLineSelected: function(uniqueId) {
-                // Forward to chartWindow's edit dialog
+            onLineSelected: function(lineKey) {
                 if (chartWindow) {
-                    var line = chartWindow.chartLineModel.getLine(uniqueId)
+                    var line = chartWindow.chartLineModel.getLineByKey(lineKey)
                     if (line && chartWindow.editChartLineDialog) {
-                        chartWindow.editChartLineDialog.loadChartLine(uniqueId, line.displayName, line.color, line.interfaceType, line.dataId)
+                        chartWindow.editChartLineDialog.loadChartLine(lineKey, line.uniqueId, line.displayName, line.color, line.interfaceType, line.dataId, line.chartTitle)
                         chartWindow.editChartLineDialog.open()
                     }
+                }
+            }
+
+            onAddSignalRequested: {
+                if (chartWindow && chartWindow.addChartLineDialog) {
+                    chartWindow.addChartLineDialog.open()
+                }
+            }
+
+            onRemoveSignalRequested: function(uniqueId) {
+                if (chartWindow && chartWindow.removeSignal) {
+                    chartWindow.removeSignal(uniqueId)
+                }
+            }
+
+            onSetSignalChartsRequested: function(uniqueId, chartIds) {
+                if (chartWindow && chartWindow.setSignalCharts) {
+                    chartWindow.setSignalCharts(uniqueId, chartIds)
+                }
+            }
+
+            onCreateChartRequested: function(chartType, chartTitle) {
+                if (chartWindow && chartWindow.createManagedChart) {
+                    chartWindow.createManagedChart(chartType, chartTitle)
+                }
+            }
+
+            onRemoveChartRequested: function(chartId) {
+                if (chartWindow && chartWindow.removeManagedChart) {
+                    chartWindow.removeManagedChart(chartId)
+                }
+            }
+
+            onRenameChartRequested: function(chartId, chartTitle) {
+                if (chartWindow && chartWindow.renameManagedChart) {
+                    chartWindow.renameManagedChart(chartId, chartTitle)
                 }
             }
 

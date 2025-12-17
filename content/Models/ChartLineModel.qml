@@ -9,6 +9,12 @@ import Backend 1.0
 ListModel {
     id: chartLineModel
 
+    signal modelChanged()
+
+    function buildLineKey(uniqueId, chartId) {
+        return (chartId || "main") + "::" + uniqueId
+    }
+
     /**
      * Add a new chart line to the model
      *
@@ -23,13 +29,17 @@ ListModel {
      * @param chartTitle - Title of the chart this line belongs to (e.g., "Main Chart", "Test Chart")
      */
     function addLine(uniqueId, displayName, color, interfaceType, dataId, interfaceSettings, seriesRef, chartId, chartTitle) {
-        // Check if line already exists
-        if (getLineIndex(uniqueId) !== -1) {
-            Logger.log_warning("ChartLineModel: Line " + uniqueId + " already exists")
+        var safeChartId = chartId || "main"
+        var lineKey = buildLineKey(uniqueId, safeChartId)
+
+        // Check if this line already exists on this chart
+        if (getLineIndexByKey(lineKey) !== -1) {
+            Logger.log_warning("ChartLineModel: Line " + uniqueId + " already exists on chart " + safeChartId)
             return false
         }
 
         append({
+            "lineKey": lineKey,
             "uniqueId": uniqueId,
             "displayName": displayName,
             "color": color,
@@ -38,41 +48,47 @@ ListModel {
             "interfaceSettings": interfaceSettings || {},
             "visible": true,
             "seriesRef": seriesRef || null,
-            "chartId": chartId || "main",
+            "chartId": safeChartId,
             "chartTitle": chartTitle || "Main Chart"
         })
 
-        Logger.log_info("ChartLineModel: Added line " + uniqueId + " (" + displayName + ") to chart " + (chartId || "main"))
+        modelChanged()
+        Logger.log_info("ChartLineModel: Added line " + uniqueId + " (" + displayName + ") to chart " + safeChartId)
         return true
     }
 
     /**
      * Remove a chart line from the model
      *
-     * @param uniqueId - Unique identifier of the line to remove
+     * @param lineKey - Unique key of the line instance to remove ("<chartId>::<uniqueId>")
      */
-    function removeLine(uniqueId) {
-        var index = getLineIndex(uniqueId)
+    function removeLine(lineKey) {
+        var index = getLineIndexByKey(lineKey)
         if (index === -1) {
-            Logger.log_warning("ChartLineModel: Cannot remove - line " + uniqueId + " not found")
+            Logger.log_warning("ChartLineModel: Cannot remove - line " + lineKey + " not found")
             return false
         }
 
         remove(index)
-        Logger.log_info("ChartLineModel: Removed line " + uniqueId)
+        modelChanged()
+        Logger.log_info("ChartLineModel: Removed line " + lineKey)
         return true
+    }
+
+    function removeLineForChart(uniqueId, chartId) {
+        return removeLine(buildLineKey(uniqueId, chartId))
     }
 
     /**
      * Update properties of an existing chart line
      *
-     * @param uniqueId - Unique identifier of the line to update
+     * @param lineKey - Unique key of the line instance to update
      * @param properties - Object with properties to update (displayName, color, interfaceSettings, etc.)
      */
-    function updateLine(uniqueId, properties) {
-        var index = getLineIndex(uniqueId)
+    function updateLine(lineKey, properties) {
+        var index = getLineIndexByKey(lineKey)
         if (index === -1) {
-            Logger.log_warning("ChartLineModel: Cannot update - line " + uniqueId + " not found")
+            Logger.log_warning("ChartLineModel: Cannot update - line " + lineKey + " not found")
             return false
         }
 
@@ -82,37 +98,83 @@ ListModel {
             }
         }
 
-        Logger.log_debug("ChartLineModel: Updated line " + uniqueId)
+        modelChanged()
+        Logger.log_debug("ChartLineModel: Updated line " + lineKey)
         return true
+    }
+
+    function updateLineForChart(uniqueId, chartId, properties) {
+        return updateLine(buildLineKey(uniqueId, chartId), properties)
+    }
+
+    function updateLinesByUniqueId(uniqueId, properties) {
+        var updated = false
+        for (var i = 0; i < count; i++) {
+            if (get(i).uniqueId !== uniqueId) continue
+            for (var prop in properties) {
+                if (properties.hasOwnProperty(prop)) {
+                    setProperty(i, prop, properties[prop])
+                }
+            }
+            updated = true
+        }
+        if (updated) modelChanged()
+        return updated
     }
 
     /**
      * Get a chart line by unique ID
      *
-     * @param uniqueId - Unique identifier of the line
+     * @param uniqueId - Unique identifier of the signal source
      * @returns Line object or null if not found
      */
     function getLine(uniqueId) {
-        var index = getLineIndex(uniqueId)
-        if (index === -1) {
-            return null
+        var mainLine = getLineForChart(uniqueId, "main")
+        if (mainLine) return mainLine
+        for (var i = 0; i < count; i++) {
+            if (get(i).uniqueId === uniqueId) return get(i)
         }
-        return get(index)
+        return null
+    }
+
+    function getLineByKey(lineKey) {
+        var index = getLineIndexByKey(lineKey)
+        return index === -1 ? null : get(index)
+    }
+
+    function getLineForChart(uniqueId, chartId) {
+        var key = buildLineKey(uniqueId, chartId)
+        return getLineByKey(key)
+    }
+
+    function hasLineForChart(uniqueId, chartId) {
+        return getLineIndexByKey(buildLineKey(uniqueId, chartId)) !== -1
+    }
+
+    function hasAnyLine(uniqueId) {
+        for (var i = 0; i < count; i++) {
+            if (get(i).uniqueId === uniqueId) return true
+        }
+        return false
     }
 
     /**
      * Get index of a chart line by unique ID
      *
-     * @param uniqueId - Unique identifier of the line
+     * @param lineKey - Unique key of the line instance
      * @returns Index in the model or -1 if not found
      */
-    function getLineIndex(uniqueId) {
+    function getLineIndexByKey(lineKey) {
         for (var i = 0; i < count; i++) {
-            if (get(i).uniqueId === uniqueId) {
+            if (get(i).lineKey === lineKey) {
                 return i
             }
         }
         return -1
+    }
+
+    function getLineIndexForChart(uniqueId, chartId) {
+        return getLineIndexByKey(buildLineKey(uniqueId, chartId))
     }
 
     /**
@@ -128,14 +190,22 @@ ListModel {
         return lines
     }
 
+    function getAllUniqueIds() {
+        var ids = ({})
+        for (var i = 0; i < count; i++) {
+            ids[get(i).uniqueId] = true
+        }
+        return Object.keys(ids)
+    }
+
     /**
      * Toggle visibility of a chart line
      *
-     * @param uniqueId - Unique identifier of the line
+     * @param lineKey - Unique key of the line instance
      * @param visible - New visibility state (optional, toggles if not provided)
      */
-    function toggleVisibility(uniqueId, visible) {
-        var index = getLineIndex(uniqueId)
+    function toggleVisibility(lineKey, visible) {
+        var index = getLineIndexByKey(lineKey)
         if (index === -1) {
             return false
         }
@@ -150,24 +220,30 @@ ListModel {
             line.seriesRef.visible = newVisibility
         }
 
-        Logger.log_debug("ChartLineModel: Toggled visibility of " + uniqueId + " to " + newVisibility)
+        modelChanged()
+        Logger.log_debug("ChartLineModel: Toggled visibility of " + lineKey + " to " + newVisibility)
         return true
+    }
+
+    function toggleVisibilityForChart(uniqueId, chartId, visible) {
+        return toggleVisibility(buildLineKey(uniqueId, chartId), visible)
     }
 
     /**
      * Set series reference for a chart line
      *
-     * @param uniqueId - Unique identifier of the line
+     * @param lineKey - Unique key of the line instance
      * @param seriesRef - Reference to Qt Charts series object
      */
-    function setSeriesRef(uniqueId, seriesRef) {
-        var index = getLineIndex(uniqueId)
+    function setSeriesRef(lineKey, seriesRef) {
+        var index = getLineIndexByKey(lineKey)
         if (index === -1) {
             return false
         }
 
         setProperty(index, "seriesRef", seriesRef)
-        Logger.log_debug("ChartLineModel: Set series reference for " + uniqueId)
+        modelChanged()
+        Logger.log_debug("ChartLineModel: Set series reference for " + lineKey)
         return true
     }
 
@@ -177,6 +253,7 @@ ListModel {
     function clearAll() {
         Logger.log_info("ChartLineModel: Clearing all lines")
         clear()
+        modelChanged()
     }
 
     /**
@@ -242,5 +319,29 @@ ListModel {
             }
             i--
         }
+        modelChanged()
+    }
+
+    function removeLinesByUniqueId(uniqueId) {
+        Logger.log_info("ChartLineModel: Removing all lines for signal " + uniqueId)
+        var i = count - 1
+        while (i >= 0) {
+            if (get(i).uniqueId === uniqueId) {
+                remove(i)
+            }
+            i--
+        }
+        modelChanged()
+    }
+
+    function updateChartTitle(chartId, chartTitle) {
+        var updated = false
+        for (var i = 0; i < count; i++) {
+            if (get(i).chartId !== chartId) continue
+            setProperty(i, "chartTitle", chartTitle)
+            updated = true
+        }
+        if (updated) modelChanged()
+        return updated
     }
 }

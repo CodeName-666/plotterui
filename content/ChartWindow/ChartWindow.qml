@@ -19,6 +19,10 @@ ChartWindowUi{
     property var appRoot: null  // Will be set by App.qml on Component.onCompleted
     property var _graphs: ({})  // Legacy: keeping for backward compatibility during transition
     property var chartLineModel: ChartLineModel {}  // New model-based line management
+    property var availableCharts: []
+    property alias addChartLineDialog: addChartLineDialog
+    property alias editChartLineDialog: editChartLineDialog
+    property alias connectionManagerDialog: connectionManagerDialog
     property real initialXMin: 0
     property real initialXMax: 10
     property real initialYMin: 0
@@ -28,6 +32,10 @@ ChartWindowUi{
     onChartLinesListCollapsedChanged: {
         Logger.log_debug("ChartWindow: chartLinesListCollapsed changed to: " + chartLinesListCollapsed)
         Logger.log_debug("ChartWindow: chartLinesList.isCollapsed = " + chartLinesList.isCollapsed)
+    }
+
+    onAppRootChanged: {
+        refreshAvailableCharts()
     }
 
     /*******************************************************************
@@ -54,19 +62,19 @@ ChartWindowUi{
     /*******************************************************************
      * EVENT - Chart Lines List
      ******************************************************************/
-    chartLinesList.listView.model: chartLineModel
+    chartLinesList.chartLineModel: chartLineModel
 
     Connections {
         target: chartLinesList
-        function onLineVisibilityToggled(uniqueId, visible) {
-            Logger.log_info("ChartWindow: Toggle visibility for " + uniqueId + " to " + visible)
-            chartLineModel.toggleVisibility(uniqueId, visible)
+        function onLineVisibilityToggled(lineKey, visible) {
+            Logger.log_info("ChartWindow: Toggle visibility for " + lineKey + " to " + visible)
+            chartLineModel.toggleVisibility(lineKey, visible)
         }
-        function onLineSelected(uniqueId) {
-            Logger.log_info("ChartWindow: Line selected: " + uniqueId)
-            var line = chartLineModel.getLine(uniqueId)
+        function onLineSelected(lineKey) {
+            Logger.log_info("ChartWindow: Line selected: " + lineKey)
+            var line = chartLineModel.getLineByKey(lineKey)
             if(line) {
-                editChartLineDialog.loadChartLine(uniqueId, line.displayName, line.color, line.interfaceType, line.dataId)
+                editChartLineDialog.loadChartLine(lineKey, line.uniqueId, line.displayName, line.color, line.interfaceType, line.dataId, line.chartTitle)
                 editChartLineDialog.open()
             }
         }
@@ -76,6 +84,40 @@ ChartWindowUi{
             chartLinesListCollapsed = !chartLinesListCollapsed
             Logger.log_debug("ChartWindow: New state = " + chartLinesListCollapsed)
             Logger.log_debug("ChartWindow: isCollapsed in UI = " + chartLinesList.isCollapsed)
+        }
+
+        function onAddSignalRequested() {
+            addChartLineDialog.open()
+        }
+
+        function onRemoveSignalRequested(uniqueId) {
+            removeSignal(uniqueId)
+        }
+
+        function onSetSignalChartsRequested(uniqueId, chartIds) {
+            setSignalCharts(uniqueId, chartIds)
+        }
+
+        function onCreateChartRequested(chartType, chartTitle) {
+            createManagedChart(chartType, chartTitle)
+        }
+
+        function onRemoveChartRequested(chartId) {
+            removeManagedChart(chartId)
+        }
+
+        function onRenameChartRequested(chartId, chartTitle) {
+            renameManagedChart(chartId, chartTitle)
+        }
+    }
+
+    Connections {
+        target: (typeof WindowManager !== "undefined") ? WindowManager : null
+        function onWindowCreated(chartId) {
+            Qt.callLater(function() { refreshAvailableCharts() })
+        }
+        function onWindowRemoved(chartId) {
+            Qt.callLater(function() { refreshAvailableCharts() })
         }
     }
 
@@ -150,20 +192,29 @@ ChartWindowUi{
         parent: Overlay.overlay
         anchors.centerIn: parent
 
-        onChartLineUpdated: function(uniqueId, displayName, lineColor) {
-            Logger.log_info("ChartWindow: Chart line updated: " + uniqueId)
+        onChartLineUpdated: function(lineKey, displayName, lineColor) {
+            Logger.log_info("ChartWindow: Chart line updated: " + lineKey)
+
+            var line = chartLineModel.getLineByKey(lineKey)
+            if (!line) {
+                Logger.log_warning("ChartWindow: Cannot update - line not found: " + lineKey)
+                return
+            }
+            var uniqueId = line.uniqueId
 
             // Update model
-            chartLineModel.updateLine(uniqueId, {
+            chartLineModel.updateLinesByUniqueId(uniqueId, {
                 "displayName": displayName,
                 "color": lineColor
             })
 
-            // Update series color if it exists
-            var line = chartLineModel.getLine(uniqueId)
-            if(line && line.seriesRef) {
-                line.seriesRef.name = displayName
-                line.seriesRef.color = lineColor
+            // Update all series refs for this signal across charts
+            for (var i = 0; i < chartLineModel.count; i++) {
+                var inst = chartLineModel.get(i)
+                if (inst.uniqueId !== uniqueId) continue
+                if (!inst.seriesRef) continue
+                if (inst.seriesRef.name !== undefined) inst.seriesRef.name = displayName
+                if (inst.seriesRef.color !== undefined) inst.seriesRef.color = lineColor
             }
 
             // Update backend
@@ -175,9 +226,9 @@ ChartWindowUi{
             Logger.log_info("Chart line successfully updated: " + displayName)
         }
 
-        onChartLineDeleted: function(uniqueId) {
-            Logger.log_info("ChartWindow: Chart line deleted: " + uniqueId)
-            removeChartLine(uniqueId)
+        onChartLineDeleted: function(lineKey) {
+            Logger.log_info("ChartWindow: Chart line deleted: " + lineKey)
+            removeChartLine(lineKey)
         }
     }
 
@@ -307,6 +358,7 @@ ChartWindowUi{
             controller.set_plot_area(chart.plotArea)
             controller.set_axis(xAxis,yAxis)
         }
+        refreshAvailableCharts()
         Logger.log_debug("CHARTVIEW Completed");
     }
 
@@ -320,8 +372,12 @@ ChartWindowUi{
      ******************************************************************/
     function newGraph(uniqueId, displayName, color, interfaceType) {
         // If this uniqueId is already assigned to another chart, don't create it on the main chart.
-        if (chartLineModel.getLine(uniqueId) !== null) {
-            Logger.log_debug("ChartWindow.newGraph: Skipping already-registered line: " + uniqueId)
+        if (chartLineModel.hasLineForChart(uniqueId, "main")) {
+            Logger.log_debug("ChartWindow.newGraph: Skipping already-registered main line: " + uniqueId)
+            return
+        }
+        if (chartLineModel.hasAnyLine(uniqueId)) {
+            Logger.log_debug("ChartWindow.newGraph: Skipping auto-add to main (already assigned elsewhere): " + uniqueId)
             return
         }
 
@@ -358,12 +414,10 @@ ChartWindowUi{
     {
         if(!_graphs[uniqueId])
         {
-            var line = chartLineModel.getLine(uniqueId)
-            if (line && line.chartId !== "main") {
-                // This point belongs to another chart (e.g. floating window) which owns the series.
-                return
+            // Not assigned to the main chart (may be shown in floating windows).
+            if (chartLineModel.hasLineForChart(uniqueId, "main")) {
+                Logger.log_warning("appendGraphPoint: graph not found for " + uniqueId)
             }
-            Logger.log_warning("appendGraphPoint: graph not found for " + uniqueId)
             return
         }
         if(point === undefined)
@@ -372,7 +426,7 @@ ChartWindowUi{
         var y = point.y !== undefined ? point.y : (point["y"] !== undefined ? point["y"] : 0)
 
         // Check if line is visible before appending
-        var line = chartLineModel.getLine(uniqueId)
+        var line = chartLineModel.getLineForChart(uniqueId, "main")
         if(line && line.visible) {
             var series = _graphs[uniqueId]
 
@@ -400,19 +454,17 @@ ChartWindowUi{
     {
         if(!_graphs[uniqueId])
         {
-            var line = chartLineModel.getLine(uniqueId)
-            if (line && line.chartId !== "main") {
-                // This batch belongs to another chart (e.g. floating window) which owns the series.
-                return
+            // Not assigned to the main chart (may be shown in floating windows).
+            if (chartLineModel.hasLineForChart(uniqueId, "main")) {
+                Logger.log_warning("appendGraphPointsBatch: graph not found for " + uniqueId)
             }
-            Logger.log_warning("appendGraphPointsBatch: graph not found for " + uniqueId)
             return
         }
         if(!points || points.length === 0)
             return
 
         // Check if line is visible before appending
-        var line = chartLineModel.getLine(uniqueId)
+        var line = chartLineModel.getLineForChart(uniqueId, "main")
         if(line && line.visible) {
             var series = _graphs[uniqueId]
             var maxPoints = 10000
@@ -545,44 +597,45 @@ ChartWindowUi{
      * FUNCTION - Get list of used data IDs (uniqueId format)
      ******************************************************************/
     function getUsedDataIds() {
-        var usedIds = []
-        var lines = chartLineModel.getAllLines()
-        for(var i = 0; i < lines.length; i++) {
-            usedIds.push(lines[i].uniqueId)
-        }
-        return usedIds
+        return chartLineModel.getAllUniqueIds()
     }
 
     /*******************************************************************
      * FUNCTION - Remove chart line completely
      ******************************************************************/
-    function removeChartLine(uniqueId) {
-        Logger.log_info("ChartWindow: Removing chart line: " + uniqueId)
+    function removeChartLine(lineKey) {
+        Logger.log_info("ChartWindow: Removing chart line instance: " + lineKey)
 
-        // Get line from model before removing
-        var line = chartLineModel.getLine(uniqueId)
-
-        // Remove series from chart
-        if(line && line.seriesRef) {
-            chart.removeSeries(line.seriesRef)
-            Logger.log_debug("ChartWindow: Removed series from chart: " + uniqueId)
+        var line = chartLineModel.getLineByKey(lineKey)
+        if (!line) {
+            Logger.log_warning("ChartWindow: Cannot remove - line not found: " + lineKey)
+            return
         }
 
-        // Remove from model
-        chartLineModel.removeLine(uniqueId)
-
-        // Remove from legacy _graphs object
-        if(_graphs[uniqueId]) {
-            delete _graphs[uniqueId]
+        // Remove series from the owning chart
+        if (line.chartId === "main") {
+            if (line.seriesRef) {
+                chart.removeSeries(line.seriesRef)
+            }
+            if (_graphs[line.uniqueId]) {
+                delete _graphs[line.uniqueId]
+            }
+            chartLineModel.removeLine(lineKey)
+            Logger.log_info("ChartWindow: Removed line instance: " + lineKey)
+            return
+        } else if (chartWindow.appRoot && chartWindow.appRoot.floatingWindowsContainer) {
+            var win = chartWindow.appRoot.floatingWindowsContainer.activeWindows[line.chartId]
+            if (win && win.chartRenderer && win.chartRenderer.removeLine) {
+                // XYChartView.removeLine already updates the central model.
+                win.chartRenderer.removeLine(line.uniqueId)
+                Logger.log_info("ChartWindow: Removed line instance via chart renderer: " + lineKey)
+                return
+            }
         }
 
-        // Remove from backend
-        var controller = appController !== undefined && appController !== null ? appController : App.get_app()
-        if(controller !== undefined && controller !== null) {
-            controller.remove_chart_line(uniqueId)
-        }
-
-        Logger.log_info("Chart line successfully removed: " + uniqueId)
+        // Fallback: remove from model (do NOT remove from backend; other charts may still use it)
+        chartLineModel.removeLine(lineKey)
+        Logger.log_info("ChartWindow: Removed line instance: " + lineKey)
     }
 
     /*******************************************************************
@@ -590,6 +643,132 @@ ChartWindowUi{
      ******************************************************************/
     function setup(settings) {
 
+    }
+
+    function refreshAvailableCharts() {
+        var charts = []
+        charts.push({"chartId":"main", "chartTitle":"Main Chart", "chartType":"xy_line"})
+
+        if (chartWindow.appRoot && chartWindow.appRoot.floatingWindowsContainer) {
+            var wins = chartWindow.appRoot.floatingWindowsContainer.activeWindows
+            for (var id in wins) {
+                var w = wins[id]
+                if (!w) continue
+                charts.push({
+                    "chartId": id,
+                    "chartTitle": w.chartTitle || id,
+                    "chartType": w.chartType || "xy_line"
+                })
+            }
+        }
+
+        availableCharts = charts
+        if (chartLinesList && chartLinesList.availableCharts !== undefined) {
+            chartLinesList.availableCharts = charts
+        }
+    }
+
+    function removeSignal(uniqueId) {
+        Logger.log_info("ChartWindow: Removing signal (ignore): " + uniqueId)
+
+        // Hide on all charts first (remove series + model instances)
+        var instances = []
+        for (var i = 0; i < chartLineModel.count; i++) {
+            var inst = chartLineModel.get(i)
+            if (inst.uniqueId === uniqueId) instances.push(inst.lineKey)
+        }
+        for (var j = 0; j < instances.length; j++) {
+            removeChartLine(instances[j])
+        }
+
+        // Tell backend to ignore this signal so it doesn't auto-reappear
+        if (Backend.set_signal_ignored) {
+            Backend.set_signal_ignored(uniqueId, true)
+        }
+
+        var controller = appController !== undefined && appController !== null ? appController : App.get_app()
+        if (controller !== undefined && controller !== null) {
+            controller.remove_chart_line(uniqueId)
+        }
+    }
+
+    function setSignalCharts(uniqueId, chartIds) {
+        Logger.log_info("ChartWindow: Setting signal charts for " + uniqueId + " -> " + JSON.stringify(chartIds))
+
+        if (Backend.set_signal_ignored) {
+            Backend.set_signal_ignored(uniqueId, false)
+        }
+
+        var desired = ({})
+        for (var i = 0; i < chartIds.length; i++) desired[chartIds[i]] = true
+
+        // Unassign from charts that are no longer selected
+        var toRemove = []
+        for (var j = 0; j < chartLineModel.count; j++) {
+            var inst = chartLineModel.get(j)
+            if (inst.uniqueId !== uniqueId) continue
+            if (!desired[inst.chartId]) toRemove.push(inst.lineKey)
+        }
+        for (var r = 0; r < toRemove.length; r++) {
+            removeChartLine(toRemove[r])
+        }
+
+        // Need a template line (name/color/interface/dataId) to assign to new charts
+        var baseLine = chartLineModel.getLine(uniqueId)
+        if (!baseLine) {
+            Logger.log_warning("ChartWindow: Cannot assign unknown signal (create it first): " + uniqueId)
+            return
+        }
+
+        // Assign to newly selected charts
+        for (var chartId in desired) {
+            if (chartLineModel.hasLineForChart(uniqueId, chartId)) continue
+
+            if (chartId === "main") {
+                var graph = createGraph(baseLine.displayName, baseLine.color)
+                _graphs[uniqueId] = graph
+                chartLineModel.addLine(uniqueId, baseLine.displayName, baseLine.color, baseLine.interfaceType, baseLine.dataId, baseLine.interfaceSettings, graph, "main", "Main Chart")
+
+                var controller = appController !== undefined && appController !== null ? appController : App.get_app()
+                if (controller !== undefined && controller !== null) {
+                    controller.add_graph(uniqueId, graph)
+                }
+                continue
+            }
+
+            if (chartWindow.appRoot && chartWindow.appRoot.floatingWindowsContainer) {
+                var win = chartWindow.appRoot.floatingWindowsContainer.activeWindows[chartId]
+                if (win && win.chartRenderer && win.chartRenderer.createLine) {
+                    win.chartRenderer.createLine(uniqueId, baseLine.displayName, baseLine.color, baseLine.interfaceType, baseLine.dataId)
+                }
+            }
+        }
+    }
+
+    function createManagedChart(chartType, chartTitle) {
+        if (!chartWindow.appRoot || !chartWindow.appRoot.createFloatingWindow) return
+        var chartId = "chart_" + chartType + "_" + Date.now()
+        chartWindow.appRoot.createFloatingWindow(chartId, chartType, chartTitle, 140, 140, 800, 600)
+        refreshAvailableCharts()
+    }
+
+    function removeManagedChart(chartId) {
+        if (chartId === "main") return
+        if (!chartWindow.appRoot || !chartWindow.appRoot.removeFloatingWindow) return
+        chartWindow.appRoot.removeFloatingWindow(chartId)
+        refreshAvailableCharts()
+    }
+
+    function renameManagedChart(chartId, chartTitle) {
+        if (chartId === "main") return
+        if (chartWindow.appRoot && chartWindow.appRoot.floatingWindowsContainer) {
+            var win = chartWindow.appRoot.floatingWindowsContainer.activeWindows[chartId]
+            if (win) win.chartTitle = chartTitle
+        }
+        if (chartLineModel.updateChartTitle) {
+            chartLineModel.updateChartTitle(chartId, chartTitle)
+        }
+        refreshAvailableCharts()
     }
 
     /*******************************************************************

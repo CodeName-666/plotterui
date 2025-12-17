@@ -790,6 +790,104 @@ ChartWindowUi{
     }
 
     /**
+     * Test function for XY plots with 3 signals (explicit X/Y per signal).
+     * Creates a 2D chart and feeds it with {"id":0|1|2,"x":...,"y":...} samples.
+     */
+    function testFloatingWindowXYMulti() {
+        Logger.log_info("ChartWindow: Starting Test 2D X/Y flow (3 XY signals)")
+
+        // Get App instance to call createFloatingWindow
+        var app = chartWindow.appRoot
+        if (app === null) {
+            var p = parent
+            while (p !== null) {
+                if (p.createFloatingWindow !== undefined) {
+                    app = p
+                    break
+                }
+                p = p.parent
+            }
+        }
+
+        if (app === null || app.createFloatingWindow === undefined) {
+            Logger.log_error("ChartWindow: Cannot find App.createFloatingWindow function")
+            Logger.log_error("ChartWindow: Please ensure chartWindow.appRoot is set by App.qml")
+            return
+        }
+
+        var timestamp = Date.now()
+        var chartId = "test_xy_multi_" + timestamp
+
+        // 1) Create backend communication interface (Test)
+        var testSettings = {
+            "type": "XYMulti",
+            "radius": 10.0,
+            "sample_ms": 30
+        }
+
+        var connectionId = Backend.create_connection("Test", "Test 2D X/Y " + timestamp, testSettings)
+        if (!connectionId || connectionId === "") {
+            Logger.log_error("ChartWindow: Failed to create Test connection for XY multi")
+            return
+        }
+
+        // Use a line chart here so the XY trajectory becomes visible.
+        var window = app.createFloatingWindow(
+            chartId,
+            "xy_line",
+            "Test 2D X/Y Chart " + timestamp,
+            200,
+            200,
+            750,
+            520
+        )
+
+        if (window === null) {
+            Logger.log_error("ChartWindow: Failed to create floating window for XY multi")
+            return
+        }
+
+        window.connectionId = connectionId
+        window.autoDeleteConnectionOnClose = true
+
+        function tryInitSignals(attemptsLeft) {
+            if (!window || !window.chartRenderer) {
+                if (attemptsLeft > 0) return Qt.callLater(function() { tryInitSignals(attemptsLeft - 1) })
+                Logger.log_error("ChartWindow: Chart renderer not available for XY multi (timeout)")
+                return
+            }
+
+            // Ensure central model is present before creating lines
+            if (!window.chartRenderer.chartLineModel) {
+                window.chartRenderer.chartLineModel = chartLineModel
+            }
+
+            // Make coordinate system visible immediately
+            if (window.chartRenderer.initialXMin !== undefined) window.chartRenderer.initialXMin = -12
+            if (window.chartRenderer.initialXMax !== undefined) window.chartRenderer.initialXMax = 12
+            if (window.chartRenderer.initialYMin !== undefined) window.chartRenderer.initialYMin = -12
+            if (window.chartRenderer.initialYMax !== undefined) window.chartRenderer.initialYMax = 12
+
+            var templates = [
+                {"dataId": 0, "displayName": "XY Circle", "color": "#ff6b6b"},
+                {"dataId": 1, "displayName": "XY Lissajous", "color": "#4ecdc4"},
+                {"dataId": 2, "displayName": "XY Spiral", "color": "#ffe66d"}
+            ]
+
+            for (var i = 0; i < templates.length; i++) {
+                var tpl = templates[i]
+                var uniqueId = connectionId + "_" + tpl.dataId
+                window.chartRenderer.createLine(uniqueId, tpl.displayName, tpl.color, "Test", tpl.dataId)
+            }
+
+            Backend.start_connection(connectionId)
+            Logger.log_info("ChartWindow: Test 2D X/Y connection started: " + connectionId)
+        }
+
+        tryInitSignals(20)
+    }
+
+    /**
      * Test function for 3D floating windows
      * Creates a 3D scatter plot with sample data (helix, sphere, random points)
      */

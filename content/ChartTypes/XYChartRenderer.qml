@@ -539,13 +539,13 @@ Item {
         var x = point.x !== undefined ? point.x : (point["x"] !== undefined ? point["x"] : 0)
         var y = point.y !== undefined ? point.y : (point["y"] !== undefined ? point["y"] : 0)
 
-        appendPoint(uniqueId, x, y)
+        root.appendPoint(uniqueId, x, y)
     }
 
     /**
      * Handle batch points from backend
      */
     function handleGraphPointsBatch(uniqueId, points) {
-        appendPointsBatch(uniqueId, points)
+        root.appendPointsBatch(uniqueId, points)
     }
 }

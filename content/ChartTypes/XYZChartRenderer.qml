@@ -797,13 +797,13 @@ Item {
         var y = point.y !== undefined ? point.y : 0
         var z = point.z !== undefined ? point.z : 0
 
-        appendPoint3D(uniqueId, x, y, z)
+        root.appendPoint3D(uniqueId, x, y, z)
     }
 
     /**
      * Handle batch 3D points from backend
      */
     function handleGraphPointsBatch3D(uniqueId, points) {
-        appendPointsBatch3D(uniqueId, points)
+        root.appendPointsBatch3D(uniqueId, points)
     }
 }

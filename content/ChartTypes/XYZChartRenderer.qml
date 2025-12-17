@@ -3,6 +3,7 @@ import QtQuick.Controls 6.4
 import QtQuick3D 6.4
 import Backend 1.0
 import Common 1.0
+import PlotterUi 1.0
 
 /**
  * XYZChartRenderer.qml
@@ -39,6 +40,8 @@ Item {
     property real yMax: 10
     property real zMin: -10
     property real zMax: 10
+
+    property bool _backendConnected: false
 
     // Internal state
     property var _scatterPlots: ({})  // Dictionary of scatter plots by uniqueId
@@ -728,23 +731,7 @@ Item {
 
     Component.onCompleted: {
         Logger.log_info("XYZChartRenderer initialized for chart: " + root.chartId)
-
-        // Connect to backend if available
-        var controller = App.get_app()
-        if (controller !== undefined && controller !== null) {
-            // Connect to backend events for 3D data
-            var events = controller.events()
-            if (events !== undefined && events !== null) {
-                if (events.append_graph_point_3d !== undefined) {
-                    events.append_graph_point_3d.connect(handleGraphPoint3D)
-                    Logger.log_info("XYZChartRenderer: Connected to append_graph_point_3d event")
-                }
-                if (events.append_graph_points_batch_3d !== undefined) {
-                    events.append_graph_points_batch_3d.connect(handleGraphPointsBatch3D)
-                    Logger.log_info("XYZChartRenderer: Connected to append_graph_points_batch_3d event")
-                }
-            }
-        }
+        _tryConnectBackendEvents(40)
     }
 
     Component.onDestruction: {
@@ -754,6 +741,46 @@ Item {
         for (var plotId in _scatterPlots) {
             removeScatterPlot(plotId)
         }
+    }
+
+    function _tryConnectBackendEvents(attemptsLeft) {
+        if (root._backendConnected) {
+            return
+        }
+
+        var controller = null
+        try {
+            controller = App.get_app()
+        } catch (e) {
+            controller = null
+        }
+
+        if (!controller || typeof controller.events !== "function") {
+            if (attemptsLeft > 0) {
+                return Qt.callLater(function() { _tryConnectBackendEvents(attemptsLeft - 1) })
+            }
+            Logger.log_warning("XYZChartRenderer: Backend controller not available - no live data will be shown")
+            return
+        }
+
+        var events = controller.events()
+        if (!events) {
+            if (attemptsLeft > 0) {
+                return Qt.callLater(function() { _tryConnectBackendEvents(attemptsLeft - 1) })
+            }
+            Logger.log_warning("XYZChartRenderer: Backend events not available - no live data will be shown")
+            return
+        }
+
+        if (events.append_graph_point_3d) {
+            events.append_graph_point_3d.connect(handleGraphPoint3D)
+        }
+        if (events.append_graph_points_batch_3d) {
+            events.append_graph_points_batch_3d.connect(handleGraphPointsBatch3D)
+        }
+
+        root._backendConnected = true
+        Logger.log_info("XYZChartRenderer: Connected to backend 3D graph events for chart: " + root.chartId)
     }
 
     /*******************************************************************

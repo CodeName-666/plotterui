@@ -3,6 +3,7 @@ import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
 import Common 1.0
 import Backend 1.0
+import PlotterUi 1.0
 
 /**
  * XYChartView.qml
@@ -64,12 +65,14 @@ Item {
 
         // Add to central model if available
         if (root.chartLineModel) {
+            // Keep 0 as valid dataId (don't coerce to empty string).
+            var safeDataId = (dataId !== undefined && dataId !== null) ? dataId : ""
             root.chartLineModel.addLine(
                 uniqueId,
                 displayName,
                 color,
                 interfaceType || "Manual",
-                dataId || "",
+                safeDataId,
                 {},  // interfaceSettings
                 lineSeries,
                 root.chartId,      // Chart ID

@@ -665,16 +665,20 @@ ChartWindowUi{
                 return
             }
 
-            // Ensure central model is present before creating lines
-            if (!window.chartRenderer.chartLineModel) {
-                window.chartRenderer.chartLineModel = chartLineModel
-            }
+                // Ensure central model is present before creating lines
+                if (!window.chartRenderer.chartLineModel) {
+                    window.chartRenderer.chartLineModel = chartLineModel
+                }
 
-            var templates = Backend.get_test_signal_templates ? Backend.get_test_signal_templates() : []
-            if (!templates || templates.length === 0) {
-                // Fallback if backend doesn't provide templates
-                templates = [
-                    {"dataId": 0, "displayName": "Sine Wave", "color": "#ff6b6b"},
+                // Make Test 2D signals immediately visible (sine/cos span negative and positive values)
+                if (window.chartRenderer.initialYMin !== undefined) window.chartRenderer.initialYMin = -12
+                if (window.chartRenderer.initialYMax !== undefined) window.chartRenderer.initialYMax = 12
+
+                var templates = Backend.get_test_signal_templates ? Backend.get_test_signal_templates() : []
+                if (!templates || templates.length === 0) {
+                    // Fallback if backend doesn't provide templates
+                    templates = [
+                        {"dataId": 0, "displayName": "Sine Wave", "color": "#ff6b6b"},
                     {"dataId": 1, "displayName": "Cosine Wave", "color": "#4ecdc4"},
                     {"dataId": 2, "displayName": "Sine Wave (2x)", "color": "#ffe66d"}
                 ]

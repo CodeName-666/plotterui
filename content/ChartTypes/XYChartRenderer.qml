@@ -3,6 +3,7 @@ import QtQuick.Controls 6.4
 import QtCharts 2.3
 import Backend 1.0
 import Common 1.0
+import PlotterUi 1.0
 
 /**
  * XYChartRenderer.qml
@@ -27,10 +28,14 @@ Item {
     property real initialXMax: 10
     property real initialYMin: 0
     property real initialYMax: 10
+    // QtCharts OpenGL acceleration can render blank on some setups (e.g. software rendering).
+    // Keep disabled by default for reliability; enable explicitly if needed.
+    property bool useOpenGL: false
 
     // Internal state
     property var _graphs: ({})  // Dictionary of line series by uniqueId
     property var _chartLineModel: null  // Will be set by backend
+    property bool _backendConnected: false
 
     // Chart view component
     ChartView {
@@ -328,7 +333,7 @@ Item {
         }
 
         line.width = 2
-        line.useOpenGL = true  // Hardware acceleration
+        line.useOpenGL = root.useOpenGL
 
         _graphs[uniqueId] = line
 
@@ -460,28 +465,51 @@ Item {
     Component.onCompleted: {
         Logger.log_info("XYChartRenderer initialized for chart: " + root.chartId)
 
-        // Connect to backend if available
-        // Note: App singleton is only available in main window context, not in floating windows
-        if(typeof App !== 'undefined') {
-            var controller = App.get_app()
-            if(controller !== undefined && controller !== null) {
-                controller.set_plot_area(chart.plotArea)
-                controller.set_axis(xAxis, yAxis)
-
-                // Connect to backend events if available
-                var events = controller.events()
-                if(events !== undefined && events !== null) {
-                    events.append_graph_point.connect(handleGraphPoint)
-                    events.append_graph_points_batch.connect(handleGraphPointsBatch)
-                }
-            }
-        } else {
-            Logger.log_debug("XYChartRenderer: App singleton not available (floating window context)")
-        }
+        _tryConnectBackendEvents(40)
     }
 
     Component.onDestruction: {
         Logger.log_info("XYChartRenderer destroyed for chart: " + root.chartId)
+    }
+
+    function _tryConnectBackendEvents(attemptsLeft) {
+        if (root._backendConnected) {
+            return
+        }
+
+        var controller = null
+        try {
+            controller = App.get_app()
+        } catch (e) {
+            controller = null
+        }
+
+        if (!controller || typeof controller.events !== "function") {
+            if (attemptsLeft > 0) {
+                return Qt.callLater(function() { _tryConnectBackendEvents(attemptsLeft - 1) })
+            }
+            Logger.log_warning("XYChartRenderer: Backend controller not available - no live data will be shown")
+            return
+        }
+
+        var events = controller.events()
+        if (!events) {
+            if (attemptsLeft > 0) {
+                return Qt.callLater(function() { _tryConnectBackendEvents(attemptsLeft - 1) })
+            }
+            Logger.log_warning("XYChartRenderer: Backend events not available - no live data will be shown")
+            return
+        }
+
+        if (events.append_graph_point) {
+            events.append_graph_point.connect(handleGraphPoint)
+        }
+        if (events.append_graph_points_batch) {
+            events.append_graph_points_batch.connect(handleGraphPointsBatch)
+        }
+
+        root._backendConnected = true
+        Logger.log_info("XYChartRenderer: Connected to backend graph events for chart: " + root.chartId)
     }
 
     /*******************************************************************

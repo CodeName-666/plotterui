@@ -1,10 +1,11 @@
 import QtQuick 6.4
 import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
+import QtQuick.Window 2.15
 import Common 1.0
 
 /**
- * ChartLinesList.qml (Tabbed)
+ * ChartsManager.qml (Tabbed)
  *
  * Right-side management panel:
  * 1) Charts view: chart lines grouped/labelled by chart
@@ -134,13 +135,14 @@ Item {
         var charts = root.availableCharts || []
         for (var i = 0; i < charts.length; i++) {
             var c = charts[i]
+            if (!c || c.chartId === "main") continue
             var chartId = c.chartId
             var chartType = c.chartType
             assignChartsModel.append({
                 chartId: chartId,
                 chartTitle: c.chartTitle || chartId,
                 chartType: chartType || "",
-                enabled: chartId === "main" || root._isXYChart(chartType),
+                enabled: root._isXYChart(chartType),
                 checked: root._isSignalAssignedToChart(uniqueId, chartId)
             })
         }
@@ -744,28 +746,56 @@ Item {
         id: assignDialog
         title: qsTr("Assign Signal")
         modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
+        standardButtons: Dialog.NoButton
 
         property string uniqueId: ""
 
+        width: 460
+        height: 420
+
+        background: Rectangle {
+            color: "#2d2d2d"
+            border.color: "#4d4d4d"
+            border.width: 1
+            radius: 8
+        }
+
+        header: Rectangle {
+            height: 60
+            color: "#353535"
+            radius: 8
+
+            Label {
+                anchors.centerIn: parent
+                text: assignDialog.title
+                font.pixelSize: 18
+                font.bold: true
+                color: "#ffffff"
+            }
+        }
+
         contentItem: Item {
             implicitWidth: 420
-            implicitHeight: 360
+            implicitHeight: 280
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
+                anchors.margins: 20
+                spacing: 12
 
                 Label {
                     text: assignDialog.uniqueId
                     font.pixelSize: 12
-                    color: "#222"
+                    color: "#cccccc"
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                 }
 
-                Rectangle { Layout.fillWidth: true; height: 1; color: "#d0d0d0" }
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 1
+                    color: "#4d4d4d"
+                }
 
                 ScrollView {
                     Layout.fillWidth: true
@@ -774,7 +804,7 @@ Item {
 
                     ColumnLayout {
                         width: parent.width
-                        spacing: 6
+                        spacing: 8
 
                         Repeater {
                             model: assignChartsModel
@@ -783,12 +813,77 @@ Item {
                                 enabled: model.enabled
                                 checked: model.checked
 
+                                contentItem: Text {
+                                    text: parent.text
+                                    font.pixelSize: 13
+                                    color: parent.enabled ? "#ffffff" : "#888888"
+                                    leftPadding: parent.indicator.width + parent.spacing
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
                                 onToggled: {
                                     assignChartsModel.setProperty(index, "checked", checked)
                                 }
                             }
                         }
                     }
+                }
+            }
+        }
+
+        footer: Rectangle {
+            height: 60
+            color: "#353535"
+            radius: 8
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 16
+                spacing: 12
+
+                Item { Layout.fillWidth: true }
+
+                Button {
+                    text: qsTr("Cancel")
+                    Layout.preferredWidth: 100
+
+                    background: Rectangle {
+                        color: parent.hovered ? "#4d4d4d" : "#3d3d3d"
+                        border.color: "#606060"
+                        border.width: 1
+                        radius: 4
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.pixelSize: 13
+                        color: "#ffffff"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: assignDialog.reject()
+                }
+
+                Button {
+                    text: qsTr("Apply")
+                    Layout.preferredWidth: 100
+
+                    background: Rectangle {
+                        color: parent.enabled ? (parent.hovered ? "#0066CC" : "#007AFF") : "#4d4d4d"
+                        radius: 4
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.pixelSize: 13
+                        font.bold: true
+                        color: parent.enabled ? "#ffffff" : "#888888"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: assignDialog.accept()
                 }
             }
         }
@@ -810,40 +905,203 @@ Item {
         id: createChartDialog
         title: qsTr("Add Chart")
         modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
+        standardButtons: Dialog.NoButton
+        parent: Overlay.overlay
+        anchors.centerIn: parent
 
         property string titleText: ""
         property string chartType: "xy_line"
 
+        readonly property int _maxWidth: 460
+        readonly property int _maxHeight: 300
+        readonly property int _minWidth: 300
+        readonly property int _margin: 24
+        readonly property int _availableWidth: Math.max(0, (parent ? parent.width : _maxWidth) - (_margin * 2))
+        readonly property int _availableHeight: Math.max(0, (parent ? parent.height : _maxHeight) - (_margin * 2))
+
+        implicitWidth: _maxWidth
+        implicitHeight: header.height + contentItem.implicitHeight + footer.height
+
+        width: Math.max(
+            Math.min(_maxWidth, _availableWidth),
+            Math.min(_minWidth, _availableWidth)
+        )
+        height: Math.min(_maxHeight, implicitHeight, _availableHeight)
+
+        background: Rectangle {
+            color: "#2d2d2d"
+            border.color: "#4d4d4d"
+            border.width: 1
+            radius: 8
+        }
+
+        header: Rectangle {
+            height: 60
+            color: "#353535"
+            radius: 8
+
+            Label {
+                anchors.centerIn: parent
+                text: createChartDialog.title
+                font.pixelSize: 18
+                font.bold: true
+                color: "#ffffff"
+            }
+        }
+
         contentItem: Item {
             implicitWidth: 420
-            implicitHeight: 180
+            implicitHeight: 160
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
+                anchors.margins: 20
+                spacing: 16
 
-                TextField {
-                    id: newChartTitle
+                ColumnLayout {
                     Layout.fillWidth: true
-                    placeholderText: qsTr("Chart title")
-                    text: ""
+                    spacing: 8
+
+                    Label {
+                        text: qsTr("Chart Title") + " *"
+                        font.pixelSize: 13
+                        font.bold: true
+                        color: "#ffffff"
+                    }
+
+                    TextField {
+                        id: newChartTitle
+                        Layout.fillWidth: true
+                        placeholderText: qsTr("e.g., Temperature Chart")
+                        text: ""
+
+                        background: Rectangle {
+                            color: "#3d3d3d"
+                            border.color: newChartTitle.activeFocus ? "#007AFF" : "#606060"
+                            border.width: 1
+                            radius: 4
+                        }
+
+                        color: "#ffffff"
+                        font.pixelSize: 13
+                    }
                 }
 
-                ComboBox {
-                    id: chartTypeCombo
+                ColumnLayout {
                     Layout.fillWidth: true
-                    model: [
-                        {"text":"XY Line", "value":"xy_line"},
-                        {"text":"XY Scatter", "value":"xy_scatter"},
-                        {"text":"XYZ Scatter", "value":"xyz_scatter"}
-                    ]
-                    textRole: "text"
-                    onCurrentIndexChanged: {
-                        var item = model[currentIndex]
-                        createChartDialog.chartType = item ? item.value : "xy_line"
+                    spacing: 8
+
+                    Label {
+                        text: qsTr("Chart Type") + " *"
+                        font.pixelSize: 13
+                        font.bold: true
+                        color: "#ffffff"
                     }
+
+                    ComboBox {
+                        id: chartTypeCombo
+                        Layout.fillWidth: true
+                        model: [
+                            {"text":"XY Line", "value":"xy_line"},
+                            {"text":"XY Scatter", "value":"xy_scatter"},
+                            {"text":"XYZ Scatter", "value":"xyz_scatter"}
+                        ]
+                        textRole: "text"
+
+                        background: Rectangle {
+                            color: "#3d3d3d"
+                            border.color: chartTypeCombo.activeFocus ? "#007AFF" : "#606060"
+                            border.width: 1
+                            radius: 4
+                        }
+
+                        contentItem: Text {
+                            text: chartTypeCombo.displayText
+                            font: chartTypeCombo.font
+                            color: "#ffffff"
+                            verticalAlignment: Text.AlignVCenter
+                            leftPadding: 10
+                        }
+
+                        delegate: ItemDelegate {
+                            width: chartTypeCombo.width
+
+                            contentItem: Text {
+                                text: modelData ? modelData.text : ""
+                                color: "#ffffff"
+                                font: chartTypeCombo.font
+                                elide: Text.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            background: Rectangle {
+                                color: parent.hovered ? "#4d4d4d" : "#3d3d3d"
+                            }
+                        }
+
+                        onCurrentIndexChanged: {
+                            var item = model[currentIndex]
+                            createChartDialog.chartType = item ? item.value : "xy_line"
+                        }
+                    }
+                }
+            }
+        }
+
+        footer: Rectangle {
+            height: 60
+            color: "#353535"
+            radius: 8
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 16
+                spacing: 12
+
+                Item { Layout.fillWidth: true }
+
+                Button {
+                    text: qsTr("Cancel")
+                    Layout.preferredWidth: 100
+
+                    background: Rectangle {
+                        color: parent.hovered ? "#4d4d4d" : "#3d3d3d"
+                        border.color: "#606060"
+                        border.width: 1
+                        radius: 4
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.pixelSize: 13
+                        color: "#ffffff"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: createChartDialog.reject()
+                }
+
+                Button {
+                    text: qsTr("Add Chart")
+                    Layout.preferredWidth: 100
+                    enabled: newChartTitle.text.length > 0
+
+                    background: Rectangle {
+                        color: parent.enabled ? (parent.hovered ? "#0066CC" : "#007AFF") : "#4d4d4d"
+                        radius: 4
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.pixelSize: 13
+                        font.bold: true
+                        color: parent.enabled ? "#ffffff" : "#888888"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: createChartDialog.accept()
                 }
             }
         }
@@ -851,6 +1109,11 @@ Item {
         onAccepted: {
             var title = newChartTitle.text && newChartTitle.text.length > 0 ? newChartTitle.text : ("Chart " + Date.now())
             root.createChartRequested(createChartDialog.chartType, title)
+        }
+
+        onAboutToShow: {
+            newChartTitle.text = ""
+            chartTypeCombo.currentIndex = 0
         }
     }
 
@@ -861,10 +1124,34 @@ Item {
         id: renameChartDialog
         title: qsTr("Rename Chart")
         modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
+        standardButtons: Dialog.NoButton
 
         property string chartId: ""
         property string titleText: ""
+
+        width: 460
+        height: 280
+
+        background: Rectangle {
+            color: "#2d2d2d"
+            border.color: "#4d4d4d"
+            border.width: 1
+            radius: 8
+        }
+
+        header: Rectangle {
+            height: 60
+            color: "#353535"
+            radius: 8
+
+            Label {
+                anchors.centerIn: parent
+                text: renameChartDialog.title
+                font.pixelSize: 18
+                font.bold: true
+                color: "#ffffff"
+            }
+        }
 
         contentItem: Item {
             implicitWidth: 420
@@ -872,22 +1159,108 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
+                anchors.margins: 20
+                spacing: 12
 
                 Label {
                     text: renameChartDialog.chartId
-                    color: "#666"
+                    color: "#888888"
                     font.pixelSize: 11
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                 }
 
-                TextField {
-                    id: renameField
+                Rectangle {
                     Layout.fillWidth: true
-                    placeholderText: qsTr("New title")
-                    text: renameChartDialog.titleText
+                    height: 1
+                    color: "#4d4d4d"
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Label {
+                        text: qsTr("New Title") + " *"
+                        font.pixelSize: 13
+                        font.bold: true
+                        color: "#ffffff"
+                    }
+
+                    TextField {
+                        id: renameField
+                        Layout.fillWidth: true
+                        placeholderText: qsTr("Enter new chart title")
+                        text: renameChartDialog.titleText
+
+                        background: Rectangle {
+                            color: "#3d3d3d"
+                            border.color: renameField.activeFocus ? "#007AFF" : "#606060"
+                            border.width: 1
+                            radius: 4
+                        }
+
+                        color: "#ffffff"
+                        font.pixelSize: 13
+                    }
+                }
+            }
+        }
+
+        footer: Rectangle {
+            height: 60
+            color: "#353535"
+            radius: 8
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 16
+                spacing: 12
+
+                Item { Layout.fillWidth: true }
+
+                Button {
+                    text: qsTr("Cancel")
+                    Layout.preferredWidth: 100
+
+                    background: Rectangle {
+                        color: parent.hovered ? "#4d4d4d" : "#3d3d3d"
+                        border.color: "#606060"
+                        border.width: 1
+                        radius: 4
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.pixelSize: 13
+                        color: "#ffffff"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: renameChartDialog.reject()
+                }
+
+                Button {
+                    text: qsTr("Rename")
+                    Layout.preferredWidth: 100
+                    enabled: renameField.text.length > 0
+
+                    background: Rectangle {
+                        color: parent.enabled ? (parent.hovered ? "#0066CC" : "#007AFF") : "#4d4d4d"
+                        radius: 4
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.pixelSize: 13
+                        font.bold: true
+                        color: parent.enabled ? "#ffffff" : "#888888"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: renameChartDialog.accept()
                 }
             }
         }
@@ -896,6 +1269,10 @@ Item {
             var title = renameField.text
             if (!title || title.length === 0) return
             root.renameChartRequested(renameChartDialog.chartId, title)
+        }
+
+        onAboutToShow: {
+            renameField.forceActiveFocus()
         }
     }
 }

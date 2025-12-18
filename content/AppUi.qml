@@ -96,8 +96,8 @@ ApplicationWindow {
                     }
                 }
 
-                // Chart Lines List - right side panel (collapsible, management tabs)
-                ChartLinesList {
+                // Charts Manager - right side panel (collapsible, management tabs)
+                ChartsManager {
                     id: chartLinesList
                     Layout.preferredWidth: chartLinesListCollapsed ? chartLinesListCollapsedWidth : chartLinesListWidth
                     Layout.fillHeight: true

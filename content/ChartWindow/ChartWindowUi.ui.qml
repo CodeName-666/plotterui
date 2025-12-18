@@ -177,8 +177,8 @@ Item {
         }
     }
 
-    // Chart Lines List - right side panel (collapsible)
-    ChartLinesList {
+    // Charts Manager - right side panel (collapsible)
+    ChartsManager {
         id: chartLinesList
         width: chartLinesListCollapsed ? chartLinesListCollapsedWidth : chartLinesListWidth
         anchors.top: parent.top

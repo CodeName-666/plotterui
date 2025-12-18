@@ -1,62 +1,26 @@
 pragma Singleton
 import QtQuick 6.4
+import "../../Theme"
 
 QtObject {
     id: theme
 
-    // Color Palette
-    readonly property color cardBackground: "#ffffff"
-    readonly property color settingsBackground: "#f5f5f5"
-    readonly property color interfaceBackground: "#fafafa"
-    readonly property color borderColor: "#d0d0d0"
-    readonly property color borderColorLight: "#e0e0e0"
-    readonly property color textPrimary: "#333333"
-    readonly property color textSecondary: "#5c5c5c"
-    readonly property color textLabel: "#444444"
-    readonly property color errorColor: "#d32f2f"
+    readonly property color cardBackground: AppTheme.surfaces.card
+    readonly property color settingsBackground: AppTheme.surfaces.background
+    readonly property color interfaceBackground: AppTheme.surfaces.interfaceBackground
+    readonly property color borderColor: AppTheme.borders.primary
+    readonly property color borderColorLight: AppTheme.borders.subtle
+    readonly property color textPrimary: AppTheme.text.primary
+    readonly property color textSecondary: AppTheme.text.secondary
+    readonly property color textLabel: AppTheme.text.label
+    readonly property color errorColor: AppTheme.palette.danger
     readonly property color errorBackground: "#ffebee"
-    readonly property color successColor: "#388e3c"
-    readonly property color highlightColor: "#2196f3"
+    readonly property color successColor: AppTheme.palette.success
+    readonly property color highlightColor: AppTheme.palette.primary
 
-    // Spacing
-    readonly property QtObject spacing: QtObject {
-        readonly property int small: 8
-        readonly property int medium: 12
-        readonly property int large: 20
-        readonly property int extraLarge: 24
-    }
-
-    // Component Heights
-    readonly property QtObject heights: QtObject {
-        readonly property int input: 40
-        readonly property int button: 40
-        readonly property int combobox: 40
-        readonly property int smallInput: 32
-        readonly property int label: 40  // For consistent alignment with inputs
-    }
-
-    // Border Radius
-    readonly property QtObject radius: QtObject {
-        readonly property int small: 4
-        readonly property int medium: 6
-        readonly property int large: 8
-        readonly property int extraLarge: 10
-    }
-
-    // Font Sizes
-    readonly property QtObject fontSize: QtObject {
-        readonly property int small: 12
-        readonly property int medium: 14
-        readonly property int large: 16
-        readonly property int title: 20
-        readonly property int header: 18
-    }
-
-    // Margins
-    readonly property QtObject margins: QtObject {
-        readonly property int small: 8
-        readonly property int medium: 16
-        readonly property int large: 20
-        readonly property int extraLarge: 24
-    }
+    readonly property QtObject spacing: AppTheme.spacing
+    readonly property QtObject heights: AppTheme.heights
+    readonly property QtObject radius: AppTheme.radius
+    readonly property QtObject fontSize: AppTheme.fontSize
+    readonly property QtObject margins: AppTheme.margins
 }

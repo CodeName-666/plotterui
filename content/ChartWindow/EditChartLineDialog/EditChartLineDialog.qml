@@ -283,6 +283,7 @@ Dialog {
         modal: true
         parent: Overlay.overlay
         anchors.centerIn: parent
+        implicitWidth: 420
 
         background: Rectangle {
             color: "#2d2d2d"

@@ -10,7 +10,7 @@ import "Footer"
 import "ChartWindow"
 import "ChartWindow/ChartLinesList"
 import "ChartWindow/FloatingActionButton"
-import "Settings"
+import "Settings" as SettingsViews
 import "Toolbar"
 import "."
 ApplicationWindow {
@@ -235,7 +235,7 @@ ApplicationWindow {
             anchors.margins: 16
             spacing: 12
 
-            Settings {
+            SettingsViews.Settings {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
@@ -251,9 +251,8 @@ ApplicationWindow {
         focus: true
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
-        Settings {
+        contentItem: SettingsViews.Settings {
             id: settings
-            anchors.fill: parent
         }
     }
 }

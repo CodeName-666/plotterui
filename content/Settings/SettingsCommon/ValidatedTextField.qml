@@ -2,6 +2,7 @@ import QtQuick 6.4
 import QtQuick.Controls 6.4
 import QtQuick.Layouts 1.15
 import SettingsCommon 1.0
+import "../../components"
 
 ColumnLayout {
     id: validatedField
@@ -18,18 +19,17 @@ ColumnLayout {
 
     spacing: SettingsTheme.spacing.small
 
-    TextField {
+    AppTextField {
         id: textField
         Layout.fillWidth: true
         Layout.preferredHeight: SettingsTheme.heights.input
-
-        background: Rectangle {
-            color: textField.enabled ? SettingsTheme.cardBackground : SettingsTheme.interfaceBackground
-            border.color: hasError ? SettingsTheme.errorColor :
-                         (textField.activeFocus ? SettingsTheme.highlightColor : SettingsTheme.borderColor)
-            border.width: textField.activeFocus || hasError ? 2 : 1
-            radius: SettingsTheme.radius.small
-        }
+        backgroundColor: SettingsTheme.cardBackground
+        disabledBackgroundColor: SettingsTheme.interfaceBackground
+        borderColor: SettingsTheme.borderColor
+        focusBorderColor: SettingsTheme.highlightColor
+        errorBorderColor: SettingsTheme.errorColor
+        cornerRadius: SettingsTheme.radius.small
+        hasError: validatedField.hasError
 
         onTextChanged: {
             validatedField.textChanged()

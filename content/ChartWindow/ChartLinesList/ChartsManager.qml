@@ -747,11 +747,26 @@ Item {
         title: qsTr("Assign Signal")
         modal: true
         standardButtons: Dialog.NoButton
+        parent: Overlay.overlay
+        anchors.centerIn: parent
 
         property string uniqueId: ""
 
-        width: 460
-        height: 420
+        readonly property int _maxWidth: 460
+        readonly property int _maxHeight: 520
+        readonly property int _minWidth: 300
+        readonly property int _margin: 24
+        readonly property int _availableWidth: Math.max(0, (parent ? parent.width : _maxWidth) - (_margin * 2))
+        readonly property int _availableHeight: Math.max(0, (parent ? parent.height : _maxHeight) - (_margin * 2))
+
+        implicitWidth: _maxWidth
+        implicitHeight: header.height + contentItem.implicitHeight + footer.height
+
+        width: Math.max(
+            Math.min(_maxWidth, _availableWidth),
+            Math.min(_minWidth, _availableWidth)
+        )
+        height: Math.min(_maxHeight, implicitHeight, _availableHeight)
 
         background: Rectangle {
             color: "#2d2d2d"
@@ -776,7 +791,7 @@ Item {
 
         contentItem: Item {
             implicitWidth: 420
-            implicitHeight: 280
+            implicitHeight: 300
 
             ColumnLayout {
                 anchors.fill: parent
@@ -785,8 +800,8 @@ Item {
 
                 Label {
                     text: assignDialog.uniqueId
-                    font.pixelSize: 12
-                    color: "#cccccc"
+                    font.pixelSize: 11
+                    color: "#888888"
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                 }
@@ -798,12 +813,15 @@ Item {
                 }
 
                 ScrollView {
+                    id: assignScrollView
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
 
+                    ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
                     ColumnLayout {
-                        width: parent.width
+                        width: assignScrollView.availableWidth
                         spacing: 8
 
                         Repeater {
@@ -812,12 +830,16 @@ Item {
                                 text: model.chartTitle + " (" + model.chartType + ")"
                                 enabled: model.enabled
                                 checked: model.checked
+                                Layout.fillWidth: true
 
                                 contentItem: Text {
                                     text: parent.text
                                     font.pixelSize: 13
                                     color: parent.enabled ? "#ffffff" : "#888888"
                                     leftPadding: parent.indicator.width + parent.spacing
+                                    rightPadding: 8
+                                    elide: Text.ElideRight
+                                    width: parent.width
                                     verticalAlignment: Text.AlignVCenter
                                 }
 

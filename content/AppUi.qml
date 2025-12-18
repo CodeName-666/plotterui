@@ -251,8 +251,9 @@ ApplicationWindow {
         focus: true
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
-        contentItem: SettingsViews.Settings {
+        SettingsViews.Settings {
             id: settings
+            anchors.fill: parent
         }
     }
 }

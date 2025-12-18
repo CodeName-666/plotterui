@@ -1,6 +1,7 @@
 import QtQuick 6.4
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 6.4
+import Qt.labs.settings 1.1 as Labs
 import SettingsCommon 1.0
 
 Rectangle {
@@ -16,6 +17,28 @@ Rectangle {
     property alias saveConfigButton: saveConfigButton
     property alias loadConfigButton: loadConfigButton
     property alias titleText: titleText
+    property var availableControlStyles: ["Fusion", "Basic", "Material", "Universal"]
+    property int selectedStyleIndex: 0
+
+    Labs.Settings {
+        id: uiSettingsStore
+        category: "ui"
+        property string controlsStyle: "Fusion"
+    }
+
+    function syncControlsStyleSelection() {
+        var idx = availableControlStyles.indexOf(uiSettingsStore.controlsStyle)
+        selectedStyleIndex = idx >= 0 ? idx : 0
+    }
+
+    Component.onCompleted: syncControlsStyleSelection()
+
+    Connections {
+        target: uiSettingsStore
+        function onControlsStyleChanged() {
+            settings_menu.syncControlsStyleSelection()
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -63,6 +86,58 @@ Rectangle {
                     font.pixelSize: 12
                     color: SettingsTheme.textSecondary
                     wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+            }
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            radius: SettingsTheme.radius.medium
+            color: SettingsTheme.cardBackground
+            border.color: SettingsTheme.borderColorLight
+            border.width: 1
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: SettingsTheme.margins.medium
+                spacing: SettingsTheme.spacing.small
+
+                Text {
+                    text: qsTr("UI Style")
+                    font.pixelSize: SettingsTheme.fontSize.large
+                    font.bold: true
+                    color: SettingsTheme.textPrimary
+                    Layout.fillWidth: true
+                }
+
+                Text {
+                    text: qsTr("Choose the Qt Quick Controls style used throughout the application.")
+                    font.pixelSize: SettingsTheme.fontSize.medium
+                    color: SettingsTheme.textSecondary
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+
+                ComboBox {
+                    id: controlsStyleCombo
+                    Layout.fillWidth: true
+                    model: settings_menu.availableControlStyles
+                    currentIndex: settings_menu.selectedStyleIndex
+                    onActivated: function(index) {
+                        if (index < 0 || index >= settings_menu.availableControlStyles.length)
+                            return
+                        var styleName = settings_menu.availableControlStyles[index]
+                        if (uiSettingsStore.controlsStyle !== styleName)
+                            uiSettingsStore.controlsStyle = styleName
+                        settings_menu.selectedStyleIndex = index
+                    }
+                }
+
+                Text {
+                    text: qsTr("Restart required for style changes to take effect.")
+                    font.pixelSize: SettingsTheme.fontSize.small
+                    color: SettingsTheme.textSecondary
                     Layout.fillWidth: true
                 }
             }

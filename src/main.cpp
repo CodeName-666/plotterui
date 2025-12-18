@@ -35,6 +35,8 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QDebug>
+#include <QSettings>
+#include <QQuickStyle>
 
 #include "app_environment.h"
 #include "import_qml_plugins.h"
@@ -63,11 +65,29 @@ void ensureQuickControlsConfig()
                   "Qt Quick Controls will fall back to default styling.";
 }
 
+QString resolveControlsStyle()
+{
+    QSettings settings;
+    const QString stored = settings.value(QStringLiteral("ui/controlsStyle"),
+                                          QStringLiteral("Fusion")).toString();
+    if (stored.isEmpty())
+        return QStringLiteral("Fusion");
+    return stored;
+}
+
 }
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setOrganizationName(QStringLiteral("PlotterApp"));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("plotter.app"));
+    QCoreApplication::setApplicationName(QStringLiteral("PlotterApp"));
+
     set_qt_environment();
+
+    const QString controlsStyle = resolveControlsStyle();
+    qputenv("QT_QUICK_CONTROLS_STYLE", controlsStyle.toUtf8());
+    QQuickStyle::setStyle(controlsStyle);
 
     QGuiApplication app(argc, argv);
     ensureQuickControlsConfig();

@@ -17,3 +17,6 @@ target_link_libraries(PlotterUiApp PRIVATE
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/qmlmodules)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/qtquickcontrols2.conf
+               ${CMAKE_CURRENT_BINARY_DIR}/qtquickcontrols2.conf COPYONLY)
+

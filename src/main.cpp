@@ -28,17 +28,49 @@
 ****************************************************************************/
 
 #include <QGuiApplication>
+#include <QCoreApplication>
 #include <QQmlApplicationEngine>
 #include <QApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QFile>
+#include <QDebug>
 
 #include "app_environment.h"
 #include "import_qml_plugins.h"
+
+namespace {
+
+void ensureQuickControlsConfig()
+{
+    const QString appDir = QCoreApplication::applicationDirPath();
+    const QStringList candidates = {
+        QDir(appDir).filePath("qtquickcontrols2.conf"),
+        QDir(appDir).filePath("../qtquickcontrols2.conf"),
+        QDir(appDir).filePath("../Resources/qtquickcontrols2.conf"),
+        QDir(appDir).filePath("../qml/qtquickcontrols2.conf"),
+        QDir(appDir).filePath("../../qml/qtquickcontrols2.conf")
+    };
+
+    for (const QString &path : candidates) {
+        if (QFileInfo::exists(path)) {
+            qputenv("QT_QUICK_CONTROLS_CONF", QFile::encodeName(path));
+            return;
+        }
+    }
+
+    qWarning() << "qtquickcontrols2.conf not found in expected locations. "
+                  "Qt Quick Controls will fall back to default styling.";
+}
+
+}
 
 int main(int argc, char *argv[])
 {
     set_qt_environment();
 
     QGuiApplication app(argc, argv);
+    ensureQuickControlsConfig();
 
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:Main/main.qml"_qs);

@@ -19,6 +19,7 @@ ChartWindowUi{
     property var appRoot: null  // Will be set by App.qml on Component.onCompleted
     property var _graphs: ({})  // Legacy: keeping for backward compatibility during transition
     property var chartLineModel: ChartLineModel {}  // New model-based line management
+    property var signalModel: SignalModel {}  // Global registry of signals (uniqueId -> metadata)
     property var availableCharts: []
     property alias addChartLineDialog: addChartLineDialog
     property alias editChartLineDialog: editChartLineDialog
@@ -63,6 +64,7 @@ ChartWindowUi{
      * EVENT - Chart Lines List
      ******************************************************************/
     chartLinesList.chartLineModel: chartLineModel
+    chartLinesList.signalModel: signalModel
 
     Connections {
         target: chartLinesList
@@ -143,6 +145,13 @@ ChartWindowUi{
         }
     }
 
+    Connections {
+        target: chartLineModel
+        function onModelChanged() {
+            chartWindow._syncSignalModelFromLines()
+        }
+    }
+
     /*******************************************************************
      * COMPONENT - Add Chart Line Dialog
      ******************************************************************/
@@ -166,6 +175,10 @@ ChartWindowUi{
             // Get connection details to retrieve interface type
             var connDetails = Backend.get_connection_details(connectionId)
             var interfaceType = connDetails ? connDetails.type : "Unknown"
+
+            if (signalModel && signalModel.addOrUpdate) {
+                signalModel.addOrUpdate(uniqueId, displayName, lineColor, interfaceType, dataId, interfaceSettings)
+            }
 
             // Add to model
             var graph = createGraph(displayName, lineColor)
@@ -221,6 +234,10 @@ ChartWindowUi{
             var controller = appController !== undefined && appController !== null ? appController : App.get_app()
             if(controller !== undefined && controller !== null) {
                 controller.update_chart_line(uniqueId, displayName, lineColor.toString())
+            }
+
+            if (signalModel && signalModel.addOrUpdate) {
+                signalModel.addOrUpdate(uniqueId, displayName, lineColor, line.interfaceType, line.dataId, line.interfaceSettings)
             }
 
             Logger.log_info("Chart line successfully updated: " + displayName)
@@ -359,7 +376,23 @@ ChartWindowUi{
             controller.set_axis(xAxis,yAxis)
         }
         refreshAvailableCharts()
+        _syncSignalModelFromLines()
         Logger.log_debug("CHARTVIEW Completed");
+    }
+
+    function _extractDataIdFromUniqueId(uniqueId) {
+        var parts = uniqueId.split("_")
+        var dataId = parts.length > 0 ? parseInt(parts[parts.length - 1]) : 0
+        if (isNaN(dataId)) dataId = 0
+        return dataId
+    }
+
+    function _syncSignalModelFromLines() {
+        if (!signalModel || !signalModel.addOrUpdate) return
+        for (var i = 0; i < chartLineModel.count; i++) {
+            var line = chartLineModel.get(i)
+            signalModel.addOrUpdate(line.uniqueId, line.displayName, line.color, line.interfaceType, line.dataId, line.interfaceSettings)
+        }
     }
 
     /*******************************************************************
@@ -371,6 +404,11 @@ ChartWindowUi{
      * @param interfaceType - Interface type (Serial, MQTT, etc.)
      ******************************************************************/
     function newGraph(uniqueId, displayName, color, interfaceType) {
+        var dataId = _extractDataIdFromUniqueId(uniqueId)
+        if (signalModel && signalModel.addOrUpdate) {
+            signalModel.addOrUpdate(uniqueId, displayName, color, interfaceType, dataId, {})
+        }
+
         // If this uniqueId is already assigned to another chart, don't create it on the main chart.
         if (chartLineModel.hasLineForChart(uniqueId, "main")) {
             Logger.log_debug("ChartWindow.newGraph: Skipping already-registered main line: " + uniqueId)
@@ -380,11 +418,6 @@ ChartWindowUi{
             Logger.log_debug("ChartWindow.newGraph: Skipping auto-add to main (already assigned elsewhere): " + uniqueId)
             return
         }
-
-        // Extract dataId from uniqueId (format: "<connectionId>_<dataId>" - connectionId may contain underscores)
-        var parts = uniqueId.split("_")
-        var dataId = parts.length > 0 ? parseInt(parts[parts.length - 1]) : 0
-        if (isNaN(dataId)) dataId = 0
 
         // Create the chart series
         var graph = createGraph(displayName, color);
@@ -648,6 +681,13 @@ ChartWindowUi{
     function refreshAvailableCharts() {
         var charts = []
 
+        // Include main chart so signals can always be (re)assigned even if no floating windows exist.
+        charts.push({
+            "chartId": "main",
+            "chartTitle": "Main Chart",
+            "chartType": "xy_line"
+        })
+
         if (chartWindow.appRoot && chartWindow.appRoot.floatingWindowsContainer) {
             var wins = chartWindow.appRoot.floatingWindowsContainer.activeWindows
             for (var id in wins) {
@@ -685,6 +725,10 @@ ChartWindowUi{
             Backend.set_signal_ignored(uniqueId, true)
         }
 
+        if (signalModel && signalModel.removeSignal) {
+            signalModel.removeSignal(uniqueId)
+        }
+
         var controller = appController !== undefined && appController !== null ? appController : App.get_app()
         if (controller !== undefined && controller !== null) {
             controller.remove_chart_line(uniqueId)
@@ -714,6 +758,9 @@ ChartWindowUi{
 
         // Need a template line (name/color/interface/dataId) to assign to new charts
         var baseLine = chartLineModel.getLine(uniqueId)
+        if (!baseLine && signalModel && signalModel.getSignal) {
+            baseLine = signalModel.getSignal(uniqueId)
+        }
         if (!baseLine) {
             Logger.log_warning("ChartWindow: Cannot assign unknown signal (create it first): " + uniqueId)
             return

@@ -307,6 +307,24 @@ AppUi {
     function removeFloatingWindow(chartId) {
         Logger.log_info("App: Removing floating window: " + chartId)
 
+        // Keep signals alive (chart-independent): capture signal metadata before detaching chart lines.
+        // This allows re-assigning signals to other charts after this chart is deleted.
+        if (chartWindow && chartWindow.chartLineModel && chartWindow.signalModel && chartWindow.signalModel.addOrUpdate) {
+            for (var i = 0; i < chartWindow.chartLineModel.count; i++) {
+                var line = chartWindow.chartLineModel.get(i)
+                if (line && line.chartId === chartId) {
+                    chartWindow.signalModel.addOrUpdate(
+                        line.uniqueId,
+                        line.displayName,
+                        line.color,
+                        line.interfaceType,
+                        line.dataId,
+                        line.interfaceSettings
+                    )
+                }
+            }
+        }
+
         // Remove all chart lines belonging to this window from the central model
         if (chartWindow && chartWindow.chartLineModel) {
             chartWindow.chartLineModel.removeLinesByChart(chartId)
@@ -315,17 +333,6 @@ AppUi {
 
         var window = floatingWindowsContainer.activeWindows[chartId]
         if (window) {
-            // Stop & delete backend connection if this window created it (e.g. Test charts)
-            if (window.autoDeleteConnectionOnClose && window.connectionId && window.connectionId !== "") {
-                try {
-                    Backend.stop_connection(window.connectionId)
-                    Backend.delete_connection(window.connectionId)
-                    Logger.log_info("App: Stopped/deleted connection " + window.connectionId)
-                } catch (e) {
-                    Logger.log_warning("App: Failed to stop/delete connection " + window.connectionId + ": " + e)
-                }
-            }
-
             window.destroy()
             delete floatingWindowsContainer.activeWindows[chartId]
         }

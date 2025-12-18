@@ -29,6 +29,7 @@ Item {
 
     property bool isCollapsed: false
     property var chartLineModel: null
+    property var signalModel: null  // Global signal registry (uniqueId -> metadata)
     property var availableCharts: [] // [{chartId, chartTitle, chartType}]
 
     // Internal models
@@ -42,36 +43,64 @@ Item {
 
     function _refreshSignalsModel() {
         signalsModel.clear()
-        if (!root.chartLineModel) return
+        if (!root.chartLineModel && !root.signalModel) return
 
         var map = ({})
-        for (var i = 0; i < root.chartLineModel.count; i++) {
-            var line = root.chartLineModel.get(i)
-            var key = line.uniqueId
-            if (!map[key]) {
-                map[key] = {
-                    uniqueId: line.uniqueId,
-                    lineKey: line.lineKey,
-                    displayName: line.displayName,
-                    color: line.color,
-                    interfaceType: line.interfaceType,
-                    dataId: line.dataId,
+
+        // Seed from global signal registry so signals stay visible even if not assigned to any chart
+        if (root.signalModel) {
+            for (var s = 0; s < root.signalModel.count; s++) {
+                var sig = root.signalModel.get(s)
+                if (!sig || !sig.uniqueId) continue
+                map[sig.uniqueId] = {
+                    uniqueId: sig.uniqueId,
+                    lineKey: "",
+                    displayName: sig.displayName,
+                    color: sig.color,
+                    interfaceType: sig.interfaceType,
+                    dataId: sig.dataId,
                     charts: []
                 }
             }
-            // Do not expose the internal "main" chart in the UI (signals are still tracked)
-            if ((line.chartId || "main") !== "main") {
-                map[key].charts.push({
-                    chartId: line.chartId,
-                    chartTitle: line.chartTitle
-                })
+        }
+
+        // Overlay chart assignment info from chartLineModel (and fill gaps if registry is missing entries)
+        if (root.chartLineModel) {
+            for (var i = 0; i < root.chartLineModel.count; i++) {
+                var line = root.chartLineModel.get(i)
+                var key = line.uniqueId
+                if (!map[key]) {
+                    map[key] = {
+                        uniqueId: line.uniqueId,
+                        lineKey: "",
+                        displayName: line.displayName,
+                        color: line.color,
+                        interfaceType: line.interfaceType,
+                        dataId: line.dataId,
+                        charts: []
+                    }
+                }
+
+                // Prefer a main-chart lineKey for editing; otherwise fall back to any existing instance
+                if ((line.chartId || "main") === "main") {
+                    map[key].lineKey = line.lineKey
+                } else if (!map[key].lineKey || map[key].lineKey === "") {
+                    map[key].lineKey = line.lineKey
+                }
+
+                // Do not expose the internal "main" chart in the UI (signals are still tracked)
+                if ((line.chartId || "main") !== "main") {
+                    map[key].charts.push({
+                        chartId: line.chartId,
+                        chartTitle: line.chartTitle
+                    })
+                }
             }
         }
 
         var keys = Object.keys(map).sort()
         for (var k = 0; k < keys.length; k++) {
-            var item = map[keys[k]]
-            signalsModel.append(item)
+            signalsModel.append(map[keys[k]])
         }
     }
 
@@ -79,7 +108,10 @@ Item {
         chartsModel.clear()
         var charts = root.availableCharts || []
         for (var i = 0; i < charts.length; i++) {
-            chartsModel.append(charts[i])
+            var c = charts[i]
+            // "main" is an internal chart used for assigning signals; it is not a managed chart window.
+            if (!c || c.chartId === "main") continue
+            chartsModel.append(c)
         }
     }
 
@@ -120,12 +152,23 @@ Item {
         _refreshSignalsModel()
     }
 
+    onSignalModelChanged: {
+        _refreshSignalsModel()
+    }
+
     onAvailableChartsChanged: {
         _refreshChartsModel()
     }
 
     Connections {
         target: root.chartLineModel
+        function onModelChanged() {
+            root._refreshSignalsModel()
+        }
+    }
+
+    Connections {
+        target: root.signalModel
         function onModelChanged() {
             root._refreshSignalsModel()
         }
@@ -463,6 +506,7 @@ Item {
                                     Button {
                                         text: qsTr("Edit")
                                         Layout.preferredHeight: 28
+                                        enabled: model.lineKey && model.lineKey !== ""
 
                                         background: Rectangle {
                                             color: {

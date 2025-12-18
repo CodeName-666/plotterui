@@ -650,13 +650,6 @@ Rectangle {
             chartRenderer.chartLineModel.removeLinesByChart(floatingWindow.chartId)
         }
 
-        if (autoDeleteConnectionOnClose && connectionId && connectionId !== "") {
-            try {
-                Backend.stop_connection(connectionId)
-                Backend.delete_connection(connectionId)
-            } catch (e) {}
-        }
-
         if (parent && parent.activeWindows && parent.activeWindows[floatingWindow.chartId]) {
             delete parent.activeWindows[floatingWindow.chartId]
         }

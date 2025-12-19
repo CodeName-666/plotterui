@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 import QtQuick 6.4
 
 QtObject {
@@ -55,7 +56,7 @@ QtObject {
             readonly property color hover: "#666666"
             readonly property color pressed: "#555555"
             readonly property color border: "#606060"
-            readonly property color text: text.contrast
+            readonly property color text: "#ffffff"
         }
     }
 

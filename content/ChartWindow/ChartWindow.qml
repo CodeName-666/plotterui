@@ -609,6 +609,11 @@ ChartWindowUi{
      ******************************************************************/
     function getAvailableConnections() {
         // Get available connections from backend
+        if (!Backend) {
+            Logger.log_warning("ChartWindow: Backend not available yet")
+            return []
+        }
+
         var connections = Backend.get_connections()
         var availableConnections = []
 

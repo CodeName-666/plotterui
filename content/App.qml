@@ -137,14 +137,22 @@ AppUi {
             if(Validators.isValid(cfg) && Validators.isValid(cfg.interfaces))
             {
                 Logger.log_info("App: Setting up interfaces from Backend config: " + JSON.stringify(cfg.interfaces))
-                settings.setup(cfg)
+                if(Validators.isValid(settings) && Validators.isValidFunction(settings.setup)) {
+                    settings.setup(cfg)
+                } else {
+                    Logger.log_warning("App: settings.setup is not available - skipping UI config setup")
+                }
             }
         }
         // Fallback B: Simulator mode with Test interface
         else if(Validators.isValid(simulatorBackend))
         {
             Logger.log_info("App: [FALLBACK B] Setting up Simulator with Test interface")
-            settings.setup({"interfaces": ["Test"]})
+            if(Validators.isValid(settings) && Validators.isValidFunction(settings.setup)) {
+                settings.setup({"interfaces": ["Test"]})
+            } else {
+                Logger.log_warning("App: settings.setup is not available - skipping Simulator setup")
+            }
         }
     }
 
@@ -166,11 +174,27 @@ AppUi {
         {
             var events = appController.events()
             if(Validators.isValid(events)) {
-                events.com_port_update.disconnect(settings.updateComPorts)
-                events.ui_setup.disconnect(settings.setup)
+                // Disconnect com_port_update if both signal and handler exist
+                if(Validators.isValid(events.com_port_update) &&
+                   Validators.isValid(settings) &&
+                   Validators.isValidFunction(settings.updateComPorts)) {
+                    events.com_port_update.disconnect(settings.updateComPorts)
+                    Logger.log_debug("App: Disconnected com_port_update signal")
+                }
+
+                // Disconnect ui_setup if both signal and handler exist
+                if(Validators.isValid(events.ui_setup) &&
+                   Validators.isValid(settings) &&
+                   Validators.isValidFunction(settings.setup)) {
+                    events.ui_setup.disconnect(settings.setup)
+                    Logger.log_debug("App: Disconnected ui_setup signal")
+                }
+
+                // Disconnect status_message if it exists
                 if(Validators.isValid(events.status_message))
                     events.status_message.disconnect(showStatusMessage)
-                Logger.log_debug("App: Disconnected backend event signals")
+
+                Logger.log_debug("App: Backend event signals disconnection completed")
             }
         }
     }

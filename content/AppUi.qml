@@ -230,14 +230,10 @@ ApplicationWindow {
         interactive: true
         modal: true
 
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 16
-            spacing: 12
-
+        contentItem: Item {
             SettingsViews.Settings {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+                anchors.fill: parent
+                anchors.margins: 16
             }
         }
     }
@@ -251,9 +247,8 @@ ApplicationWindow {
         focus: true
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
-        SettingsViews.Settings {
+        contentItem: SettingsViews.Settings {
             id: settings
-            anchors.fill: parent
         }
     }
 }

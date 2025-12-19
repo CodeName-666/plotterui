@@ -240,6 +240,40 @@ Item {
                 }
 
                 Button {
+                    id: detailViewButton
+                    text: "⚙"
+                    font.pixelSize: 18
+                    font.bold: true
+                    width: 32
+                    height: 32
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Open Detailed View")
+                    ToolTip.delay: 400
+
+                    background: Rectangle {
+                        color: {
+                            if (detailViewButton.pressed) return "#388e3c"
+                            if (detailViewButton.hovered) return "#43a047"
+                            return "#4caf50"
+                        }
+                        radius: 4
+                        border.color: "#388e3c"
+                        border.width: 1
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font: parent.font
+                        color: "white"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: detailDialog.show()
+                }
+
+                Button {
                     id: headerCollapseButton
                     text: "▶"
                     font.pixelSize: 14
@@ -1295,6 +1329,47 @@ Item {
 
         onAboutToShow: {
             renameField.forceActiveFocus()
+        }
+    }
+
+    // Detail View Dialog
+    ChartManagerDialog {
+        id: detailDialog
+
+        chartLineModel: root.chartLineModel
+        signalModel: root.signalModel
+        availableCharts: root.availableCharts
+
+        onLineVisibilityToggled: function(lineKey, visible) {
+            root.lineVisibilityToggled(lineKey, visible)
+        }
+
+        onLineSelected: function(lineKey) {
+            root.lineSelected(lineKey)
+        }
+
+        onAddSignalRequested: {
+            root.addSignalRequested()
+        }
+
+        onRemoveSignalRequested: function(uniqueId) {
+            root.removeSignalRequested(uniqueId)
+        }
+
+        onSetSignalChartsRequested: function(uniqueId, chartIds) {
+            root.setSignalChartsRequested(uniqueId, chartIds)
+        }
+
+        onCreateChartRequested: function(chartType, chartTitle) {
+            root.createChartRequested(chartType, chartTitle)
+        }
+
+        onRemoveChartRequested: function(chartId) {
+            root.removeChartRequested(chartId)
+        }
+
+        onRenameChartRequested: function(chartId, chartTitle) {
+            root.renameChartRequested(chartId, chartTitle)
         }
     }
 }

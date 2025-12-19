@@ -232,9 +232,8 @@ ApplicationWindow {
 
         contentItem: Item {
             SettingsViews.Settings {
-                anchors.fill: parent
-                anchors.margins: 16
-            }
+                Layout.fillWidth: true
+                Layout.fillHeight: true            }
         }
     }
 

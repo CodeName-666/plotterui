@@ -39,7 +39,7 @@ Item {
     ListModel { id: assignChartsModel }
 
     function _isXYChart(chartType) {
-        return chartType === "xy_line" || chartType === "xy_scatter"
+        return chartType === "xy_line" || chartType === "xy_scatter" || chartType === "time_series"
     }
 
     function _refreshSignalsModel() {
@@ -1060,6 +1060,7 @@ Item {
                         model: [
                             {"text":"XY Line", "value":"xy_line"},
                             {"text":"XY Scatter", "value":"xy_scatter"},
+                            {"text":"Time Series", "value":"time_series"},
                             {"text":"XYZ Scatter", "value":"xyz_scatter"}
                         ]
                         textRole: "text"

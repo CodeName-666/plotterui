@@ -578,6 +578,7 @@ Rectangle {
         switch(type) {
             case "xy_line": return "📈"
             case "xy_scatter": return "⚬"
+            case "time_series": return "⏱"
             case "xyz_surface": return "🗻"
             case "xyz_scatter": return "⬡"
             case "bar": return "📊"
@@ -590,6 +591,7 @@ Rectangle {
         switch(type) {
             case "xy_line": return "XY Line"
             case "xy_scatter": return "XY Scatter"
+            case "time_series": return "Time Series"
             case "xyz_surface": return "XYZ Surface"
             case "xyz_scatter": return "XYZ Scatter"
             case "bar": return "Bar Chart"
@@ -603,6 +605,8 @@ Rectangle {
             case "xy_line":
             case "xy_scatter":
                 return "../ChartTypes/XYChartView.qml"
+            case "time_series":
+                return "../ChartTypes/TimeSeriesRenderer.qml"
             case "xyz_surface":
             case "xyz_scatter":
                 return "../ChartTypes/XYZChartRenderer.qml"

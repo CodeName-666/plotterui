@@ -39,7 +39,8 @@ Item {
 
     // Internal state
     property var _graphs: ({})  // Dictionary of line series by uniqueId
-    property var _chartLineModel: null
+    // Reference to the central chart line model (passed from App for floating windows)
+    property var chartLineModel: null
     property bool _backendConnected: false
     property var _backendEvents: null
     property real _currentTime: 0  // Current time position (in seconds)
@@ -202,6 +203,22 @@ Item {
             lastTime: 0
         }
 
+        // Register with central model so signal assignment shows up in the manager UI
+        if (root.chartLineModel && root.chartLineModel.addLine) {
+            var safeDataId = (dataId !== undefined && dataId !== null) ? dataId : ""
+            root.chartLineModel.addLine(
+                uniqueId,
+                displayName,
+                series.color,
+                interfaceType || "Unknown",
+                safeDataId,
+                {},          // interfaceSettings
+                series,      // seriesRef
+                root.chartId,
+                root.chartTitle
+            )
+        }
+
         console.log("Created time series line:", uniqueId, displayName)
         return series
     }
@@ -263,7 +280,8 @@ Item {
 
         for (var i = 0; i < points.length; i++) {
             var point = points[i]
-            var timestamp = point[0]
+            // Backend can send [x, y] or [x, y, t] tuples; prefer t for time-series.
+            var timestamp = (point.length !== undefined && point.length > 2 && point[2] !== undefined && point[2] !== null) ? point[2] : point[0]
             var value = point[1]
 
             // Update current time
@@ -307,6 +325,9 @@ Item {
 
         chart.removeSeries(graph.series)
         delete _graphs[uniqueId]
+        if (root.chartLineModel && root.chartLineModel.removeLineForChart) {
+            root.chartLineModel.removeLineForChart(uniqueId, root.chartId)
+        }
         console.log("Removed time series line:", uniqueId)
         return true
     }
@@ -513,19 +534,16 @@ Item {
         }
     }
 
-    function handleGraphPoint(targetChartId, uniqueId, x, y) {
-        if (targetChartId !== chartId) {
-            return  // Not for this chart
-        }
+    function handleGraphPoint(uniqueId, point) {
+        if (!point) return
 
-        appendPoint(uniqueId, x, y)
+        var t = (point.t !== undefined && point.t !== null) ? point.t : (point.x !== undefined ? point.x : 0)
+        var y = point.y !== undefined ? point.y : (point["y"] !== undefined ? point["y"] : 0)
+
+        appendPoint(uniqueId, t, y)
     }
 
-    function handleGraphPointsBatch(targetChartId, uniqueId, points) {
-        if (targetChartId !== chartId) {
-            return  // Not for this chart
-        }
-
+    function handleGraphPointsBatch(uniqueId, points) {
         appendPointsBatch(uniqueId, points)
     }
 }

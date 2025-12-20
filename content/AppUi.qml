@@ -109,6 +109,8 @@ ApplicationWindow {
 
                     isCollapsed: chartLinesListCollapsed
                     chartLineModel: chartWindow.chartLineModel
+                    signalModel: chartWindow.signalModel
+                    messageModel: chartWindow.messageModel
                     availableCharts: chartWindow.availableCharts
 
                     onCollapseToggled: {

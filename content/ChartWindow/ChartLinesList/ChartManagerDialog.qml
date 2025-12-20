@@ -34,6 +34,7 @@ Window {
     // Properties passed from ChartsManager
     property var chartLineModel: null
     property var signalModel: null
+    property var messageModel: null
     property var availableCharts: []
 
     // Internal models
@@ -42,7 +43,12 @@ Window {
     ListModel { id: assignChartsModel }
 
     function _isXYChart(chartType) {
-        return chartType === "xy_line" || chartType === "xy_scatter"
+        // Used for enabling/disabling signal assignment per chart type
+        return chartType === "xy_line" ||
+               chartType === "xy_scatter" ||
+               chartType === "time_series" ||
+               chartType === "xyz_surface" ||
+               chartType === "xyz_scatter"
     }
 
     function _refreshSignalsModel() {
@@ -272,6 +278,29 @@ Window {
 
                 TabButton {
                     text: qsTr("Signals Management")
+                    height: 48
+
+                    background: Rectangle {
+                        color: {
+                            if (parent.checked) return "#2196f3"
+                            if (parent.hovered) return "#e8e8e8"
+                            return "transparent"
+                        }
+                        radius: 6
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.pixelSize: 14
+                        font.bold: parent.checked
+                        color: parent.checked ? "white" : "#444"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+
+                TabButton {
+                    text: qsTr("Messages")
                     height: 48
 
                     background: Rectangle {
@@ -585,7 +614,247 @@ Window {
                         }
                     }
 
-                    // Tab 3: Charts Management
+                    // Tab 3: Messages
+                    Item {
+                        ColumnLayout {
+                            anchors.fill: parent
+                            spacing: 12
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 12
+
+                                Label {
+                                    text: qsTr("Message List")
+                                    font.pixelSize: 16
+                                    font.bold: true
+                                    color: "#222"
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                Label {
+                                    text: qsTr("%1 messages total").arg(dialogWindow.messageModel ? dialogWindow.messageModel.count : 0)
+                                    color: "#666"
+                                    font.pixelSize: 13
+                                }
+
+                                Button {
+                                    text: qsTr("Clear")
+                                    Layout.preferredHeight: 36
+                                    enabled: dialogWindow.messageModel && dialogWindow.messageModel.count > 0
+
+                                    background: Rectangle {
+                                        color: {
+                                            if (!parent.enabled) return "#f0f0f0"
+                                            if (parent.pressed) return "#e0e0e0"
+                                            if (parent.hovered) return "#eeeeee"
+                                            return "#f5f5f5"
+                                        }
+                                        radius: 6
+                                        border.color: parent.enabled ? "#d0d0d0" : "#e0e0e0"
+                                        border.width: 1
+                                    }
+
+                                    contentItem: Text {
+                                        text: parent.text
+                                        font.pixelSize: 13
+                                        font.bold: true
+                                        color: parent.enabled ? "#444" : "#999"
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+
+                                    onClicked: {
+                                        if (dialogWindow.messageModel && dialogWindow.messageModel.clearAll) {
+                                            dialogWindow.messageModel.clearAll()
+                                        }
+                                    }
+                                }
+                            }
+
+                            ListView {
+                                id: messagesList
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                clip: true
+                                spacing: 8
+                                model: dialogWindow.messageModel ? dialogWindow.messageModel : []
+
+                                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                                delegate: Rectangle {
+                                    id: messageCard
+                                    width: messagesList.width
+                                    radius: 8
+                                    color: "#ffffff"
+                                    border.color: "#d0d0d0"
+                                    border.width: 1
+
+                                    implicitHeight: contentColumn.implicitHeight + 16
+                                    property var msg: model
+
+                                    ColumnLayout {
+                                        id: contentColumn
+                                        anchors.fill: parent
+                                        anchors.margins: 10
+                                        spacing: 10
+
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 10
+
+                                            Text {
+                                                text: model.expanded ? "▼" : "▶"
+                                                color: "#666"
+                                                font.pixelSize: 12
+                                                Layout.alignment: Qt.AlignVCenter
+                                            }
+
+                                            ColumnLayout {
+                                                Layout.fillWidth: true
+                                                Layout.alignment: Qt.AlignVCenter
+                                                spacing: 3
+
+                                                Label {
+                                                    text: model.displayName || model.uniqueId
+                                                    color: "#222"
+                                                    font.pixelSize: 14
+                                                    font.bold: true
+                                                    elide: Text.ElideRight
+                                                    Layout.fillWidth: true
+                                                }
+
+                                                Label {
+                                                    text: (model.interfaceType || "Unknown") + " · " + model.uniqueId + " · ID:" + model.dataId + " · Count:" + (model.rxCount || 0)
+                                                    color: "#777"
+                                                    font.pixelSize: 11
+                                                    elide: Text.ElideRight
+                                                    Layout.fillWidth: true
+                                                }
+                                            }
+
+                                            ColumnLayout {
+                                                spacing: 2
+                                                Layout.alignment: Qt.AlignVCenter
+
+                                                Label {
+                                                    text: model.cycleTime !== null && model.cycleTime !== undefined ? (Math.round(model.cycleTime * 1000) + " ms") : "—"
+                                                    color: "#444"
+                                                    font.pixelSize: 12
+                                                    horizontalAlignment: Text.AlignRight
+                                                    Layout.alignment: Qt.AlignRight
+                                                }
+
+                                                Label {
+                                                    text: model.rxTime ? Qt.formatDateTime(new Date(model.rxTime * 1000), "hh:mm:ss.zzz") : "—"
+                                                    color: "#777"
+                                                    font.pixelSize: 11
+                                                    horizontalAlignment: Text.AlignRight
+                                                    Layout.alignment: Qt.AlignRight
+                                                }
+                                            }
+                                        }
+
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            height: 1
+                                            color: "#eeeeee"
+                                            visible: model.expanded
+                                        }
+
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 6
+                                            visible: model.expanded
+
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 10
+
+                                                Label { text: qsTr("Signal"); font.pixelSize: 11; color: "#666"; Layout.preferredWidth: 100 }
+                                                Label { text: qsTr("Value"); font.pixelSize: 11; color: "#666"; Layout.fillWidth: true }
+                                                Label { text: qsTr("Cycle"); font.pixelSize: 11; color: "#666"; Layout.preferredWidth: 90; horizontalAlignment: Text.AlignRight }
+                                                Label { text: qsTr("Updated"); font.pixelSize: 11; color: "#666"; Layout.preferredWidth: 120; horizontalAlignment: Text.AlignRight }
+                                            }
+
+                                            Repeater {
+                                                model: [
+                                                    { "name": "x", "value": messageCard.msg.x },
+                                                    { "name": "y", "value": messageCard.msg.y },
+                                                    { "name": "z", "value": messageCard.msg.z },
+                                                    { "name": "timestamp", "value": messageCard.msg.timestamp, "t": messageCard.msg.t }
+                                                ]
+
+                                                delegate: RowLayout {
+                                                    width: parent ? parent.width : messagesList.width
+                                                    spacing: 10
+
+                                                    Label {
+                                                        text: modelData.name
+                                                        font.pixelSize: 13
+                                                        color: "#222"
+                                                        Layout.preferredWidth: 100
+                                                    }
+
+                                                    Label {
+                                                        text: {
+                                                            if (modelData.name === "timestamp") {
+                                                                if (modelData.value === null || modelData.value === undefined) return "—"
+                                                                var base = Number(modelData.value).toFixed(6)
+                                                                if (modelData.t === null || modelData.t === undefined) return base
+                                                                return base + " (t=" + Number(modelData.t).toFixed(3) + "s)"
+                                                            }
+                                                            if (modelData.value === null || modelData.value === undefined) return "—"
+                                                            return Number(modelData.value).toFixed(6)
+                                                        }
+                                                        font.pixelSize: 13
+                                                        color: "#444"
+                                                        elide: Text.ElideRight
+                                                        Layout.fillWidth: true
+                                                    }
+
+                                                    Label {
+                                                        text: messageCard.msg.cycleTime !== null && messageCard.msg.cycleTime !== undefined ? (Math.round(messageCard.msg.cycleTime * 1000) + " ms") : "—"
+                                                        font.pixelSize: 13
+                                                        color: "#444"
+                                                        horizontalAlignment: Text.AlignRight
+                                                        Layout.preferredWidth: 90
+                                                    }
+
+                                                    Label {
+                                                        text: messageCard.msg.rxTime ? Qt.formatDateTime(new Date(messageCard.msg.rxTime * 1000), "hh:mm:ss") : "—"
+                                                        font.pixelSize: 13
+                                                        color: "#444"
+                                                        horizontalAlignment: Text.AlignRight
+                                                        Layout.preferredWidth: 120
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    TapHandler {
+                                        onTapped: {
+                                            if (dialogWindow.messageModel && dialogWindow.messageModel.toggleExpanded) {
+                                                dialogWindow.messageModel.toggleExpanded(model.uniqueId)
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Label {
+                                    anchors.centerIn: parent
+                                    text: qsTr("No messages available")
+                                    color: "#999"
+                                    font.pixelSize: 14
+                                    visible: messagesList.count === 0
+                                }
+                            }
+                        }
+                    }
+
+                    // Tab 4: Charts Management
                     Item {
                         ColumnLayout {
                             anchors.fill: parent

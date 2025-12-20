@@ -34,6 +34,12 @@ QtObject {
      */
     signal append_graph_points_batch_3d(var uniqueId, var points);
     /**
+     * @brief Message received/update event (latest state per message)
+     * @param message - Object with keys: uniqueId, displayName, interface, interfaceType, dataId,
+     *                  x, y, z, timestamp, t, rxTime, cycleTime, rxCount
+     */
+    signal message_received(var message)
+    /**
      * @brief Scroll Right Event
      */
     signal scrollRight(var pixel);

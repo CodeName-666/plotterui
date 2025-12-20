@@ -22,6 +22,8 @@ Item {
     property string chartId: ""
     property string chartTitle: "3D Chart"
     property var chartData: null  // Reference to chart data model
+    // Reference to the central chart line model (passed from App for floating windows)
+    property var chartLineModel: null
 
     // 3D View configuration
     property real initialCameraDistance: 50
@@ -573,8 +575,9 @@ Item {
         if (component.status !== Component.Ready) {
             // Fallback: create simple Node
             Logger.log_warning("XYZChartRenderer: ScatterPlotNode not found, using fallback")
-            var node = Qt.createQmlObject('import QtQuick3D 6.4; Node {}', scatterPlotContainer)
+            var node = Qt.createQmlObject('import QtQuick3D 6.4; Node { property color pointColor: "#ffff00" }', scatterPlotContainer)
             node.objectName = displayName
+            if (node.pointColor !== undefined) node.pointColor = color || "#ffff00"
             _scatterPlots[uniqueId] = node
             _pointModels[uniqueId] = []
             return node
@@ -593,6 +596,38 @@ Item {
     }
 
     /**
+     * Create/register a new scatter plot line for this chart (called by ChartWindow assignment)
+     */
+    function createLine(uniqueId, displayName, color, interfaceType, dataId) {
+        var node = createScatterPlot(uniqueId, displayName, color)
+
+        if (root.chartLineModel && root.chartLineModel.addLine) {
+            var safeDataId = (dataId !== undefined && dataId !== null) ? dataId : ""
+            root.chartLineModel.addLine(
+                uniqueId,
+                displayName,
+                color || "#ffff00",
+                interfaceType || "Unknown",
+                safeDataId,
+                {},      // interfaceSettings
+                node,    // seriesRef (3D scatter node)
+                root.chartId,
+                root.chartTitle
+            )
+        }
+
+        return node
+    }
+
+    function removeLine(uniqueId) {
+        removeScatterPlot(uniqueId)
+        if (root.chartLineModel && root.chartLineModel.removeLineForChart) {
+            root.chartLineModel.removeLineForChart(uniqueId, root.chartId)
+        }
+        return true
+    }
+
+    /**
      * Append a single 3D point to a scatter plot
      * @param uniqueId - Scatter plot identifier
      * @param x - X coordinate
@@ -600,10 +635,9 @@ Item {
      * @param z - Z coordinate
      */
     function appendPoint3D(uniqueId, x, y, z) {
-        if (!_scatterPlots[uniqueId]) {
-            Logger.log_warning("XYZChartRenderer: Scatter plot not found: " + uniqueId)
-            return
-        }
+        if (!_scatterPlots[uniqueId]) return
+        var scatterNode = _scatterPlots[uniqueId]
+        var pointColor = (scatterNode && scatterNode.pointColor !== undefined) ? scatterNode.pointColor : "#ffff00"
 
         // Create a small sphere for each point
         var component = Qt.createComponent("qrc:/qt/qml/QtQuick3D/Model")
@@ -618,7 +652,7 @@ Item {
             var matComponent = Qt.createComponent("qrc:/qt/qml/QtQuick3D/PrincipledMaterial")
             if (matComponent.status === Component.Ready) {
                 var material = matComponent.createObject(point, {
-                    "baseColor": "#ffff00",
+                    "baseColor": pointColor,
                     "metalness": 0.3,
                     "roughness": 0.5
                 })
@@ -642,10 +676,7 @@ Item {
      * @param points - Array of [x, y, z] tuples
      */
     function appendPointsBatch3D(uniqueId, points) {
-        if (!_scatterPlots[uniqueId]) {
-            Logger.log_warning("XYZChartRenderer: Scatter plot not found: " + uniqueId)
-            return
-        }
+        if (!_scatterPlots[uniqueId]) return
 
         if (!points || points.length === 0) {
             return

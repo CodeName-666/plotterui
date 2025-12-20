@@ -20,6 +20,7 @@ ChartWindowUi{
     property var _graphs: ({})  // Legacy: keeping for backward compatibility during transition
     property var chartLineModel: ChartLineModel {}  // New model-based line management
     property var signalModel: SignalModel {}  // Global registry of signals (uniqueId -> metadata)
+    property var messageModel: MessageModel {}  // Latest message values/timing (for Messages table)
     property var availableCharts: []
     property alias addChartLineDialog: addChartLineDialog
     property alias editChartLineDialog: editChartLineDialog
@@ -370,6 +371,9 @@ ChartWindowUi{
                 events.newGraph.connect(newGraph)
                 events.append_graph_point.connect(appendGraphPoint)
                 events.append_graph_points_batch.connect(appendGraphPointsBatch)
+                if (events.message_received) {
+                    events.message_received.connect(onMessageReceived)
+                }
                 events.scrollRight.connect(chart.scrollRight)
             }
             controller.set_plot_area(chart.plotArea)
@@ -378,6 +382,11 @@ ChartWindowUi{
         refreshAvailableCharts()
         _syncSignalModelFromLines()
         Logger.log_debug("CHARTVIEW Completed");
+    }
+
+    function onMessageReceived(message) {
+        if (!messageModel || !messageModel.addOrUpdateFromBackend) return
+        messageModel.addOrUpdateFromBackend(message)
     }
 
     function _extractDataIdFromUniqueId(uniqueId) {

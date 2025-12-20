@@ -31,6 +31,7 @@ Item {
     property bool isCollapsed: false
     property var chartLineModel: null
     property var signalModel: null  // Global signal registry (uniqueId -> metadata)
+    property var messageModel: null // Latest messages (uniqueId -> values/timing)
     property var availableCharts: [] // [{chartId, chartTitle, chartType}]
 
     // Internal models
@@ -39,7 +40,13 @@ Item {
     ListModel { id: assignChartsModel }
 
     function _isXYChart(chartType) {
-        return chartType === "xy_line" || chartType === "xy_scatter" || chartType === "time_series"
+        // Compatibility: this is used for enabling/disabling signal assignment per chart type.
+        // Support XY + TimeSeries + XYZ for message-based data (x/y/z).
+        return chartType === "xy_line" ||
+               chartType === "xy_scatter" ||
+               chartType === "time_series" ||
+               chartType === "xyz_surface" ||
+               chartType === "xyz_scatter"
     }
 
     function _refreshSignalsModel() {
@@ -364,6 +371,28 @@ Item {
                 }
 
                 TabButton {
+                    text: qsTr("Messages")
+
+                    background: Rectangle {
+                        color: {
+                            if (parent.checked) return "#2196f3"
+                            if (parent.hovered) return "#d0d0d0"
+                            return "transparent"
+                        }
+                        radius: 4
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font.pixelSize: 12
+                        font.bold: parent.checked
+                        color: parent.checked ? "white" : "#444"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+
+                TabButton {
                     text: qsTr("Manage Charts")
 
                     background: Rectangle {
@@ -606,7 +635,237 @@ Item {
                 }
 
                 // ---------------------------------------------------------
-                // Tab 3: Charts (global)
+                // Tab 3: Messages (global)
+                // ---------------------------------------------------------
+                Item {
+                    ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 8
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Button {
+                                text: qsTr("Clear")
+                                Layout.preferredHeight: 32
+                                enabled: root.messageModel && root.messageModel.count > 0
+
+                                background: Rectangle {
+                                    color: parent.enabled ? (parent.hovered ? "#eeeeee" : "#f5f5f5") : "#f0f0f0"
+                                    radius: 4
+                                    border.color: "#d0d0d0"
+                                    border.width: 1
+                                }
+
+                                contentItem: Text {
+                                    text: parent.text
+                                    font.pixelSize: 12
+                                    font.bold: true
+                                    color: parent.enabled ? "#444" : "#888"
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                onClicked: {
+                                    if (root.messageModel && root.messageModel.clearAll) {
+                                        root.messageModel.clearAll()
+                                    }
+                                }
+                            }
+
+                            Item { Layout.fillWidth: true }
+
+                            Label {
+                                text: qsTr("%1 messages").arg(root.messageModel ? root.messageModel.count : 0)
+                                color: "#666"
+                                font.pixelSize: 11
+                            }
+                        }
+
+                        ListView {
+                            id: messagesList
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            clip: true
+                            spacing: 6
+                            model: root.messageModel ? root.messageModel : []
+
+                            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                            delegate: Rectangle {
+                                id: messageCard
+                                width: messagesList.width
+                                radius: 8
+                                color: "#ffffff"
+                                border.color: "#d0d0d0"
+                                border.width: 1
+
+                                implicitHeight: contentColumn.implicitHeight + 16
+                                property var msg: model
+
+                                ColumnLayout {
+                                    id: contentColumn
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+                                    spacing: 8
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 8
+
+                                        Text {
+                                            text: model.expanded ? "▼" : "▶"
+                                            color: "#666"
+                                            font.pixelSize: 12
+                                            Layout.alignment: Qt.AlignVCenter
+                                        }
+
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 2
+
+                                            Label {
+                                                text: model.displayName || model.uniqueId
+                                                color: "#222"
+                                                font.pixelSize: 12
+                                                font.bold: true
+                                                elide: Text.ElideRight
+                                                Layout.fillWidth: true
+                                            }
+
+                                            Label {
+                                                text: (model.interfaceType || "Unknown") + " · " + model.uniqueId + " · ID:" + model.dataId + " · Count:" + (model.rxCount || 0)
+                                                color: "#777"
+                                                font.pixelSize: 10
+                                                elide: Text.ElideRight
+                                                Layout.fillWidth: true
+                                            }
+                                        }
+
+                                        ColumnLayout {
+                                            spacing: 2
+                                            Layout.alignment: Qt.AlignVCenter
+
+                                            Label {
+                                                text: model.cycleTime !== null && model.cycleTime !== undefined ? (Math.round(model.cycleTime * 1000) + " ms") : "—"
+                                                color: "#444"
+                                                font.pixelSize: 11
+                                                horizontalAlignment: Text.AlignRight
+                                                Layout.alignment: Qt.AlignRight
+                                            }
+
+                                            Label {
+                                                text: model.rxTime ? Qt.formatDateTime(new Date(model.rxTime * 1000), "hh:mm:ss.zzz") : "—"
+                                                color: "#777"
+                                                font.pixelSize: 10
+                                                horizontalAlignment: Text.AlignRight
+                                                Layout.alignment: Qt.AlignRight
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        height: 1
+                                        color: "#eeeeee"
+                                        visible: model.expanded
+                                    }
+
+                                    // Expanded details: show "signals" inside the message (x/y/z/timestamp)
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        visible: model.expanded
+
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 8
+
+                                            Label { text: qsTr("Signal"); font.pixelSize: 10; color: "#666"; Layout.preferredWidth: 90 }
+                                            Label { text: qsTr("Value"); font.pixelSize: 10; color: "#666"; Layout.fillWidth: true }
+                                            Label { text: qsTr("Cycle"); font.pixelSize: 10; color: "#666"; Layout.preferredWidth: 80; horizontalAlignment: Text.AlignRight }
+                                            Label { text: qsTr("Updated"); font.pixelSize: 10; color: "#666"; Layout.preferredWidth: 100; horizontalAlignment: Text.AlignRight }
+                                        }
+
+                                        Repeater {
+                                            model: [
+                                                { "name": "x", "value": messageCard.msg.x },
+                                                { "name": "y", "value": messageCard.msg.y },
+                                                { "name": "z", "value": messageCard.msg.z },
+                                                { "name": "timestamp", "value": messageCard.msg.timestamp, "t": messageCard.msg.t }
+                                            ]
+
+                                            delegate: RowLayout {
+                                                width: parent ? parent.width : messagesList.width
+                                                spacing: 8
+
+                                                Label {
+                                                    text: modelData.name
+                                                    font.pixelSize: 12
+                                                    color: "#222"
+                                                    Layout.preferredWidth: 90
+                                                }
+
+                                                Label {
+                                                    text: {
+                                                        if (modelData.name === "timestamp") {
+                                                            if (modelData.value === null || modelData.value === undefined) return "—"
+                                                            var base = Number(modelData.value).toFixed(6)
+                                                            if (modelData.t === null || modelData.t === undefined) return base
+                                                            return base + " (t=" + Number(modelData.t).toFixed(3) + "s)"
+                                                        }
+                                                        if (modelData.value === null || modelData.value === undefined) return "—"
+                                                        return Number(modelData.value).toFixed(6)
+                                                    }
+                                                    font.pixelSize: 12
+                                                    color: "#444"
+                                                    elide: Text.ElideRight
+                                                    Layout.fillWidth: true
+                                                }
+
+                                                Label {
+                                                    text: messageCard.msg.cycleTime !== null && messageCard.msg.cycleTime !== undefined ? (Math.round(messageCard.msg.cycleTime * 1000) + " ms") : "—"
+                                                    font.pixelSize: 12
+                                                    color: "#444"
+                                                    horizontalAlignment: Text.AlignRight
+                                                    Layout.preferredWidth: 80
+                                                }
+
+                                                Label {
+                                                    text: messageCard.msg.rxTime ? Qt.formatDateTime(new Date(messageCard.msg.rxTime * 1000), "hh:mm:ss") : "—"
+                                                    font.pixelSize: 12
+                                                    color: "#444"
+                                                    horizontalAlignment: Text.AlignRight
+                                                    Layout.preferredWidth: 100
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                TapHandler {
+                                    onTapped: {
+                                        if (root.messageModel && root.messageModel.toggleExpanded) {
+                                            root.messageModel.toggleExpanded(model.uniqueId)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Label {
+                                anchors.centerIn: parent
+                                text: qsTr("No messages")
+                                color: "#999"
+                                font.pixelSize: 12
+                                visible: messagesList.count === 0
+                            }
+                        }
+                    }
+                }
+
+                // ---------------------------------------------------------
+                // Tab 4: Charts (global)
                 // ---------------------------------------------------------
                 Item {
                     ColumnLayout {
@@ -1339,6 +1598,7 @@ Item {
 
         chartLineModel: root.chartLineModel
         signalModel: root.signalModel
+        messageModel: root.messageModel
         availableCharts: root.availableCharts
 
         onLineVisibilityToggled: function(lineKey, visible) {

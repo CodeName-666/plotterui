@@ -26,6 +26,7 @@ ColumnLayout {
             Layout.fillWidth: true
             editable: true
             font.pixelSize: 12
+            textRole: "text"
 
             model: ListModel {
                 id: portsModel
@@ -241,8 +242,15 @@ ColumnLayout {
 
     // Functions
     function refreshPorts() {
-        // Ports are updated automatically via com_port_update signal
         Logger.log_debug("Refreshing COM ports...")
+        if(typeof Backend !== "undefined" && typeof Backend.get_com_ports === "function") {
+            var ports = Backend.get_com_ports()
+            if(ports !== undefined && ports !== null) {
+                updatePortsList(ports)
+            }
+        } else {
+            Logger.log_warning("SerialSettings: Backend.get_com_ports not available")
+        }
     }
 
     function updatePortsList(ports) {

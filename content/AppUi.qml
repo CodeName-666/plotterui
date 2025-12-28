@@ -145,15 +145,15 @@ ApplicationWindow {
                         }
                     }
 
-                    onSetSignalChartsRequested: function(uniqueId, chartIds) {
+                    onSetSignalChartsRequested: function(uniqueId, assignments) {
                         if (chartWindow && chartWindow.setSignalCharts) {
-                            chartWindow.setSignalCharts(uniqueId, chartIds)
+                            chartWindow.setSignalCharts(uniqueId, assignments)
                         }
                     }
 
-                    onCreateChartRequested: function(chartType, chartTitle) {
+                    onCreateChartRequested: function(chartType, chartTitle, chartId) {
                         if (chartWindow && chartWindow.createManagedChart) {
-                            chartWindow.createManagedChart(chartType, chartTitle)
+                            chartWindow.createManagedChart(chartType, chartTitle, chartId)
                         }
                     }
 

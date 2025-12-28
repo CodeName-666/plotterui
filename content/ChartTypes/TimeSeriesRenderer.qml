@@ -38,7 +38,8 @@ Item {
     property real initialYMax: 10
 
     // Internal state
-    property var _graphs: ({})  // Dictionary of line series by uniqueId
+    property var _graphs: ({})  // Dictionary of line series by lineKey
+    property var _graphsByUniqueId: ({})  // uniqueId -> [lineKey]
     // Reference to the central chart line model (passed from App for floating windows)
     property var chartLineModel: null
     property bool _backendConnected: false
@@ -182,19 +183,68 @@ Item {
     /**
      * Create a new data line
      */
-    function createLine(uniqueId, displayName, color, interfaceType, dataId) {
-        if (_graphs[uniqueId]) {
-            console.warn("Line already exists:", uniqueId)
+    function _normalizeValueField(valueField) {
+        return valueField === "x" ? "x" : "y"
+    }
+
+    function _buildLineKey(uniqueId, valueField) {
+        var field = _normalizeValueField(valueField)
+        return (root.chartId || "main") + "::" + uniqueId + "::" + field
+    }
+
+    function _formatDisplayName(displayName, valueField) {
+        var suffix = valueField === "x" ? " (X)" : " (Y)"
+        return displayName + suffix
+    }
+
+    function _registerLineKey(uniqueId, lineKey) {
+        if (!_graphsByUniqueId[uniqueId]) {
+            _graphsByUniqueId[uniqueId] = []
+        }
+        if (_graphsByUniqueId[uniqueId].indexOf(lineKey) === -1) {
+            _graphsByUniqueId[uniqueId].push(lineKey)
+        }
+    }
+
+    function _unregisterLineKey(uniqueId, lineKey) {
+        if (!_graphsByUniqueId[uniqueId]) return
+        var idx = _graphsByUniqueId[uniqueId].indexOf(lineKey)
+        if (idx !== -1) {
+            _graphsByUniqueId[uniqueId].splice(idx, 1)
+        }
+        if (_graphsByUniqueId[uniqueId].length === 0) {
+            delete _graphsByUniqueId[uniqueId]
+        }
+    }
+
+    function _getGraphsForUniqueId(uniqueId) {
+        var keys = _graphsByUniqueId[uniqueId] || []
+        var graphs = []
+        for (var i = 0; i < keys.length; i++) {
+            var graph = _graphs[keys[i]]
+            if (graph) graphs.push(graph)
+        }
+        return graphs
+    }
+
+    function createLine(uniqueId, displayName, color, interfaceType, dataId, valueField) {
+        var field = _normalizeValueField(valueField)
+        var lineKey = _buildLineKey(uniqueId, field)
+        if (_graphs[lineKey]) {
+            console.warn("Line already exists:", lineKey)
             return null
         }
 
         // Create new line series
-        var series = chart.createSeries(ChartView.SeriesTypeLine, displayName, timeAxis, valueAxis)
+        var series = chart.createSeries(ChartView.SeriesTypeLine, _formatDisplayName(displayName, field), timeAxis, valueAxis)
         series.color = color || Qt.rgba(Math.random(), Math.random(), Math.random(), 1)
         series.width = 2
         series.useOpenGL = false
 
-        _graphs[uniqueId] = {
+        _graphs[lineKey] = {
+            lineKey: lineKey,
+            uniqueId: uniqueId,
+            valueField: field,
             series: series,
             displayName: displayName,
             color: series.color,
@@ -202,36 +252,34 @@ Item {
             pointCount: 0,
             lastTime: 0
         }
+        _registerLineKey(uniqueId, lineKey)
 
         // Register with central model so signal assignment shows up in the manager UI
         if (root.chartLineModel && root.chartLineModel.addLine) {
             var safeDataId = (dataId !== undefined && dataId !== null) ? dataId : ""
             root.chartLineModel.addLine(
                 uniqueId,
-                displayName,
+                _formatDisplayName(displayName, field),
                 series.color,
                 interfaceType || "Unknown",
                 safeDataId,
                 {},          // interfaceSettings
                 series,      // seriesRef
                 root.chartId,
-                root.chartTitle
+                root.chartTitle,
+                field
             )
         }
 
-        console.log("Created time series line:", uniqueId, displayName)
+        console.log("Created time series line:", uniqueId, displayName, field)
         return series
     }
 
     /**
      * Append a single point to a line (with timestamp)
      */
-    function appendPoint(uniqueId, timestamp, value) {
-        var graph = _graphs[uniqueId]
-        if (!graph || !graph.visible) {
-            return
-        }
-
+    function _appendPointForGraph(graph, timestamp, value) {
+        if (!graph || !graph.visible) return
         var series = graph.series
 
         // Update current time tracking
@@ -263,6 +311,14 @@ Item {
         }
     }
 
+    function appendPoint(uniqueId, timestamp, value) {
+        var graphs = _getGraphsForUniqueId(uniqueId)
+        if (graphs.length === 0) return
+        for (var i = 0; i < graphs.length; i++) {
+            _appendPointForGraph(graphs[i], timestamp, value)
+        }
+    }
+
     /**
      * Append points in batch (optimized)
      */
@@ -271,27 +327,32 @@ Item {
             return
         }
 
-        var graph = _graphs[uniqueId]
-        if (!graph || !graph.visible) {
+        var graphs = _getGraphsForUniqueId(uniqueId)
+        if (graphs.length === 0) {
             return
         }
-
-        var series = graph.series
 
         for (var i = 0; i < points.length; i++) {
             var point = points[i]
             // Backend can send [x, y] or [x, y, t] tuples; prefer t for time-series.
             var timestamp = (point.length !== undefined && point.length > 2 && point[2] !== undefined && point[2] !== null) ? point[2] : point[0]
-            var value = point[1]
+            var yValue = point[1]
+            var xValue = point[0]
 
-            // Update current time
-            if (timestamp > _currentTime) {
-                _currentTime = timestamp
+            for (var g = 0; g < graphs.length; g++) {
+                var graph = graphs[g]
+                if (!graph || !graph.visible) continue
+                var value = graph.valueField === "x" ? xValue : yValue
+
+                // Update current time
+                if (timestamp > _currentTime) {
+                    _currentTime = timestamp
+                }
+
+                graph.series.append(timestamp, value)
+                graph.pointCount++
+                graph.lastTime = timestamp
             }
-
-            series.append(timestamp, value)
-            graph.pointCount++
-            graph.lastTime = timestamp
         }
 
         // Auto-scroll
@@ -302,10 +363,14 @@ Item {
         }
 
         // Limit points
-        if (graph.pointCount > 10000) {
-            var removeCount = Math.min(100, graph.pointCount - 10000)
-            series.removePoints(0, removeCount)
-            graph.pointCount -= removeCount
+        for (var k = 0; k < graphs.length; k++) {
+            var gGraph = graphs[k]
+            if (!gGraph) continue
+            if (gGraph.pointCount > 10000) {
+                var removeCount = Math.min(100, gGraph.pointCount - 10000)
+                gGraph.series.removePoints(0, removeCount)
+                gGraph.pointCount -= removeCount
+            }
         }
 
         // Auto-scale Y
@@ -317,41 +382,62 @@ Item {
     /**
      * Remove a data line
      */
-    function removeLine(uniqueId) {
-        var graph = _graphs[uniqueId]
-        if (!graph) {
+    function removeLine(uniqueId, valueField) {
+        var keys = []
+        if (valueField !== undefined && valueField !== null && valueField !== "") {
+            keys.push(_buildLineKey(uniqueId, valueField))
+        } else if (_graphsByUniqueId[uniqueId]) {
+            keys = _graphsByUniqueId[uniqueId].slice()
+        }
+
+        if (keys.length === 0) {
             return false
         }
 
-        chart.removeSeries(graph.series)
-        delete _graphs[uniqueId]
-        if (root.chartLineModel && root.chartLineModel.removeLineForChart) {
-            root.chartLineModel.removeLineForChart(uniqueId, root.chartId)
+        for (var i = 0; i < keys.length; i++) {
+            var lineKey = keys[i]
+            var graph = _graphs[lineKey]
+            if (!graph) continue
+            chart.removeSeries(graph.series)
+            delete _graphs[lineKey]
+            _unregisterLineKey(uniqueId, lineKey)
+            if (root.chartLineModel && root.chartLineModel.removeLineForChart) {
+                root.chartLineModel.removeLineForChart(uniqueId, root.chartId, graph.valueField)
+            }
+            console.log("Removed time series line:", uniqueId, graph.valueField)
         }
-        console.log("Removed time series line:", uniqueId)
         return true
     }
 
     /**
      * Clear all points from a line
      */
-    function clearLine(uniqueId) {
-        var graph = _graphs[uniqueId]
-        if (!graph) {
-            return
-        }
-
+    function _clearLineByKey(lineKey) {
+        var graph = _graphs[lineKey]
+        if (!graph) return
         graph.series.removePoints(0, graph.series.count)
         graph.pointCount = 0
         graph.lastTime = 0
+    }
+
+    function clearLine(uniqueId, valueField) {
+        var keys = []
+        if (valueField !== undefined && valueField !== null && valueField !== "") {
+            keys.push(_buildLineKey(uniqueId, valueField))
+        } else if (_graphsByUniqueId[uniqueId]) {
+            keys = _graphsByUniqueId[uniqueId].slice()
+        }
+        for (var i = 0; i < keys.length; i++) {
+            _clearLineByKey(keys[i])
+        }
     }
 
     /**
      * Clear all lines
      */
     function clearAll() {
-        for (var uniqueId in _graphs) {
-            clearLine(uniqueId)
+        for (var lineKey in _graphs) {
+            _clearLineByKey(lineKey)
         }
     }
 
@@ -359,20 +445,22 @@ Item {
      * Toggle line visibility
      */
     function toggleLineVisibility(uniqueId, visible) {
-        var graph = _graphs[uniqueId]
-        if (!graph) {
-            return
+        var keys = _graphsByUniqueId[uniqueId] || []
+        for (var i = 0; i < keys.length; i++) {
+            var graph = _graphs[keys[i]]
+            if (!graph) continue
+            graph.visible = visible
+            graph.series.visible = visible
         }
-
-        graph.visible = visible
-        graph.series.visible = visible
     }
 
     /**
      * Get a line by uniqueId
      */
     function getLine(uniqueId) {
-        return _graphs[uniqueId] || null
+        var keys = _graphsByUniqueId[uniqueId] || []
+        if (keys.length === 0) return null
+        return _graphs[keys[0]] || null
     }
 
     // ========== ZOOM AND PAN FUNCTIONS ==========
@@ -539,8 +627,14 @@ Item {
 
         var t = (point.t !== undefined && point.t !== null) ? point.t : (point.x !== undefined ? point.x : 0)
         var y = point.y !== undefined ? point.y : (point["y"] !== undefined ? point["y"] : 0)
+        var x = point.x !== undefined ? point.x : (point["x"] !== undefined ? point["x"] : 0)
 
-        appendPoint(uniqueId, t, y)
+        var graphs = _getGraphsForUniqueId(uniqueId)
+        for (var i = 0; i < graphs.length; i++) {
+            var graph = graphs[i]
+            var value = graph.valueField === "x" ? x : y
+            _appendPointForGraph(graph, t, value)
+        }
     }
 
     function handleGraphPointsBatch(uniqueId, points) {

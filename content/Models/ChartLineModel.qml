@@ -11,8 +11,10 @@ ListModel {
 
     signal modelChanged()
 
-    function buildLineKey(uniqueId, chartId) {
-        return (chartId || "main") + "::" + uniqueId
+    function buildLineKey(uniqueId, chartId, valueField) {
+        var safeChartId = chartId || "main"
+        var suffix = (valueField !== undefined && valueField !== null && valueField !== "") ? ("::" + valueField) : ""
+        return safeChartId + "::" + uniqueId + suffix
     }
 
     /**
@@ -27,10 +29,11 @@ ListModel {
      * @param seriesRef - Reference to Qt Charts series object
      * @param chartId - ID of the chart this line belongs to (e.g., "main", "test_float_123")
      * @param chartTitle - Title of the chart this line belongs to (e.g., "Main Chart", "Test Chart")
+     * @param valueField - Optional mapping field for time-series lines ("x" or "y")
      */
-    function addLine(uniqueId, displayName, color, interfaceType, dataId, interfaceSettings, seriesRef, chartId, chartTitle) {
+    function addLine(uniqueId, displayName, color, interfaceType, dataId, interfaceSettings, seriesRef, chartId, chartTitle, valueField) {
         var safeChartId = chartId || "main"
-        var lineKey = buildLineKey(uniqueId, safeChartId)
+        var lineKey = buildLineKey(uniqueId, safeChartId, valueField)
 
         // Check if this line already exists on this chart
         if (getLineIndexByKey(lineKey) !== -1) {
@@ -49,7 +52,8 @@ ListModel {
             "visible": true,
             "seriesRef": seriesRef || null,
             "chartId": safeChartId,
-            "chartTitle": chartTitle || "Main Chart"
+            "chartTitle": chartTitle || "Main Chart",
+            "valueField": valueField !== undefined ? valueField : null
         })
 
         modelChanged()
@@ -75,8 +79,8 @@ ListModel {
         return true
     }
 
-    function removeLineForChart(uniqueId, chartId) {
-        return removeLine(buildLineKey(uniqueId, chartId))
+    function removeLineForChart(uniqueId, chartId, valueField) {
+        return removeLine(buildLineKey(uniqueId, chartId, valueField))
     }
 
     /**
@@ -103,8 +107,8 @@ ListModel {
         return true
     }
 
-    function updateLineForChart(uniqueId, chartId, properties) {
-        return updateLine(buildLineKey(uniqueId, chartId), properties)
+    function updateLineForChart(uniqueId, chartId, properties, valueField) {
+        return updateLine(buildLineKey(uniqueId, chartId, valueField), properties)
     }
 
     function updateLinesByUniqueId(uniqueId, properties) {
@@ -142,13 +146,13 @@ ListModel {
         return index === -1 ? null : get(index)
     }
 
-    function getLineForChart(uniqueId, chartId) {
-        var key = buildLineKey(uniqueId, chartId)
+    function getLineForChart(uniqueId, chartId, valueField) {
+        var key = buildLineKey(uniqueId, chartId, valueField)
         return getLineByKey(key)
     }
 
-    function hasLineForChart(uniqueId, chartId) {
-        return getLineIndexByKey(buildLineKey(uniqueId, chartId)) !== -1
+    function hasLineForChart(uniqueId, chartId, valueField) {
+        return getLineIndexByKey(buildLineKey(uniqueId, chartId, valueField)) !== -1
     }
 
     function hasAnyLine(uniqueId) {
@@ -173,8 +177,8 @@ ListModel {
         return -1
     }
 
-    function getLineIndexForChart(uniqueId, chartId) {
-        return getLineIndexByKey(buildLineKey(uniqueId, chartId))
+    function getLineIndexForChart(uniqueId, chartId, valueField) {
+        return getLineIndexByKey(buildLineKey(uniqueId, chartId, valueField))
     }
 
     /**
@@ -225,8 +229,8 @@ ListModel {
         return true
     }
 
-    function toggleVisibilityForChart(uniqueId, chartId, visible) {
-        return toggleVisibility(buildLineKey(uniqueId, chartId), visible)
+    function toggleVisibilityForChart(uniqueId, chartId, visible, valueField) {
+        return toggleVisibility(buildLineKey(uniqueId, chartId, valueField), visible)
     }
 
     /**

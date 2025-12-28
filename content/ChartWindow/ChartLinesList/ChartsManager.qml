@@ -23,8 +23,8 @@ Item {
     // New management requests (handled by ChartWindow)
     signal addSignalRequested()
     signal removeSignalRequested(string uniqueId)
-    signal setSignalChartsRequested(string uniqueId, var chartIds)
-    signal createChartRequested(string chartType, string chartTitle)
+    signal setSignalChartsRequested(string uniqueId, var assignments)
+    signal createChartRequested(string chartType, string chartTitle, string chartId)
     signal removeChartRequested(string chartId)
     signal renameChartRequested(string chartId, string chartTitle)
 
@@ -47,6 +47,76 @@ Item {
                chartType === "time_series" ||
                chartType === "xyz_surface" ||
                chartType === "xyz_scatter"
+    }
+
+    function _getMessage(uniqueId) {
+        if (!root.messageModel || !root.messageModel.getMessage) return null
+        return root.messageModel.getMessage(uniqueId)
+    }
+
+    function _getMessageDisplayName(uniqueId) {
+        var msg = _getMessage(uniqueId)
+        if (!msg) return uniqueId
+        return msg.displayName || msg.uniqueId || uniqueId
+    }
+
+    function _hasMessageX(uniqueId) {
+        var msg = _getMessage(uniqueId)
+        return !!(msg && msg.x !== null && msg.x !== undefined)
+    }
+
+    function _generateChartId(chartType) {
+        return "chart_" + chartType + "_" + Date.now() + "_" + Math.floor(Math.random() * 1000)
+    }
+
+    function _collectAssignments(uniqueId) {
+        var assignments = []
+        if (!root.chartLineModel) return assignments
+        for (var i = 0; i < root.chartLineModel.count; i++) {
+            var line = root.chartLineModel.get(i)
+            if (line.uniqueId !== uniqueId) continue
+            if ((line.chartId || "main") === "main") continue
+            var assignment = { "chartId": line.chartId }
+            if (line.valueField) assignment.valueField = line.valueField
+            assignments.push(assignment)
+        }
+        return assignments
+    }
+
+    function _requestSuggestedChart(uniqueId, displayName) {
+        var hasX = _hasMessageX(uniqueId)
+        var chartType = hasX ? "xy_line" : "time_series"
+        var chartId = _generateChartId(chartType)
+        var title = (displayName || uniqueId) + (hasX ? " (XY)" : " (Time Series)")
+
+        root.createChartRequested(chartType, title, chartId)
+
+        var assignments = _collectAssignments(uniqueId)
+        var newAssignment = { "chartId": chartId }
+        if (!hasX) {
+            newAssignment.valueField = "y"
+        }
+        assignments.push(newAssignment)
+        Qt.callLater(function() {
+            root.setSignalChartsRequested(uniqueId, assignments)
+        })
+    }
+
+    function _requestSplitTimeSeries(uniqueId, displayName) {
+        if (!_hasMessageX(uniqueId)) return
+        var chartIdX = _generateChartId("time_series")
+        var chartIdY = _generateChartId("time_series")
+        var baseTitle = displayName || uniqueId
+
+        root.createChartRequested("time_series", baseTitle + " (X over time)", chartIdX)
+        root.createChartRequested("time_series", baseTitle + " (Y over time)", chartIdY)
+
+        var assignments = _collectAssignments(uniqueId)
+        assignments.push({ "chartId": chartIdX, "valueField": "x" })
+        assignments.push({ "chartId": chartIdY, "valueField": "y" })
+        Qt.callLater(function() {
+            root.setSignalChartsRequested(uniqueId, assignments)
+        })
     }
 
     function _refreshSignalsModel() {
@@ -98,9 +168,10 @@ Item {
 
                 // Do not expose the internal "main" chart in the UI (signals are still tracked)
                 if ((line.chartId || "main") !== "main") {
+                    var titleSuffix = line.valueField ? (" (" + String(line.valueField).toUpperCase() + ")") : ""
                     map[key].charts.push({
                         chartId: line.chartId,
-                        chartTitle: line.chartTitle
+                        chartTitle: (line.chartTitle || line.chartId) + titleSuffix
                     })
                 }
             }
@@ -132,26 +203,48 @@ Item {
         return c
     }
 
-    function _isSignalAssignedToChart(uniqueId, chartId) {
+    function _isSignalAssignedToChart(uniqueId, chartId, valueField) {
         if (!root.chartLineModel) return false
-        return root.chartLineModel.hasLineForChart(uniqueId, chartId)
+        return root.chartLineModel.hasLineForChart(uniqueId, chartId, valueField)
     }
 
     function _openAssignDialog(uniqueId) {
         assignChartsModel.clear()
         var charts = root.availableCharts || []
+        var hasX = _hasMessageX(uniqueId)
         for (var i = 0; i < charts.length; i++) {
             var c = charts[i]
             if (!c || c.chartId === "main") continue
             var chartId = c.chartId
             var chartType = c.chartType
-            assignChartsModel.append({
-                chartId: chartId,
-                chartTitle: c.chartTitle || chartId,
-                chartType: chartType || "",
-                enabled: root._isXYChart(chartType),
-                checked: root._isSignalAssignedToChart(uniqueId, chartId)
-            })
+            if (chartType === "time_series") {
+                var entries = [
+                    { "valueField": "y", "label": "Y", "enabled": true },
+                    { "valueField": "x", "label": "X", "enabled": hasX }
+                ]
+                for (var v = 0; v < entries.length; v++) {
+                    var entry = entries[v]
+                    assignChartsModel.append({
+                        chartId: chartId,
+                        chartTitle: c.chartTitle || chartId,
+                        chartType: chartType || "",
+                        valueField: entry.valueField,
+                        label: (c.chartTitle || chartId) + " (" + chartType + " · " + entry.label + ")",
+                        enabled: root._isXYChart(chartType) && entry.enabled,
+                        checked: root._isSignalAssignedToChart(uniqueId, chartId, entry.valueField)
+                    })
+                }
+            } else {
+                assignChartsModel.append({
+                    chartId: chartId,
+                    chartTitle: c.chartTitle || chartId,
+                    chartType: chartType || "",
+                    valueField: null,
+                    label: (c.chartTitle || chartId) + " (" + chartType + ")",
+                    enabled: root._isXYChart(chartType),
+                    checked: root._isSignalAssignedToChart(uniqueId, chartId)
+                })
+            }
         }
         assignDialog.uniqueId = uniqueId
         assignDialog.open()
@@ -765,6 +858,83 @@ Item {
                                         }
                                     }
 
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+
+                                        Button {
+                                            text: qsTr("Suggested")
+                                            Layout.preferredHeight: 26
+
+                                            background: Rectangle {
+                                                color: parent.hovered ? "#e3f2fd" : "#f5f5f5"
+                                                radius: 4
+                                                border.color: "#cfd8dc"
+                                                border.width: 1
+                                            }
+
+                                            contentItem: Text {
+                                                text: parent.text
+                                                font.pixelSize: 11
+                                                font.bold: true
+                                                color: "#1565c0"
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                            }
+
+                                            onClicked: root._requestSuggestedChart(model.uniqueId, model.displayName)
+                                        }
+
+                                        Button {
+                                            text: qsTr("Assign...")
+                                            Layout.preferredHeight: 26
+
+                                            background: Rectangle {
+                                                color: parent.hovered ? "#eeeeee" : "#f5f5f5"
+                                                radius: 4
+                                                border.color: "#d0d0d0"
+                                                border.width: 1
+                                            }
+
+                                            contentItem: Text {
+                                                text: parent.text
+                                                font.pixelSize: 11
+                                                font.bold: true
+                                                color: "#444"
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                            }
+
+                                            onClicked: root._openAssignDialog(model.uniqueId)
+                                        }
+
+                                        Button {
+                                            text: qsTr("Split X/Y")
+                                            Layout.preferredHeight: 26
+                                            visible: root._hasMessageX(model.uniqueId)
+
+                                            background: Rectangle {
+                                                color: parent.hovered ? "#fff3e0" : "#fff8e1"
+                                                radius: 4
+                                                border.color: "#ffe0b2"
+                                                border.width: 1
+                                            }
+
+                                            contentItem: Text {
+                                                text: parent.text
+                                                font.pixelSize: 11
+                                                font.bold: true
+                                                color: "#ef6c00"
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                            }
+
+                                            onClicked: root._requestSplitTimeSeries(model.uniqueId, model.displayName)
+                                        }
+
+                                        Item { Layout.fillWidth: true }
+                                    }
+
                                     Rectangle {
                                         Layout.fillWidth: true
                                         height: 1
@@ -1105,6 +1275,44 @@ Item {
                     color: "#4d4d4d"
                 }
 
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Label {
+                        text: root._hasMessageX(assignDialog.uniqueId)
+                            ? qsTr("Recommended: XY Chart")
+                            : qsTr("Recommended: Time Series")
+                        font.pixelSize: 12
+                        color: "#cccccc"
+                        Layout.fillWidth: true
+                    }
+
+                    Button {
+                        text: qsTr("Create")
+                        Layout.preferredWidth: 80
+
+                        background: Rectangle {
+                            color: parent.hovered ? "#0066CC" : "#007AFF"
+                            radius: 4
+                        }
+
+                        contentItem: Text {
+                            text: parent.text
+                            font.pixelSize: 12
+                            font.bold: true
+                            color: "#ffffff"
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        onClicked: {
+                            root._requestSuggestedChart(assignDialog.uniqueId, root._getMessageDisplayName(assignDialog.uniqueId))
+                            assignDialog.close()
+                        }
+                    }
+                }
+
                 ScrollView {
                     id: assignScrollView
                     Layout.fillWidth: true
@@ -1120,7 +1328,7 @@ Item {
                         Repeater {
                             model: assignChartsModel
                             delegate: CheckBox {
-                                text: model.chartTitle + " (" + model.chartType + ")"
+                                text: model.label || (model.chartTitle + " (" + model.chartType + ")")
                                 enabled: model.enabled
                                 checked: model.checked
                                 Layout.fillWidth: true
@@ -1207,7 +1415,11 @@ Item {
             var selected = []
             for (var i = 0; i < assignChartsModel.count; i++) {
                 var c = assignChartsModel.get(i)
-                if (c.checked) selected.push(c.chartId)
+                if (c.checked) {
+                    var assignment = { "chartId": c.chartId }
+                    if (c.valueField) assignment.valueField = c.valueField
+                    selected.push(assignment)
+                }
             }
             root.setSignalChartsRequested(assignDialog.uniqueId, selected)
         }
@@ -1424,7 +1636,7 @@ Item {
 
         onAccepted: {
             var title = newChartTitle.text && newChartTitle.text.length > 0 ? newChartTitle.text : ("Chart " + Date.now())
-            root.createChartRequested(createChartDialog.chartType, title)
+            root.createChartRequested(createChartDialog.chartType, title, "")
         }
 
         onAboutToShow: {
@@ -1617,12 +1829,12 @@ Item {
             root.removeSignalRequested(uniqueId)
         }
 
-        onSetSignalChartsRequested: function(uniqueId, chartIds) {
-            root.setSignalChartsRequested(uniqueId, chartIds)
+        onSetSignalChartsRequested: function(uniqueId, assignments) {
+            root.setSignalChartsRequested(uniqueId, assignments)
         }
 
-        onCreateChartRequested: function(chartType, chartTitle) {
-            root.createChartRequested(chartType, chartTitle)
+        onCreateChartRequested: function(chartType, chartTitle, chartId) {
+            root.createChartRequested(chartType, chartTitle, chartId)
         }
 
         onRemoveChartRequested: function(chartId) {

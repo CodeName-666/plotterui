@@ -97,12 +97,12 @@ ChartWindowUi{
             removeSignal(uniqueId)
         }
 
-        function onSetSignalChartsRequested(uniqueId, chartIds) {
-            setSignalCharts(uniqueId, chartIds)
+        function onSetSignalChartsRequested(uniqueId, assignments) {
+            setSignalCharts(uniqueId, assignments)
         }
 
-        function onCreateChartRequested(chartType, chartTitle) {
-            createManagedChart(chartType, chartTitle)
+        function onCreateChartRequested(chartType, chartTitle, chartId) {
+            createManagedChart(chartType, chartTitle, chartId)
         }
 
         function onRemoveChartRequested(chartId) {
@@ -674,7 +674,7 @@ ChartWindowUi{
             var win = chartWindow.appRoot.floatingWindowsContainer.activeWindows[line.chartId]
             if (win && win.chartRenderer && win.chartRenderer.removeLine) {
                 // XYChartView.removeLine already updates the central model.
-                win.chartRenderer.removeLine(line.uniqueId)
+                win.chartRenderer.removeLine(line.uniqueId, line.valueField)
                 Logger.log_info("ChartWindow: Removed line instance via chart renderer: " + lineKey)
                 return
             }
@@ -749,22 +749,72 @@ ChartWindowUi{
         }
     }
 
-    function setSignalCharts(uniqueId, chartIds) {
-        Logger.log_info("ChartWindow: Setting signal charts for " + uniqueId + " -> " + JSON.stringify(chartIds))
+    function _getChartTypeForId(chartId) {
+        for (var i = 0; i < availableCharts.length; i++) {
+            if (availableCharts[i].chartId === chartId) {
+                return availableCharts[i].chartType || ""
+            }
+        }
+        return ""
+    }
+
+    function _buildAssignmentKey(chartId, chartType, valueField) {
+        if (chartType === "time_series" || (valueField !== undefined && valueField !== null && valueField !== "")) {
+            return chartId + "::" + (valueField || "y")
+        }
+        return chartId
+    }
+
+    function setSignalCharts(uniqueId, assignments) {
+        Logger.log_info("ChartWindow: Setting signal charts for " + uniqueId + " -> " + JSON.stringify(assignments))
 
         if (Backend.set_signal_ignored) {
             Backend.set_signal_ignored(uniqueId, false)
         }
 
+        if (!assignments) {
+            assignments = []
+        }
+
+        if (assignments.length > 0 && typeof assignments[0] === "string") {
+            var converted = []
+            for (var c = 0; c < assignments.length; c++) {
+                converted.push({ "chartId": assignments[c] })
+            }
+            assignments = converted
+        }
+
         var desired = ({})
-        for (var i = 0; i < chartIds.length; i++) desired[chartIds[i]] = true
+        for (var i = 0; i < assignments.length; i++) {
+            var assign = assignments[i]
+            if (!assign || !assign.chartId) continue
+            var chartId = assign.chartId
+            var chartType = assign.chartType || _getChartTypeForId(chartId)
+            var valueField = assign.valueField
+            if (!chartType && valueField) {
+                chartType = "time_series"
+            }
+            if (chartType === "time_series") {
+                valueField = valueField || "y"
+            } else {
+                valueField = null
+            }
+            var key = _buildAssignmentKey(chartId, chartType, valueField)
+            desired[key] = {
+                chartId: chartId,
+                chartType: chartType,
+                valueField: valueField
+            }
+        }
 
         // Unassign from charts that are no longer selected
         var toRemove = []
         for (var j = 0; j < chartLineModel.count; j++) {
             var inst = chartLineModel.get(j)
             if (inst.uniqueId !== uniqueId) continue
-            if (!desired[inst.chartId]) toRemove.push(inst.lineKey)
+            var instType = _getChartTypeForId(inst.chartId)
+            var instKey = _buildAssignmentKey(inst.chartId, instType, inst.valueField)
+            if (!desired[instKey]) toRemove.push(inst.lineKey)
         }
         for (var r = 0; r < toRemove.length; r++) {
             removeChartLine(toRemove[r])
@@ -781,8 +831,12 @@ ChartWindowUi{
         }
 
         // Assign to newly selected charts
-        for (var chartId in desired) {
-            if (chartLineModel.hasLineForChart(uniqueId, chartId)) continue
+        for (var desiredKey in desired) {
+            var assignment = desired[desiredKey]
+            var chartId = assignment.chartId
+            var chartType = assignment.chartType
+            var valueField = assignment.valueField
+            if (chartLineModel.hasLineForChart(uniqueId, chartId, valueField)) continue
 
             if (chartId === "main") {
                 var graph = createGraph(baseLine.displayName, baseLine.color)
@@ -799,16 +853,16 @@ ChartWindowUi{
             if (chartWindow.appRoot && chartWindow.appRoot.floatingWindowsContainer) {
                 var win = chartWindow.appRoot.floatingWindowsContainer.activeWindows[chartId]
                 if (win && win.chartRenderer && win.chartRenderer.createLine) {
-                    win.chartRenderer.createLine(uniqueId, baseLine.displayName, baseLine.color, baseLine.interfaceType, baseLine.dataId)
+                    win.chartRenderer.createLine(uniqueId, baseLine.displayName, baseLine.color, baseLine.interfaceType, baseLine.dataId, valueField)
                 }
             }
         }
     }
 
-    function createManagedChart(chartType, chartTitle) {
+    function createManagedChart(chartType, chartTitle, chartId) {
         if (!chartWindow.appRoot || !chartWindow.appRoot.createFloatingWindow) return
-        var chartId = "chart_" + chartType + "_" + Date.now()
-        chartWindow.appRoot.createFloatingWindow(chartId, chartType, chartTitle, 140, 140, 800, 600)
+        var resolvedId = chartId && chartId !== "" ? chartId : ("chart_" + chartType + "_" + Date.now())
+        chartWindow.appRoot.createFloatingWindow(resolvedId, chartType, chartTitle, 140, 140, 800, 600)
         refreshAvailableCharts()
     }
 
